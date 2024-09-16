@@ -5,10 +5,11 @@ import { Session, User as LuciaUser, LegacyScrypt, generateId } from "lucia";
 import { cookies } from "next/headers";
 import lucia from "./lib/auth";
 import { ActionResult } from "./components/FormComponent";
-import { User, users } from "./lib/db/schema";
+import { rooms, User, users } from "./lib/db/schema";
 import { db } from "./lib/db";
 import { redirect } from "next/navigation";
 import { validateEmail } from "./lib/validate";
+import { eq } from "drizzle-orm";
 
 export const validateRequest = cache(
   async (): Promise<
@@ -142,4 +143,33 @@ export const signOutAction = async (): Promise<ActionResult> => {
     sessionCookie.attributes,
   );
   return redirect("/login");
+};
+
+export const deleteRoomAction = async (roomId: string) => {
+  const { session } = await validateRequest();
+  if (!session) return;
+  await db.delete(rooms).where(eq(rooms.id, roomId));
+};
+
+export const joinRoomAction = async (
+  _: any,
+  formData: FormData,
+): Promise<ActionResult> => {
+  const { session } = await validateRequest();
+  if (!session) return { error: "Not logged in" };
+  const roomId = formData.get("roomId") as string | null;
+
+  if (!roomId) return { error: "Room ID is required" };
+  try {
+    const result = await db
+      .select()
+      .from(rooms)
+      .where(eq(rooms.id, roomId))
+      .limit(1);
+
+    if (result.length <= 0) return { error: "Room doesn't exist" };
+    return redirect(`/room/${roomId}`);
+  } catch {
+    return { error: "Unexpected Error" };
+  }
 };

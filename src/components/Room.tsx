@@ -20,7 +20,7 @@ export const Room = ({
     <LiveblocksProvider publicApiKey={getLiveBlocksSecret()}>
       <RoomProvider id={roomId}>
         <ClientSideSuspense fallback={<ModernLoader />}>
-          {children}
+          {(): ReactNode => children}
         </ClientSideSuspense>
       </RoomProvider>
     </LiveblocksProvider>

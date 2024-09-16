@@ -1,3 +1,4 @@
+import { validateRequest } from "@/actions";
 import { Room } from "@/components/Room";
 import { Whiteboard } from "@/components/Whiteboard";
 import { db } from "@/lib/db";
@@ -11,6 +12,8 @@ export default async ({
   params: { roomId: string };
 }): Promise<JSX.Element> => {
   const { roomId } = params;
+  const { user } = await validateRequest();
+  if (!user) return redirect("/login");
 
   const result = await db
     .select({ id: rooms.id })
@@ -20,9 +23,18 @@ export default async ({
 
   if (result.length <= 0) return redirect("/dashboard");
 
+  const isOwner: boolean =
+    (
+      await db
+        .select({ id: rooms.id })
+        .from(rooms)
+        .where(eq(rooms.ownerId, user.id))
+        .limit(1)
+    ).length > 0;
+
   return (
     <Room roomId={roomId}>
-      <Whiteboard />
+      <Whiteboard isOwner={isOwner} roomId={roomId} />
     </Room>
   );
 };

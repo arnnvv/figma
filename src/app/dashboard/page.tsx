@@ -15,6 +15,7 @@ import { rooms } from "@/lib/db/schema";
 import { sql } from "drizzle-orm";
 import { Users, PlusCircle } from "lucide-react";
 import { redirect } from "next/navigation";
+import { joinRoomAction } from "@/actions";
 
 export default async (): Promise<JSX.Element> => {
   const { user } = await validateRequest();
@@ -24,7 +25,6 @@ export default async (): Promise<JSX.Element> => {
       maxId: sql<number>`MAX(CAST(id AS INT))`.as("maxId"),
     })
     .from(rooms);
-
   const maxId: number = res[0]?.maxId ?? 0;
   const roomId: number = maxId + 1;
 
@@ -42,23 +42,27 @@ export default async (): Promise<JSX.Element> => {
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <label
-              htmlFor="room-id"
+              htmlFor="roomId"
               className="text-sm font-medium text-gray-700"
             >
               Join Room
             </label>
-            <div className="flex space-x-2">
-              <Input
-                id="room-id"
-                type="text"
-                placeholder="Enter room ID"
-                className="flex-grow"
-              />
-              <Button className="flex items-center space-x-1">
-                <Users size={18} />
-                <span>Join</span>
-              </Button>
-            </div>
+            <FormComponent action={joinRoomAction}>
+              <div className="flex space-x-2">
+                <Input
+                  id="roomId"
+                  name="roomId"
+                  type="text"
+                  placeholder="Enter room ID"
+                  className="flex-grow"
+                  required
+                />
+                <Button type="submit" className="flex items-center space-x-1">
+                  <Users size={18} />
+                  <span>Join</span>
+                </Button>
+              </div>
+            </FormComponent>
           </div>
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
@@ -80,7 +84,10 @@ export default async (): Promise<JSX.Element> => {
               return redirect(`/room/${roomId}`);
             }}
           >
-            <Button className="w-full flex items-center justify-center space-x-2">
+            <Button
+              type="submit"
+              className="w-full flex items-center justify-center space-x-2"
+            >
               <PlusCircle size={18} />
               <span>Create New Room</span>
             </Button>
