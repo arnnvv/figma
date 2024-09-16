@@ -15,7 +15,7 @@ import { signUpAction, validateRequest } from "@/actions";
 
 export default async function Page(): Promise<JSX.Element> {
   const { user } = await validateRequest();
-  if (user) return redirect("/");
+  if (user) return redirect("/dashboard");
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-slate-100">

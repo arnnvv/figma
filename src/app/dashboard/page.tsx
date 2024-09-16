@@ -1,5 +1,5 @@
 import { validateRequest } from "@/actions";
-import { FormComponent } from "@/components/FormComponent";
+import { ActionResult, FormComponent } from "@/components/FormComponent";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -12,10 +12,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { db } from "@/lib/db";
 import { rooms } from "@/lib/db/schema";
-import { sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { Users, PlusCircle } from "lucide-react";
 import { redirect } from "next/navigation";
-import { joinRoomAction } from "@/actions";
 
 export default async (): Promise<JSX.Element> => {
   const { user } = await validateRequest();
@@ -47,7 +46,21 @@ export default async (): Promise<JSX.Element> => {
             >
               Join Room
             </label>
-            <FormComponent action={joinRoomAction}>
+            <FormComponent
+              action={async (
+                _: any,
+                formData: FormData,
+              ): Promise<ActionResult> => {
+                "use server";
+                const roomId = formData.get("roomId") as string;
+                const existingRoom = await db.query.rooms.findFirst({
+                  where: eq(rooms.id, roomId),
+                });
+
+                if (!existingRoom) return { error: "Room doesn't exist" };
+                else return redirect(`/room/${roomId}`);
+              }}
+            >
               <div className="flex space-x-2">
                 <Input
                   id="roomId"
