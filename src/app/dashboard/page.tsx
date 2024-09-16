@@ -1,5 +1,5 @@
-"use client";
-
+import { validateRequest } from "@/actions";
+import { FormComponent } from "@/components/FormComponent";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,11 +10,23 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { db } from "@/lib/db";
+import { rooms } from "@/lib/db/schema";
+import { sql } from "drizzle-orm";
 import { Users, PlusCircle } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 
-export default (): JSX.Element => {
-  const router = useRouter();
+export default async (): Promise<JSX.Element> => {
+  const { user } = await validateRequest();
+  if (!user) return redirect("/login");
+  const res = await db
+    .select({
+      maxId: sql<number>`MAX(CAST(id AS INT))`.as("maxId"),
+    })
+    .from(rooms);
+
+  const maxId: number = res[0]?.maxId ?? 0;
+  const roomId: number = maxId + 1;
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
@@ -58,15 +70,21 @@ export default (): JSX.Element => {
           </div>
         </CardContent>
         <CardFooter>
-          <Button
-            className="w-full flex items-center justify-center space-x-2"
-            onClick={() => {
-              router.push("/room/1");
+          <FormComponent
+            action={async (): Promise<never> => {
+              "use server";
+              await db.insert(rooms).values({
+                id: String(roomId),
+                ownerId: user.id,
+              });
+              return redirect(`/room/${roomId}`);
             }}
           >
-            <PlusCircle size={18} />
-            <span>Create New Room</span>
-          </Button>
+            <Button className="w-full flex items-center justify-center space-x-2">
+              <PlusCircle size={18} />
+              <span>Create New Room</span>
+            </Button>
+          </FormComponent>
         </CardFooter>
       </Card>
     </div>

@@ -8,6 +8,13 @@
       "when": 1726437126074,
       "tag": "0000_nappy_puck",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1726458773073,
+      "tag": "0001_chemical_random",
+      "breakpoints": true
     }
   ]
 }

@@ -25,3 +25,10 @@ export const sessions = createTable("sessions", {
     mode: "date",
   }).notNull(),
 });
+
+export const rooms = createTable("rooms", {
+  id: varchar("id").primaryKey(),
+  ownerId: varchar("owner_id", { length: 21 })
+    .notNull()
+    .references(() => users.id),
+});
