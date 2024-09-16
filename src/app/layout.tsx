@@ -4,6 +4,7 @@ import { ReactNode } from "react";
 import { Toaster } from "sonner";
 import { Inter as FontSans } from "next/font/google";
 import { cn } from "@/lib/utils";
+import { Navbar } from "@/components/Navbar";
 
 export const metadata: Metadata = {
   title: "Figma",
@@ -27,6 +28,7 @@ export default ({
         fontSans.variable,
       )}
     >
+      <Navbar />
       {children}
       <Toaster richColors={true} />
     </body>

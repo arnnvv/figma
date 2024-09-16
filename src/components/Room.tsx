@@ -8,17 +8,17 @@ import {
 } from "@liveblocks/react/suspense";
 import { getLiveBlocksSecret } from "@/lib/liveblocks";
 import { ModernLoader } from "./ModernLoader";
-import { useAtom } from "jotai";
-import { roomIDAtom } from "@/lib/atoms";
 
-export const Room = ({ children }: { children: ReactNode }): JSX.Element => {
-  const [roomID, setRoomId] = useAtom(roomIDAtom);
-
-  setRoomId((prev: number): number => prev + 1);
-
+export const Room = ({
+  children,
+  roomId,
+}: {
+  children: ReactNode;
+  roomId: string;
+}): JSX.Element => {
   return (
     <LiveblocksProvider publicApiKey={getLiveBlocksSecret()}>
-      <RoomProvider id={`${roomID}`}>
+      <RoomProvider id={roomId}>
         <ClientSideSuspense fallback={<ModernLoader />}>
           {children}
         </ClientSideSuspense>
