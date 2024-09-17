@@ -150,26 +150,3 @@ export const deleteRoomAction = async (roomId: string) => {
   if (!session) return;
   await db.delete(rooms).where(eq(rooms.id, roomId));
 };
-
-export const joinRoomAction = async (
-  _: any,
-  formData: FormData,
-): Promise<ActionResult> => {
-  const { session } = await validateRequest();
-  if (!session) return { error: "Not logged in" };
-  const roomId = formData.get("roomId") as string | null;
-
-  if (!roomId) return { error: "Room ID is required" };
-  try {
-    const result = await db
-      .select()
-      .from(rooms)
-      .where(eq(rooms.id, roomId))
-      .limit(1);
-
-    if (result.length <= 0) return { error: "Room doesn't exist" };
-    return redirect(`/room/${roomId}`);
-  } catch {
-    return { error: "Unexpected Error" };
-  }
-};

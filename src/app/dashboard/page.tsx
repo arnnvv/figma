@@ -52,6 +52,8 @@ export default async (): Promise<JSX.Element> => {
                 formData: FormData,
               ): Promise<ActionResult> => {
                 "use server";
+                const { session } = await validateRequest();
+                if (!session) return { error: "Not logged in" };
                 const roomId = formData.get("roomId") as string;
                 const existingRoom = await db.query.rooms.findFirst({
                   where: eq(rooms.id, roomId),
