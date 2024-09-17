@@ -83,7 +83,7 @@ export const logInAction = async (
   } catch {
     return { error: "Something went wrong" };
   }
-  return redirect("/");
+  return redirect("/dashboard");
 };
 
 export const signUpAction = async (
@@ -129,7 +129,7 @@ export const signUpAction = async (
   } catch {
     return { error: "Unexpected error" };
   }
-  return redirect("/");
+  return redirect("/dashboard");
 };
 
 export const signOutAction = async (): Promise<ActionResult> => {
@@ -145,8 +145,11 @@ export const signOutAction = async (): Promise<ActionResult> => {
   return redirect("/login");
 };
 
-export const deleteRoomAction = async (roomId: string) => {
+export const deleteRoomAction = async (
+  roomId: string,
+): Promise<ActionResult> => {
   const { session } = await validateRequest();
-  if (!session) return;
+  if (!session) return { error: "Not logged in" };
   await db.delete(rooms).where(eq(rooms.id, roomId));
+  return redirect("/dashboard");
 };
