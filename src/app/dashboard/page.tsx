@@ -233,7 +233,7 @@ export default async (): Promise<JSX.Element> => {
                         Room {request.roomId} -{" "}
                         {getNameFromId(request.requesterId)}
                       </span>
-                      <div className="space-x-2">
+                      <div className="flex space-x-2">
                         <FormComponent
                           action={async (): Promise<ActionResult> => {
                             "use server";

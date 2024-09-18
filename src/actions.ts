@@ -155,10 +155,11 @@ export const deleteRoomAction = async (
     connection = await pool.connect();
     await connection.query("BEGIN;");
 
-    await db.delete(rooms).where(eq(rooms.id, roomId));
     await db
       .delete(editAccess)
       .where(eq(editAccess.roomIdRequestedFor, roomId));
+
+    await db.delete(rooms).where(eq(rooms.id, roomId));
 
     await connection.query("COMMIT");
 
