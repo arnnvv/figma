@@ -5,8 +5,8 @@ import { Session, User as LuciaUser, LegacyScrypt, generateId } from "lucia";
 import { cookies } from "next/headers";
 import lucia from "./lib/auth";
 import { ActionResult } from "./components/FormComponent";
-import { rooms, User, users } from "./lib/db/schema";
-import { db } from "./lib/db";
+import { editAccess, rooms, User, users } from "./lib/db/schema";
+import { db, pool } from "./lib/db";
 import { redirect } from "next/navigation";
 import { validateEmail } from "./lib/validate";
 import { eq } from "drizzle-orm";
@@ -150,6 +150,23 @@ export const deleteRoomAction = async (
 ): Promise<ActionResult> => {
   const { session } = await validateRequest();
   if (!session) return { error: "Not logged in" };
-  await db.delete(rooms).where(eq(rooms.id, roomId));
-  return redirect("/dashboard");
+  let connection;
+  try {
+    connection = await pool.connect();
+    await connection.query("BEGIN;");
+
+    await db.delete(rooms).where(eq(rooms.id, roomId));
+    await db
+      .delete(editAccess)
+      .where(eq(editAccess.roomIdRequestedFor, roomId));
+
+    await connection.query("COMMIT");
+
+    return redirect("/dashboard");
+  } catch (e) {
+    await connection?.query("ROLLBACK");
+    return { error: `Something went wrong: ${e}` };
+  } finally {
+    connection?.release();
+  }
 };
