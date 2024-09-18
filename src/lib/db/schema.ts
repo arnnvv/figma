@@ -49,7 +49,7 @@ export const editAccess = createTable("editAccess", {
   requesterId: varchar("requester_id", { length: 21 })
     .notNull()
     .references(() => users.id),
-  roomIdRequestedFor: varchar("room_id_requested_for", { length: 21 })
+  roomIdRequestedFor: varchar("room_id_requested_for")
     .notNull()
     .references(() => rooms.id),
   status: editAccessStatusEnum("edit_access_status").notNull(),

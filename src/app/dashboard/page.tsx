@@ -11,9 +11,18 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { db } from "@/lib/db";
-import { rooms } from "@/lib/db/schema";
-import { eq, sql } from "drizzle-orm";
-import { Users, PlusCircle, LogIn } from "lucide-react";
+import { editAccess, rooms } from "@/lib/db/schema";
+import { getNameFromId } from "@/lib/getUserName";
+import { and, eq, or, sql } from "drizzle-orm";
+import { generateId } from "lucia";
+import {
+  Users,
+  PlusCircle,
+  LogIn,
+  CheckCircle,
+  XCircle,
+  Edit,
+} from "lucide-react";
 import { redirect } from "next/navigation";
 
 export default async (): Promise<JSX.Element> => {
@@ -31,6 +40,32 @@ export default async (): Promise<JSX.Element> => {
     .select()
     .from(rooms)
     .where(eq(rooms.ownerId, user.id));
+
+  const editAccessRequests = await db
+    .select({
+      id: editAccess.id,
+      requesterId: editAccess.requesterId,
+      roomId: editAccess.roomIdRequestedFor,
+      status: editAccess.status,
+    })
+    .from(editAccess)
+    .where(and(eq(editAccess.status, "pending"), eq(rooms.ownerId, user.id)))
+    .innerJoin(rooms, eq(editAccess.roomIdRequestedFor, rooms.id));
+
+  const editableRooms = await db
+    .select({
+      id: rooms.id,
+      ownerId: rooms.ownerId,
+    })
+    .from(rooms)
+    .innerJoin(editAccess, eq(editAccess.roomIdRequestedFor, rooms.id))
+    .where(
+      and(
+        eq(editAccess.requesterId, user.id),
+        eq(editAccess.status, "accepted"),
+      ),
+    );
+
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
@@ -43,31 +78,66 @@ export default async (): Promise<JSX.Element> => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {userRooms.length > 0 && (
-            <div className="space-y-2">
-              <h3 className="text-sm font-medium text-gray-700">Your Rooms</h3>
-              <div className="space-y-2">
-                {userRooms.map(
-                  (room: { id: string; ownerId: string }): JSX.Element => (
-                    <FormComponent
-                      key={room.id}
-                      action={async (): Promise<never> => {
-                        "use server";
-                        return redirect(`/room/${room.id}`);
-                      }}
-                    >
-                      <Button
-                        type="submit"
-                        variant="outline"
-                        className="w-full flex items-center justify-between"
-                      >
-                        <span>Room {room.id}</span>
-                        <LogIn size={18} />
-                      </Button>
-                    </FormComponent>
-                  ),
-                )}
-              </div>
+          {(userRooms.length > 0 || editableRooms.length > 0) && (
+            <div className="space-y-4">
+              {userRooms.length > 0 && (
+                <div className="space-y-2">
+                  <h3 className="text-sm font-medium text-gray-700">
+                    Your Rooms
+                  </h3>
+                  <div className="space-y-2">
+                    {userRooms.map(
+                      (room: { id: string; ownerId: string }): JSX.Element => (
+                        <FormComponent
+                          key={room.id}
+                          action={async (): Promise<never> => {
+                            "use server";
+                            return redirect(`/room/${room.id}`);
+                          }}
+                        >
+                          <Button
+                            type="submit"
+                            variant="outline"
+                            className="w-full flex items-center justify-between"
+                          >
+                            <span>Room {room.id}</span>
+                            <LogIn size={18} />
+                          </Button>
+                        </FormComponent>
+                      ),
+                    )}
+                  </div>
+                </div>
+              )}
+              {editableRooms.length > 0 && (
+                <div className="space-y-2">
+                  <h3 className="text-sm font-medium text-gray-700">
+                    Rooms You Can Edit
+                  </h3>
+                  <div className="space-y-2">
+                    {editableRooms.map(
+                      (room: { id: string; ownerId: string }): JSX.Element => (
+                        <FormComponent
+                          key={room.id}
+                          action={async (): Promise<never> => {
+                            "use server";
+                            return redirect(`/room/${room.id}`);
+                          }}
+                        >
+                          <Button
+                            type="submit"
+                            variant="outline"
+                            className="w-full flex items-center justify-between"
+                          >
+                            <span>Room {room.id}</span>
+                            <Edit size={18} />
+                          </Button>
+                        </FormComponent>
+                      ),
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           )}
           <div className="space-y-2">
@@ -75,7 +145,7 @@ export default async (): Promise<JSX.Element> => {
               htmlFor="roomId"
               className="text-sm font-medium text-gray-700"
             >
-              Join Room
+              Ask Edit Access
             </label>
             <FormComponent
               action={async (
@@ -86,11 +156,43 @@ export default async (): Promise<JSX.Element> => {
                 const { session } = await validateRequest();
                 if (!session) return { error: "Not logged in" };
                 const roomId = formData.get("roomId") as string;
-                const existingRoom = await db.query.rooms.findFirst({
-                  where: eq(rooms.id, roomId),
-                });
-                if (!existingRoom) return { error: "Room doesn't exist" };
-                else return redirect(`/room/${roomId}`);
+                try {
+                  const existingRoom = await db.query.rooms.findFirst({
+                    where: eq(rooms.id, roomId),
+                  });
+                  if (!existingRoom) return { error: "Room doesn't exist" };
+                  if (existingRoom.ownerId === user.id)
+                    return { error: "Can't send Req to youself" };
+                  try {
+                    const existingRequest = await db.query.editAccess.findFirst(
+                      {
+                        where: and(
+                          eq(editAccess.requesterId, user.id),
+                          eq(editAccess.roomIdRequestedFor, roomId),
+                          or(
+                            eq(editAccess.status, "pending"),
+                            eq(editAccess.status, "accepted"),
+                          ),
+                        ),
+                      },
+                    );
+
+                    if (existingRequest)
+                      return { error: "Request already sent" };
+
+                    await db.insert(editAccess).values({
+                      id: generateId(10),
+                      requesterId: user.id,
+                      roomIdRequestedFor: roomId,
+                      status: "pending",
+                    });
+                    return { message: "Request Sent" };
+                  } catch {
+                    return { error: "Couldn't send Req" };
+                  }
+                } catch {
+                  return { error: "Couldn't find room" };
+                }
               }}
             >
               <div className="flex space-x-2">
@@ -104,11 +206,70 @@ export default async (): Promise<JSX.Element> => {
                 />
                 <Button type="submit" className="flex items-center space-x-1">
                   <Users size={18} />
-                  <span>Join</span>
+                  <span>Ask</span>
                 </Button>
               </div>
             </FormComponent>
           </div>
+
+          {editAccessRequests.length > 0 && (
+            <div className="space-y-2">
+              <h3 className="text-sm font-medium text-gray-700">
+                Edit Access Requests
+              </h3>
+              <div className="space-y-2">
+                {editAccessRequests.map(
+                  (request: {
+                    id: string;
+                    requesterId: string;
+                    roomId: string;
+                    status: "pending" | "accepted" | "declined";
+                  }): JSX.Element => (
+                    <div
+                      key={request.id}
+                      className="flex items-center justify-between p-2 bg-white rounded-md shadow-sm"
+                    >
+                      <span>
+                        Room {request.roomId} -{" "}
+                        {getNameFromId(request.requesterId)}
+                      </span>
+                      <div className="space-x-2">
+                        <FormComponent
+                          action={async (): Promise<ActionResult> => {
+                            "use server";
+                            await db
+                              .update(editAccess)
+                              .set({ status: "accepted" })
+                              .where(eq(editAccess.id, request.id));
+                            return { message: "Request accepted" };
+                          }}
+                        >
+                          <Button type="submit" variant="outline" size="sm">
+                            <CheckCircle size={18} className="text-green-500" />
+                          </Button>
+                        </FormComponent>
+                        <FormComponent
+                          action={async (): Promise<ActionResult> => {
+                            "use server";
+                            await db
+                              .update(editAccess)
+                              .set({ status: "declined" })
+                              .where(eq(editAccess.id, request.id));
+                            return { message: "Request declined" };
+                          }}
+                        >
+                          <Button type="submit" variant="outline" size="sm">
+                            <XCircle size={18} className="text-red-500" />
+                          </Button>
+                        </FormComponent>
+                      </div>
+                    </div>
+                  ),
+                )}
+              </div>
+            </div>
+          )}
+
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t" />
