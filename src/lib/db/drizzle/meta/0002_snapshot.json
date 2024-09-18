@@ -1,0 +1,221 @@
+{
+  "id": "b3c3b399-af4c-43b9-8dfe-8b3035cd3483",
+  "prevId": "a7277324-cccc-4e83-abb6-4cddf8e27beb",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.figma_editAccess": {
+      "name": "figma_editAccess",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(255)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "requester_id": {
+          "name": "requester_id",
+          "type": "varchar(21)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "room_id_requested_for": {
+          "name": "room_id_requested_for",
+          "type": "varchar(21)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "edit_access_status": {
+          "name": "edit_access_status",
+          "type": "edit_access_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "figma_editAccess_requester_id_figma_users_id_fk": {
+          "name": "figma_editAccess_requester_id_figma_users_id_fk",
+          "tableFrom": "figma_editAccess",
+          "tableTo": "figma_users",
+          "columnsFrom": [
+            "requester_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "figma_editAccess_room_id_requested_for_figma_rooms_id_fk": {
+          "name": "figma_editAccess_room_id_requested_for_figma_rooms_id_fk",
+          "tableFrom": "figma_editAccess",
+          "tableTo": "figma_rooms",
+          "columnsFrom": [
+            "room_id_requested_for"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.figma_rooms": {
+      "name": "figma_rooms",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "owner_id": {
+          "name": "owner_id",
+          "type": "varchar(21)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "figma_rooms_owner_id_figma_users_id_fk": {
+          "name": "figma_rooms_owner_id_figma_users_id_fk",
+          "tableFrom": "figma_rooms",
+          "tableTo": "figma_users",
+          "columnsFrom": [
+            "owner_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.figma_sessions": {
+      "name": "figma_sessions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(255)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "varchar(21)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "figma_sessions_user_id_figma_users_id_fk": {
+          "name": "figma_sessions_user_id_figma_users_id_fk",
+          "tableFrom": "figma_sessions",
+          "tableTo": "figma_users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.figma_users": {
+      "name": "figma_users",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(21)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "number": {
+          "name": "number",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "password": {
+          "name": "password",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "figma_users_email_unique": {
+          "name": "figma_users_email_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email"
+          ]
+        },
+        "figma_users_number_unique": {
+          "name": "figma_users_number_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "number"
+          ]
+        }
+      }
+    }
+  },
+  "enums": {
+    "public.edit_access_status": {
+      "name": "edit_access_status",
+      "schema": "public",
+      "values": [
+        "pending",
+        "accepted",
+        "declined"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

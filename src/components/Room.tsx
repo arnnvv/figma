@@ -15,14 +15,12 @@ export const Room = ({
 }: {
   children: ReactNode;
   roomId: string;
-}): JSX.Element => {
-  return (
-    <LiveblocksProvider publicApiKey={getLiveBlocksSecret()}>
-      <RoomProvider id={roomId}>
-        <ClientSideSuspense fallback={<ModernLoader />}>
-          {(): ReactNode => children}
-        </ClientSideSuspense>
-      </RoomProvider>
-    </LiveblocksProvider>
-  );
-};
+}): JSX.Element => (
+  <LiveblocksProvider publicApiKey={getLiveBlocksSecret()}>
+    <RoomProvider id={roomId}>
+      <ClientSideSuspense fallback={<ModernLoader />}>
+        {(): ReactNode => children}
+      </ClientSideSuspense>
+    </RoomProvider>
+  </LiveblocksProvider>
+);

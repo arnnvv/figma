@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { db } from "@/lib/db";
 import { rooms } from "@/lib/db/schema";
 import { eq, sql } from "drizzle-orm";
-import { Users, PlusCircle } from "lucide-react";
+import { Users, PlusCircle, LogIn } from "lucide-react";
 import { redirect } from "next/navigation";
 
 export default async (): Promise<JSX.Element> => {
@@ -27,6 +27,10 @@ export default async (): Promise<JSX.Element> => {
   const maxId: number = res[0]?.maxId ?? 0;
   const roomId: number = maxId + 1;
 
+  const userRooms = await db
+    .select()
+    .from(rooms)
+    .where(eq(rooms.ownerId, user.id));
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
@@ -35,10 +39,37 @@ export default async (): Promise<JSX.Element> => {
             Welcome to RoomConnect
           </CardTitle>
           <CardDescription className="text-center">
-            Join an existing room or create a new one
+            Join an existing room, create a new one, or access your rooms
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          {userRooms.length > 0 && (
+            <div className="space-y-2">
+              <h3 className="text-sm font-medium text-gray-700">Your Rooms</h3>
+              <div className="space-y-2">
+                {userRooms.map(
+                  (room: { id: string; ownerId: string }): JSX.Element => (
+                    <FormComponent
+                      key={room.id}
+                      action={async (): Promise<never> => {
+                        "use server";
+                        return redirect(`/room/${room.id}`);
+                      }}
+                    >
+                      <Button
+                        type="submit"
+                        variant="outline"
+                        className="w-full flex items-center justify-between"
+                      >
+                        <span>Room {room.id}</span>
+                        <LogIn size={18} />
+                      </Button>
+                    </FormComponent>
+                  ),
+                )}
+              </div>
+            </div>
+          )}
           <div className="space-y-2">
             <label
               htmlFor="roomId"
@@ -58,7 +89,6 @@ export default async (): Promise<JSX.Element> => {
                 const existingRoom = await db.query.rooms.findFirst({
                   where: eq(rooms.id, roomId),
                 });
-
                 if (!existingRoom) return { error: "Room doesn't exist" };
                 else return redirect(`/room/${roomId}`);
               }}

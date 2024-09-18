@@ -5,6 +5,7 @@ import { Button } from "./ui/button";
 import { Trash2 } from "lucide-react";
 import { deleteRoomAction } from "@/actions";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export const Whiteboard = ({
   isOwner,
@@ -27,12 +28,13 @@ export const Whiteboard = ({
             size="sm"
             onClick={async () => {
               await deleteRoomAction(roomId);
+              toast.success("Deleting...");
               router.push("/dashboard");
             }}
             className="flex items-center gap-2"
           >
             <Trash2 size={16} />
-            Delete Room
+            Delete
           </Button>
         )}
       </div>

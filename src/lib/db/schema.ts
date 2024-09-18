@@ -1,8 +1,19 @@
-import { pgTableCreator, timestamp, varchar } from "drizzle-orm/pg-core";
+import {
+  pgEnum,
+  pgTableCreator,
+  timestamp,
+  varchar,
+} from "drizzle-orm/pg-core";
 
 export const createTable = pgTableCreator(
   (name: string): string => `figma_${name}`,
 );
+
+export const editAccessStatusEnum = pgEnum("edit_access_status", [
+  "pending",
+  "accepted",
+  "declined",
+]);
 
 export const users = createTable("users", {
   id: varchar("id", { length: 21 }).primaryKey(),
@@ -31,4 +42,15 @@ export const rooms = createTable("rooms", {
   ownerId: varchar("owner_id", { length: 21 })
     .notNull()
     .references(() => users.id),
+});
+
+export const editAccess = createTable("editAccess", {
+  id: varchar("id", { length: 255 }).primaryKey(),
+  requesterId: varchar("requester_id", { length: 21 })
+    .notNull()
+    .references(() => users.id),
+  roomIdRequestedFor: varchar("room_id_requested_for", { length: 21 })
+    .notNull()
+    .references(() => rooms.id),
+  status: editAccessStatusEnum("edit_access_status").notNull(),
 });
