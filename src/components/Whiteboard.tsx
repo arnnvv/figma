@@ -2,6 +2,7 @@
 
 import {
   useBroadcastEvent,
+  useEventListener,
   useMyPresence,
   useOthers,
 } from "@liveblocks/react/suspense";
@@ -10,9 +11,22 @@ import { Trash2 } from "lucide-react";
 import { deleteRoomAction } from "@/actions";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { useCallback, useState } from "react";
-import { CursorMode, CursorState, Reaction } from "../../types";
+import {
+  KeyboardEvent as ReactKeyboardEvent,
+  PointerEvent,
+  useCallback,
+  useEffect,
+  useState,
+  ChangeEvent,
+} from "react";
+import { CursorMode, CursorState, Reaction, ReactionEvent } from "../../types";
 import { useInterval } from "@/lib/useInterval";
+import { Cursor } from "./Cursor";
+import { COLORS } from "@/lib/constants";
+import { User } from "@liveblocks/client";
+import { FlyingReaction } from "./FlyingReaction";
+import { ReactionSelector } from "./ReactionSelector";
+import { CursorSVG } from "./CursorSVG";
 
 export const Whiteboard = ({
   isOwner,
@@ -61,6 +75,45 @@ export const Whiteboard = ({
     }
   }, 100);
 
+  useEffect(() => {
+    const onKeyUp = (e: KeyboardEvent) => {
+      if (e.key === "/") {
+        setState({ mode: CursorMode.Chat, previousMessage: null, message: "" });
+      } else if (e.key === "Escape") {
+        updatePresence({ message: "" });
+        setState({ mode: CursorMode.Hidden });
+      } else if (e.key === "e") {
+        setState({ mode: CursorMode.ReactionSelector });
+      }
+    };
+
+    window.addEventListener("keyup", onKeyUp);
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "/") e.preventDefault();
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      window.removeEventListener("keyup", onKeyUp);
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [updatePresence]);
+
+  useEventListener((eventData) => {
+    const event = eventData.event as ReactionEvent;
+    setReactions((reactions: Reaction[]): Reaction[] =>
+      reactions.concat([
+        {
+          point: { x: event.x, y: event.y },
+          value: event.value,
+          timestamp: Date.now(),
+        },
+      ]),
+    );
+  });
+
   return (
     <div className="p-4 bg-white rounded-lg shadow">
       <div className="flex justify-between items-center mb-4">
@@ -83,6 +136,193 @@ export const Whiteboard = ({
           </Button>
         )}
       </div>
+      <>
+        <div
+          className="relative flex h-screen w-full touch-none items-center justify-center overflow-hidden"
+          style={{
+            cursor:
+              state.mode === CursorMode.Chat
+                ? "none"
+                : "url(cursor.svg) 0 0, auto",
+          }}
+          onPointerMove={(event: PointerEvent<HTMLDivElement>) => {
+            event.preventDefault();
+            if (
+              presence.cursor == null ||
+              state.mode !== CursorMode.ReactionSelector
+            ) {
+              updatePresence({
+                cursor: {
+                  x: Math.round(event.clientX),
+                  y: Math.round(event.clientY),
+                },
+              });
+            }
+          }}
+          onPointerLeave={() => {
+            setState({
+              mode: CursorMode.Hidden,
+            });
+            updatePresence({
+              cursor: null,
+            });
+          }}
+          onPointerDown={(event: PointerEvent<HTMLDivElement>) => {
+            updatePresence({
+              cursor: {
+                x: Math.round(event.clientX),
+                y: Math.round(event.clientY),
+              },
+            });
+            setState(
+              (
+                state: CursorState,
+              ):
+                | { mode: CursorMode.Hidden }
+                | {
+                    mode: CursorMode.Chat;
+                    message: string;
+                    previousMessage: string | null;
+                  }
+                | { mode: CursorMode.ReactionSelector }
+                | {
+                    isPressed: true;
+                    mode: CursorMode.Reaction;
+                    reaction: string;
+                  } =>
+                state.mode === CursorMode.Reaction
+                  ? { ...state, isPressed: true }
+                  : state,
+            );
+          }}
+          onPointerUp={() => {
+            setState(
+              (
+                state: CursorState,
+              ):
+                | { mode: CursorMode.Hidden }
+                | {
+                    mode: CursorMode.Chat;
+                    message: string;
+                    previousMessage: string | null;
+                  }
+                | { mode: CursorMode.ReactionSelector }
+                | {
+                    isPressed: false;
+                    mode: CursorMode.Reaction;
+                    reaction: string;
+                  } =>
+                state.mode === CursorMode.Reaction
+                  ? { ...state, isPressed: false }
+                  : state,
+            );
+          }}
+        >
+          {reactions.map(
+            (reaction: Reaction): JSX.Element => (
+              <FlyingReaction
+                key={reaction.timestamp.toString()}
+                x={reaction.point.x}
+                y={reaction.point.y}
+                timestamp={reaction.timestamp}
+                value={reaction.value}
+              />
+            ),
+          )}
+          {presence.cursor && (
+            <div
+              className="absolute top-0 left-0"
+              style={{
+                transform: `translateX(${presence.cursor.x}px) translateY(${presence.cursor.y}px)`,
+              }}
+            >
+              {state.mode === CursorMode.Chat && (
+                <>
+                  <CursorSVG color={COLORS[0]} />
+
+                  <div
+                    className="absolute top-5 left-2 bg-blue-500 px-4 py-2 text-sm leading-relaxed text-white"
+                    onKeyUp={(e: ReactKeyboardEvent<HTMLDivElement>) =>
+                      e.stopPropagation()
+                    }
+                    style={{
+                      borderRadius: 20,
+                    }}
+                  >
+                    {state.previousMessage && (
+                      <div>{state.previousMessage}</div>
+                    )}
+                    <input
+                      className="w-60 border-none	bg-transparent text-white placeholder-blue-300 outline-none"
+                      autoFocus={true}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                        updatePresence({ message: e.target.value });
+                        setState({
+                          mode: CursorMode.Chat,
+                          previousMessage: null,
+                          message: e.target.value,
+                        });
+                      }}
+                      onKeyDown={(e: ReactKeyboardEvent<HTMLInputElement>) => {
+                        if (e.key === "Enter") {
+                          setState({
+                            mode: CursorMode.Chat,
+                            previousMessage: state.message,
+                            message: "",
+                          });
+                        } else if (e.key === "Escape") {
+                          setState({
+                            mode: CursorMode.Hidden,
+                          });
+                        }
+                      }}
+                      placeholder={
+                        state.previousMessage ? "" : "Say something…"
+                      }
+                      value={state.message}
+                      maxLength={50}
+                    />
+                  </div>
+                </>
+              )}
+              {state.mode === CursorMode.ReactionSelector && (
+                <ReactionSelector
+                  setReaction={(reaction: string) => {
+                    setReaction(reaction);
+                  }}
+                />
+              )}
+              {state.mode === CursorMode.Reaction && (
+                <div className="pointer-events-none absolute top-3.5 left-1 select-none">
+                  {state.reaction}
+                </div>
+              )}
+            </div>
+          )}
+
+          {others.map(
+            ({
+              connectionId,
+              presence,
+            }: User<
+              { cursor: { x: number; y: number } | null; message: string },
+              { id: string }
+            >): JSX.Element | null => {
+              if (presence == null || !presence.cursor) return null;
+
+              return (
+                <Cursor
+                  key={connectionId}
+                  color={COLORS[connectionId % COLORS.length]}
+                  x={presence.cursor.x}
+                  y={presence.cursor.y}
+                  message={presence.message}
+                />
+              );
+            },
+          )}
+        </div>
+      </>
     </div>
   );
 };
