@@ -1,3 +1,5 @@
+import { ChangeEvent, MutableRefObject } from "react";
+
 export enum CursorMode {
   Hidden,
   Chat,
@@ -34,3 +36,33 @@ export type ReactionEvent = {
   y: number;
   value: string;
 };
+
+export type ActiveElement = {
+  name: string;
+  value: string;
+  icon: string;
+} | null;
+
+export type AppbarProps = {
+  activeElement: ActiveElement;
+  imageInputRef: MutableRefObject<HTMLInputElement | null>;
+  handleImageUpload: (e: ChangeEvent<HTMLInputElement>) => void;
+  handleActiveElement: (element: ActiveElement) => void;
+};
+
+export type ShapesMenuProps = {
+  item: {
+    name: string;
+    icon: string;
+    value: Array<ActiveElement>;
+  };
+  activeElement: any;
+  handleActiveElement: any;
+  handleImageUpload: any;
+  imageInputRef: any;
+};
+
+export interface CustomFabricObject<T extends fabric.Object>
+  extends fabric.Object {
+  objectId?: string;
+}
