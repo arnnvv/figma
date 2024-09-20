@@ -23,18 +23,9 @@ export default async ({
 
   if (result.length <= 0) return redirect("/dashboard");
 
-  const isOwner: boolean =
-    (
-      await db
-        .select({ id: rooms.id })
-        .from(rooms)
-        .where(eq(rooms.ownerId, user.id))
-        .limit(1)
-    ).length > 0;
-
   return (
     <Room roomId={roomId}>
-      <Whiteboard isOwner={isOwner} roomId={roomId} />
+      <Whiteboard />
     </Room>
   );
 };
