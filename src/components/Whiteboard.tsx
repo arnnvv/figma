@@ -7,6 +7,7 @@ import {
   useMutation,
   useMyPresence,
   useOthers,
+  useStorage,
 } from "@liveblocks/react/suspense";
 import {
   KeyboardEvent as ReactKeyboardEvent,
@@ -36,6 +37,8 @@ import { ReactionSelector } from "./ReactionSelector";
 import { CursorSVG } from "./CursorSVG";
 import { Appbar } from "./Appbar";
 import { handleDelete, handleImageUpload } from "@/lib/canvasElements";
+import { ShapeSelect } from "./ShapeSelect";
+import { EditCanvas } from "./EditCanvas";
 
 export const Whiteboard = (): JSX.Element => {
   const others = useOthers();
@@ -48,6 +51,8 @@ export const Whiteboard = (): JSX.Element => {
     value: "",
     icon: "",
   });
+  const canvasRef: RefObject<HTMLCanvasElement> =
+    useRef<HTMLCanvasElement>(null);
   const fabricRef: MutableRefObject<fabric.Canvas | null> =
     useRef<fabric.Canvas | null>(null);
   const isDrawing = useRef(false);
@@ -57,6 +62,14 @@ export const Whiteboard = (): JSX.Element => {
   >(null);
   const shapeRef: MutableRefObject<fabric.Object | null> =
     useRef<fabric.Object | null>(null);
+  const activeObjectRef = useRef<fabric.Object | null>(null);
+  const isEditingRef = useRef(false);
+
+  const canvasObjects = useStorage(
+    (root: {
+      readonly canvasObjects: ReadonlyMap<string, any>;
+    }): ReadonlyMap<string, any> => root.canvasObjects,
+  );
 
   const deleteAllStorageShapes = useMutation(
     ({
@@ -233,8 +246,10 @@ export const Whiteboard = (): JSX.Element => {
             });
         }}
       />
-      <>
+      <section className="flex h-full flex-row">
+        <ShapeSelect allShapes={Array.from(canvasObjects)} />
         <div
+          id="canvas"
           className="relative flex h-screen w-full touch-none items-center justify-center overflow-hidden"
           style={{
             cursor:
@@ -315,6 +330,8 @@ export const Whiteboard = (): JSX.Element => {
             );
           }}
         >
+          <canvas ref={canvasRef} />
+
           {reactions.map(
             (reaction: Reaction): JSX.Element => (
               <FlyingReaction
@@ -419,7 +436,13 @@ export const Whiteboard = (): JSX.Element => {
             },
           )}
         </div>
-      </>
+        <EditCanvas
+          fabricRef={fabricRef}
+          isEditingRef={isEditingRef}
+          activeObjectRef={activeObjectRef}
+          syncShapeInStorage={syncShapeInStorage}
+        />
+      </section>
     </main>
   );
 };

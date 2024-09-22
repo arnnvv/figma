@@ -66,3 +66,21 @@ export interface CustomFabricObject<T extends fabric.Object>
   extends fabric.Object {
   objectId?: string;
 }
+
+export type Attributes = {
+  width: string;
+  height: string;
+  fontSize: string;
+  fontFamily: string;
+  fontWeight: string;
+  fill: string;
+  stroke: string;
+};
+
+export type ModifyShape = {
+  canvas: fabric.Canvas;
+  property: string;
+  value: any;
+  activeObjectRef: MutableRefObject<fabric.Object | null>;
+  syncShapeInStorage: (shape: fabric.Object) => void;
+};

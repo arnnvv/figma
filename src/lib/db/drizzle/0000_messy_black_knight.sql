@@ -1,5 +1,5 @@
 DO $$ BEGIN
- CREATE TYPE "public"."edit_access_status" AS ENUM('pending', 'accepted', 'declined');
+CREATE TYPE "public"."edit_access_status" AS ENUM('pending', 'accepted', 'declined');
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

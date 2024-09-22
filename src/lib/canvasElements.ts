@@ -1,5 +1,5 @@
 import { MutableRefObject } from "react";
-import { CustomFabricObject } from "../../types";
+import { CustomFabricObject, ModifyShape } from "../../types";
 import { fabric } from "fabric";
 export const handleImageUpload = ({
   file,
@@ -49,4 +49,31 @@ export const handleDelete = (
 
   canvas.discardActiveObject();
   canvas.requestRenderAll();
+};
+
+export const modifyShape = ({
+  canvas,
+  property,
+  value,
+  activeObjectRef,
+  syncShapeInStorage,
+}: ModifyShape) => {
+  const selectedElement = canvas.getActiveObject();
+
+  if (!selectedElement || selectedElement?.type === "activeSelection") return;
+
+  if (property === "width") {
+    selectedElement.set("scaleX", 1);
+    selectedElement.set("width", value);
+  } else if (property === "height") {
+    selectedElement.set("scaleY", 1);
+    selectedElement.set("height", value);
+  } else {
+    if (selectedElement[property as keyof object] === value) return;
+    selectedElement.set(property as keyof object, value);
+  }
+
+  activeObjectRef.current = selectedElement;
+
+  syncShapeInStorage(selectedElement);
 };
