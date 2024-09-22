@@ -22,7 +22,8 @@ export const Appbar = memo(
         ));
     return (
       <nav className="flex select-none items-center justify-between gap-4 bg-primary-black px-5 text-white">
-        <ul className="flex flex-row">
+        <div className="flex-1" />
+        <ul className="flex flex-row justify-center flex-1">
           {navElements.map(
             (item: ActiveElement | any): JSX.Element => (
               <li
@@ -68,7 +69,9 @@ export const Appbar = memo(
             ),
           )}
         </ul>
-        <Users />
+        <div className="flex-1 flex justify-end">
+          <Users />
+        </div>
       </nav>
     );
   },
