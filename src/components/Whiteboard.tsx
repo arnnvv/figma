@@ -57,6 +57,7 @@ import { ShapeSelect } from "./ShapeSelect";
 import { EditCanvas } from "./EditCanvas";
 import { useSetAtom } from "jotai";
 import { elementAttributesAtom } from "@/lib/atoms";
+import { Comments } from "./comments/Comments";
 
 export const Whiteboard = (): JSX.Element => {
   const undo = useUndo();
@@ -550,7 +551,9 @@ export const Whiteboard = (): JSX.Element => {
               );
             },
           )}
+          <Comments />
         </div>
+
         <EditCanvas
           fabricRef={fabricRef}
           isEditingRef={isEditingRef}
