@@ -51,6 +51,7 @@ import {
   handlePathCreated,
   handleResize,
   initializeFabric,
+  renderCanvas,
 } from "@/lib/canvasElements";
 import { ShapeSelect } from "./ShapeSelect";
 import { EditCanvas } from "./EditCanvas";
@@ -271,6 +272,7 @@ export const Whiteboard = (): JSX.Element => {
       ),
     );
   }, 1000);
+
   useInterval(() => {
     if (
       state.mode === CursorMode.Reaction &&
@@ -333,6 +335,14 @@ export const Whiteboard = (): JSX.Element => {
       ]),
     );
   });
+
+  useEffect(() => {
+    renderCanvas({
+      fabricRef,
+      canvasObjects,
+      activeObjectRef,
+    });
+  }, [canvasObjects]);
 
   return (
     <main className="h-screen overflow-hidden">
