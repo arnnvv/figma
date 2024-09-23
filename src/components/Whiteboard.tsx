@@ -7,7 +7,9 @@ import {
   useMutation,
   useMyPresence,
   useOthers,
+  useRedo,
   useStorage,
+  useUndo,
 } from "@liveblocks/react/suspense";
 import {
   KeyboardEvent as ReactKeyboardEvent,
@@ -36,12 +38,30 @@ import { FlyingReaction } from "./FlyingReaction";
 import { ReactionSelector } from "./ReactionSelector";
 import { CursorSVG } from "./CursorSVG";
 import { Appbar } from "./Appbar";
-import { handleDelete, handleImageUpload } from "@/lib/canvasElements";
+import {
+  handleCanvasMouseDown,
+  handleCanvasMouseMove,
+  handleCanvasMouseUp,
+  handleCanvasObjectModified,
+  handleCanvasObjectScaling,
+  handleCanvasSelectionCreated,
+  handleDelete,
+  handleImageUpload,
+  handleKeyDown,
+  handlePathCreated,
+  handleResize,
+  initializeFabric,
+} from "@/lib/canvasElements";
 import { ShapeSelect } from "./ShapeSelect";
 import { EditCanvas } from "./EditCanvas";
+import { useSetAtom } from "jotai";
+import { elementAttributesAtom } from "@/lib/atoms";
 
 export const Whiteboard = (): JSX.Element => {
+  const undo = useUndo();
+  const redo = useRedo();
   const others = useOthers();
+  const setElementAttributes = useSetAtom(elementAttributesAtom);
   const [presence, updatePresence] = useMyPresence();
   const broadcast = useBroadcastEvent();
   const [state, setState] = useState<CursorState>({ mode: CursorMode.Hidden });
@@ -159,6 +179,91 @@ export const Whiteboard = (): JSX.Element => {
   const setReaction = useCallback((reaction: string) => {
     setState({ mode: CursorMode.Reaction, reaction, isPressed: false });
   }, []);
+
+  useEffect(() => {
+    const canvas = initializeFabric({ canvasRef, fabricRef });
+
+    canvas.on("mouse:down", (options: fabric.IEvent<MouseEvent>) => {
+      handleCanvasMouseDown({
+        options,
+        canvas,
+        isDrawing,
+        shapeRef,
+        selectedShapeRef,
+      });
+    });
+
+    canvas.on("mouse:move", (options: fabric.IEvent<MouseEvent>) => {
+      handleCanvasMouseMove({
+        options,
+        canvas,
+        isDrawing,
+        shapeRef,
+        selectedShapeRef,
+        syncShapeInStorage,
+      });
+    });
+
+    canvas.on("mouse:up", () => {
+      handleCanvasMouseUp({
+        canvas,
+        isDrawing,
+        shapeRef,
+        selectedShapeRef,
+        syncShapeInStorage,
+        setActiveElement,
+        activeObjectRef,
+      });
+    });
+
+    canvas.on("object:modified", (options: fabric.IEvent<MouseEvent>) => {
+      handleCanvasObjectModified({
+        options,
+        syncShapeInStorage,
+      });
+    });
+
+    canvas.on("selection:created", (options: fabric.IEvent<MouseEvent>) => {
+      handleCanvasSelectionCreated({
+        options,
+        isEditingRef,
+        setElementAttributes,
+      });
+    });
+
+    canvas.on("object:scaling", (options: fabric.IEvent<MouseEvent>) => {
+      handleCanvasObjectScaling({
+        options,
+        setElementAttributes,
+      });
+    });
+
+    canvas.on("path:created", (options: fabric.IEvent<MouseEvent>) => {
+      handlePathCreated({
+        options,
+        syncShapeInStorage,
+      });
+    });
+    window.addEventListener("resize", () => {
+      handleResize({ canvas });
+    });
+
+    window.addEventListener("keydown", (e: KeyboardEvent) => {
+      handleKeyDown({
+        e,
+        canvas: fabricRef.current,
+        undo,
+        redo,
+        syncShapeInStorage,
+        deleteStorageShape: deleteStorageShape,
+      });
+    });
+
+    return () => {
+      canvas.dispose();
+    };
+  }, [syncShapeInStorage, deleteStorageShape, undo, redo]);
+
   useInterval(() => {
     setReactions((reactions: Reaction[]): Reaction[] =>
       reactions.filter(

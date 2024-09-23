@@ -4,7 +4,18 @@ import { Whiteboard } from "@/components/Whiteboard";
 import { db } from "@/lib/db";
 import { rooms } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
+import { Metadata } from "next";
 import { redirect } from "next/navigation";
+
+export const generateMetadata = ({
+  params,
+}: {
+  params: {
+    roomId: string;
+  };
+}): Metadata => ({
+  title: `RoomId: ${params.roomId}`,
+});
 
 export default async ({
   params,
