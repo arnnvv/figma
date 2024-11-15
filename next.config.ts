@@ -15,6 +15,7 @@ const nextConfig: NextConfig = {
 
     return config;
   },
+  serverExternalPackages: ["@node-rs/argon2"],
 };
 
 export default nextConfig;

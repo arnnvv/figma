@@ -1,6 +1,9 @@
 import {
+  integer,
   pgEnum,
   pgTableCreator,
+  serial,
+  text,
   timestamp,
   varchar,
 } from "drizzle-orm/pg-core";
@@ -16,7 +19,7 @@ export const editAccessStatusEnum = pgEnum("edit_access_status", [
 ]);
 
 export const users = createTable("users", {
-  id: varchar("id", { length: 21 }).primaryKey(),
+  id: serial("id").primaryKey(),
   name: varchar("name").notNull(),
   email: varchar("email", { length: 255 }).unique().notNull(),
   number: varchar("number").unique(),
@@ -27,8 +30,8 @@ export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 
 export const sessions = createTable("sessions", {
-  id: varchar("id", { length: 255 }).primaryKey(),
-  userId: varchar("user_id", { length: 21 })
+  id: text("id").primaryKey(),
+  userId: integer("user_id")
     .notNull()
     .references(() => users.id),
   expiresAt: timestamp("expires_at", {
@@ -37,16 +40,18 @@ export const sessions = createTable("sessions", {
   }).notNull(),
 });
 
+export type Session = typeof sessions.$inferSelect;
+
 export const rooms = createTable("rooms", {
   id: varchar("id").primaryKey(),
-  ownerId: varchar("owner_id", { length: 21 })
+  ownerId: integer("owner_id")
     .notNull()
     .references(() => users.id),
 });
 
 export const editAccess = createTable("editAccess", {
-  id: varchar("id", { length: 255 }).primaryKey(),
-  requesterId: varchar("requester_id", { length: 21 })
+  id: serial("id").primaryKey(),
+  requesterId: integer("requester_id")
     .notNull()
     .references(() => users.id),
   roomIdRequestedFor: varchar("room_id_requested_for")

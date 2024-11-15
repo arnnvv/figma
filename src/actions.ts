@@ -1,50 +1,34 @@
 "use server";
 
 import { cache } from "react";
-import { Session, User as LuciaUser, LegacyScrypt, generateId } from "lucia";
 import { cookies } from "next/headers";
-import lucia from "./lib/auth";
 import { ActionResult } from "./components/FormComponent";
-import { editAccess, rooms, User, users } from "./lib/db/schema";
+import { editAccess, rooms, type User, users } from "./lib/db/schema";
 import { db, pool } from "./lib/db";
 import { redirect } from "next/navigation";
-import { validateEmail } from "./lib/validate";
 import { eq } from "drizzle-orm";
+import {
+  createSession,
+  generateSessionToken,
+  invalidateSession,
+  SessionValidationResult,
+  validateSessionToken,
+} from "./lib/auth";
+import {
+  hashPassword,
+  verifyPasswordHash,
+  verifyPasswordStrength,
+} from "./lib/password";
+import { deleteSessionTokenCookie, setSessionTokenCookie } from "./lib/session";
 
-export const validateRequest = cache(
-  async (): Promise<
-    { user: LuciaUser; session: Session } | { session: null; user: null }
-  > => {
-    const sessionId = cookies().get(lucia.sessionCookieName)?.value ?? null;
-    if (!sessionId)
-      return {
-        session: null,
-        user: null,
-      };
-    const validSession = await lucia.validateSession(sessionId);
-    try {
-      if (validSession.session && validSession.session.fresh) {
-        const sessionCookie = lucia.createSessionCookie(
-          validSession.session.id,
-        );
-        cookies().set(
-          sessionCookie.name,
-          sessionCookie.value,
-          sessionCookie.attributes,
-        );
-      }
-      if (!validSession.session) {
-        const sessionCookie = lucia.createBlankSessionCookie();
-        cookies().set(
-          sessionCookie.name,
-          sessionCookie.value,
-          sessionCookie.attributes,
-        );
-      }
-    } catch (e) {
-      console.error(e);
+export const getCurrentSession = cache(
+  async (): Promise<SessionValidationResult> => {
+    const token = cookies().get("session")?.value ?? null;
+    if (token === null) {
+      return { session: null, user: null };
     }
-    return validSession;
+    const result = await validateSessionToken(token);
+    return result;
   },
 );
 
@@ -54,32 +38,22 @@ export const logInAction = async (
 ): Promise<ActionResult> => {
   const email = formData.get("email");
   if (typeof email !== "string") return { error: "Email is required" };
-  if (!validateEmail({ email })) return { error: "Invalid email" };
+  if (!/^.+@.+\..+$/.test(email) && email.length < 256)
+    return { error: "Invalid email" };
   const password = formData.get("password");
-  if (
-    typeof password !== "string" ||
-    password.length < 8 ||
-    password.length > 64
-  )
-    return { error: "Invalid password" };
+  if (typeof password !== "string") return { error: "Password is required" };
   try {
     const existingUser: User | undefined = (await db.query.users.findFirst({
       where: (users, { eq }) => eq(users.email, email),
     })) as User | undefined;
 
     if (!existingUser) return { error: "User not found" };
-    const validPassword = await new LegacyScrypt().verify(
-      existingUser.password,
-      password,
-    );
-    if (!validPassword) return { error: "Incorrect Password" };
-    const session = await lucia.createSession(existingUser.id, {});
-    const sessionCookie = lucia.createSessionCookie(session.id);
-    cookies().set(
-      sessionCookie.name,
-      sessionCookie.value,
-      sessionCookie.attributes,
-    );
+
+    if (!(await verifyPasswordHash(existingUser.password, password)))
+      return { error: "Wrong Password" };
+    const sessionToken = generateSessionToken();
+    const session = await createSession(sessionToken, existingUser.id);
+    setSessionTokenCookie(sessionToken, session.expiresAt);
   } catch {
     return { error: "Something went wrong" };
   }
@@ -92,40 +66,40 @@ export const signUpAction = async (
 ): Promise<ActionResult> => {
   const email = formData.get("email");
   if (typeof email !== "string") return { error: "Email is required" };
-  if (!validateEmail({ email })) return { error: "Invalid email" };
+  if (!/^.+@.+\..+$/.test(email) && email.length < 256)
+    return { error: "Invalid email" };
   const password = formData.get("password");
-  if (
-    typeof password !== "string" ||
-    password.length < 8 ||
-    password.length > 64
-  )
-    return { error: "Invalid password" };
+  if (typeof password !== "string") return { error: "Password is required" };
+  const strongPassword = await verifyPasswordStrength(password);
+  if (!strongPassword) return { error: "Weak Password" };
   const name = formData.get("name");
   if (typeof name !== "string" || !name) return { error: "Name is required" };
-  const id = generateId(10);
   try {
-    const hashedPassword = await new LegacyScrypt().hash(password);
     const existingUser = (await db.query.users.findFirst({
       where: (users, { eq }) => eq(users.email, email),
     })) as User | undefined;
     if (existingUser) return { error: "User already exists" };
 
+    const hashedPassword = await hashPassword(password);
+
     const newUser = {
-      id,
       name,
       email,
       password: hashedPassword,
     };
 
-    await db.insert(users).values(newUser);
+    const insertedUser = await db
+      .insert(users)
+      .values(newUser)
+      .returning({ id: users.id });
 
-    const session = await lucia.createSession(id, {});
-    const sessionCookie = lucia.createSessionCookie(session.id);
-    cookies().set(
-      sessionCookie.name,
-      sessionCookie.value,
-      sessionCookie.attributes,
-    );
+    const userId = insertedUser[0]?.id;
+
+    if (!userId) throw new Error("Failed to retrieve inserted user ID");
+
+    const sessionToken = generateSessionToken();
+    const session = await createSession(sessionToken, userId);
+    setSessionTokenCookie(sessionToken, session.expiresAt);
   } catch {
     return { error: "Unexpected error" };
   }
@@ -133,22 +107,18 @@ export const signUpAction = async (
 };
 
 export const signOutAction = async (): Promise<ActionResult> => {
-  const { session } = await validateRequest();
-  if (!session) return { error: "not logged in" };
-  await lucia.invalidateSession(session.id);
-  const sessionCookie = lucia.createBlankSessionCookie();
-  cookies().set(
-    sessionCookie.name,
-    sessionCookie.value,
-    sessionCookie.attributes,
-  );
+  const { session } = await getCurrentSession();
+  if (session === null) return { error: "Not authenticated" };
+
+  await invalidateSession(session.id);
+  deleteSessionTokenCookie();
   return redirect("/login");
 };
 
 export const deleteRoomAction = async (
   roomId: string,
 ): Promise<ActionResult> => {
-  const { session } = await validateRequest();
+  const { session } = await getCurrentSession();
   if (!session) return { error: "Not logged in" };
   let connection;
   try {

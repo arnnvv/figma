@@ -1,4 +1,4 @@
-import { signOutAction, validateRequest } from "@/actions";
+import { getCurrentSession, signOutAction } from "@/actions";
 import Image from "next/image";
 import { FormComponent } from "./FormComponent";
 import { Button } from "./ui/button";
@@ -8,8 +8,8 @@ import { rooms } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 
 export const Navbar = async (): Promise<JSX.Element> => {
-  const { user } = await validateRequest();
-  if (!user)
+  const { user, session } = await getCurrentSession();
+  if (session === null)
     return (
       <nav className="flex select-none items-center justify-between gap-4 bg-primary-black px-5 text-white">
         <Image

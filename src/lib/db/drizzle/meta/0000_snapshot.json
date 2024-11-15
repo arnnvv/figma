@@ -1,5 +1,5 @@
 {
-  "id": "e83e0318-d037-4cfb-83f5-c2f0405bfe5a",
+  "id": "03cb69ee-415d-4a21-9d14-ebdc70ad0d68",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -10,13 +10,13 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "varchar(255)",
+          "type": "serial",
           "primaryKey": true,
           "notNull": true
         },
         "requester_id": {
           "name": "requester_id",
-          "type": "varchar(21)",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
@@ -78,7 +78,7 @@
         },
         "owner_id": {
           "name": "owner_id",
-          "type": "varchar(21)",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true
         }
@@ -108,13 +108,13 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "varchar(255)",
+          "type": "text",
           "primaryKey": true,
           "notNull": true
         },
         "user_id": {
           "name": "user_id",
-          "type": "varchar(21)",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
@@ -150,7 +150,7 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "varchar(21)",
+          "type": "serial",
           "primaryKey": true,
           "notNull": true
         },

@@ -1,4 +1,4 @@
-import { validateRequest } from "@/actions";
+import { getCurrentSession } from "@/actions";
 import { ActionResult, FormComponent } from "@/components/FormComponent";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,7 +14,6 @@ import { db } from "@/lib/db";
 import { editAccess, rooms } from "@/lib/db/schema";
 import { getNameFromId } from "@/lib/getUserName";
 import { and, eq, or, sql } from "drizzle-orm";
-import { generateId } from "lucia";
 import {
   Users,
   PlusCircle,
@@ -26,8 +25,8 @@ import {
 import { redirect } from "next/navigation";
 
 export default async (): Promise<JSX.Element> => {
-  const { user } = await validateRequest();
-  if (!user) return redirect("/login");
+  const { user, session } = await getCurrentSession();
+  if (session === null) return redirect("/login");
   const res = await db
     .select({
       maxId: sql<number>`MAX(CAST(id AS INT))`.as("maxId"),
@@ -87,7 +86,7 @@ export default async (): Promise<JSX.Element> => {
                   </h3>
                   <div className="space-y-2">
                     {userRooms.map(
-                      (room: { id: string; ownerId: string }): JSX.Element => (
+                      (room): JSX.Element => (
                         <FormComponent
                           key={room.id}
                           action={async (): Promise<never> => {
@@ -116,7 +115,7 @@ export default async (): Promise<JSX.Element> => {
                   </h3>
                   <div className="space-y-2">
                     {editableRooms.map(
-                      (room: { id: string; ownerId: string }): JSX.Element => (
+                      (room): JSX.Element => (
                         <FormComponent
                           key={room.id}
                           action={async (): Promise<never> => {
@@ -153,8 +152,8 @@ export default async (): Promise<JSX.Element> => {
                 formData: FormData,
               ): Promise<ActionResult> => {
                 "use server";
-                const { session } = await validateRequest();
-                if (!session) return { error: "Not logged in" };
+                const { session } = await getCurrentSession();
+                if (session === null) return { error: "Not logged in" };
                 const roomId = formData.get("roomId") as string;
                 try {
                   const existingRoom = await db.query.rooms.findFirst({
@@ -181,7 +180,6 @@ export default async (): Promise<JSX.Element> => {
                       return { error: "Request already sent" };
 
                     await db.insert(editAccess).values({
-                      id: generateId(10),
                       requesterId: user.id,
                       roomIdRequestedFor: roomId,
                       status: "pending",
@@ -219,12 +217,7 @@ export default async (): Promise<JSX.Element> => {
               </h3>
               <div className="space-y-2">
                 {editAccessRequests.map(
-                  (request: {
-                    id: string;
-                    requesterId: string;
-                    roomId: string;
-                    status: "pending" | "accepted" | "declined";
-                  }): JSX.Element => (
+                  (request): JSX.Element => (
                     <div
                       key={request.id}
                       className="flex items-center justify-between p-2 bg-white rounded-md shadow-sm"

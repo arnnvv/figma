@@ -11,11 +11,11 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { FormComponent } from "@/components/FormComponent";
-import { signUpAction, validateRequest } from "@/actions";
+import { getCurrentSession, signUpAction } from "@/actions";
 
 export default async function Page(): Promise<JSX.Element> {
-  const { user } = await validateRequest();
-  if (user) return redirect("/dashboard");
+  const { session } = await getCurrentSession();
+  if (session !== null) return redirect("/dashboard");
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-slate-100">

@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { db } from "./db";
 import { users } from "./db/schema";
 
-export const getNameFromId = async (userId: string): Promise<string | null> => {
+export const getNameFromId = async (userId: number): Promise<string | null> => {
   try {
     const result = await db
       .select({ name: users.name })

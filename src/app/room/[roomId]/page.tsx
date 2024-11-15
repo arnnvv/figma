@@ -1,4 +1,4 @@
-import { validateRequest } from "@/actions";
+import { getCurrentSession } from "@/actions";
 import { Room } from "@/components/Room";
 import { Whiteboard } from "@/components/Whiteboard";
 import { db } from "@/lib/db";
@@ -23,8 +23,8 @@ export default async ({
   params: { roomId: string };
 }): Promise<JSX.Element> => {
   const { roomId } = params;
-  const { user } = await validateRequest();
-  if (!user) return redirect("/login");
+  const { session } = await getCurrentSession();
+  if (session === null) return redirect("/login");
 
   const result = await db
     .select({ id: rooms.id })

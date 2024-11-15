@@ -2,7 +2,7 @@ import { Dispatch, MutableRefObject, SetStateAction } from "react";
 import { Attributes, CustomFabricObject, ModifyShape } from "../../types";
 import { fabric } from "fabric";
 import { defaultNavElement } from "./constants";
-import { generateId } from "lucia";
+import { v4 } from "uuid";
 
 export const handleImageUpload = ({
   file,
@@ -88,7 +88,7 @@ export const createRectangle = (pointer: PointerEvent): fabric.Rect =>
     width: 100,
     height: 100,
     fill: "#aabbcc",
-    objectId: generateId(10),
+    objectId: v4(),
   } as CustomFabricObject<fabric.Rect>);
 
 export const createTriangle = (pointer: PointerEvent): fabric.Triangle =>
@@ -98,7 +98,7 @@ export const createTriangle = (pointer: PointerEvent): fabric.Triangle =>
     width: 100,
     height: 100,
     fill: "#aabbcc",
-    objectId: generateId(10),
+    objectId: v4(),
   } as CustomFabricObject<fabric.Triangle>);
 
 export const createCircle = (pointer: PointerEvent): fabric.Circle =>
@@ -107,14 +107,14 @@ export const createCircle = (pointer: PointerEvent): fabric.Circle =>
     top: pointer.y,
     radius: 100,
     fill: "#aabbcc",
-    objectId: generateId(10),
+    objectId: v4(),
   } as any);
 
 export const createLine = (pointer: PointerEvent): fabric.Line =>
   new fabric.Line([pointer.x, pointer.y, pointer.x + 100, pointer.y + 100], {
     stroke: "#aabbcc",
     strokeWidth: 2,
-    objectId: generateId(10),
+    objectId: v4(),
   } as CustomFabricObject<fabric.Line>);
 
 export const createText = (pointer: PointerEvent, text: string): fabric.IText =>
@@ -125,7 +125,7 @@ export const createText = (pointer: PointerEvent, text: string): fabric.IText =>
     fontFamily: "Helvetica",
     fontSize: 36,
     fontWeight: "400",
-    objectId: generateId(10),
+    objectId: v4(),
   } as fabric.ITextOptions);
 
 export const createSpecificShape = (
@@ -329,7 +329,7 @@ export const handlePathCreated = ({
   const path = options.path;
   if (!path) return;
   path.set({
-    objectId: generateId(10),
+    objectId: v4(),
   });
   syncShapeInStorage(path);
 };
@@ -573,7 +573,7 @@ export const handlePaste = ({
               enlivenedObj.set({
                 left: enlivenedObj.left || 0 + 20,
                 top: enlivenedObj.top || 0 + 20,
-                objectId: generateId(10),
+                objectId: v4(),
                 fill: "#aabbcc",
               } as CustomFabricObject<any>);
 

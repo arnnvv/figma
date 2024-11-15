@@ -1,8 +1,8 @@
-import { validateRequest } from "@/actions";
+import { getCurrentSession } from "@/actions";
 import { redirect } from "next/navigation";
 
 export default async (): Promise<never> => {
-  const { user } = await validateRequest();
-  if (!user) return redirect("login");
+  const { session } = await getCurrentSession();
+  if (!session) return redirect("login");
   else return redirect("/dashboard");
 };
