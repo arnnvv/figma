@@ -53,9 +53,9 @@ export const logInAction = async (
       return { error: "Wrong Password" };
     const sessionToken = generateSessionToken();
     const session = await createSession(sessionToken, existingUser.id);
-    setSessionTokenCookie(sessionToken, session.expiresAt);
-  } catch {
-    return { error: "Something went wrong" };
+    await setSessionTokenCookie(sessionToken, session.expiresAt);
+  } catch (e) {
+    return { error: JSON.stringify(e) };
   }
   return redirect("/dashboard");
 };
@@ -99,9 +99,9 @@ export const signUpAction = async (
 
     const sessionToken = generateSessionToken();
     const session = await createSession(sessionToken, userId);
-    setSessionTokenCookie(sessionToken, session.expiresAt);
-  } catch {
-    return { error: "Unexpected error" };
+    await setSessionTokenCookie(sessionToken, session.expiresAt);
+  } catch (e) {
+    return { error: JSON.stringify(e) };
   }
   return redirect("/dashboard");
 };
@@ -111,7 +111,7 @@ export const signOutAction = async (): Promise<ActionResult> => {
   if (session === null) return { error: "Not authenticated" };
 
   await invalidateSession(session.id);
-  deleteSessionTokenCookie();
+  await deleteSessionTokenCookie();
   return redirect("/login");
 };
 
