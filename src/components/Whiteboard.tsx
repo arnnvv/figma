@@ -79,7 +79,8 @@ export const Whiteboard = (): JSX.Element => {
   const fabricRef: MutableRefObject<fabric.Canvas | null> =
     useRef<fabric.Canvas | null>(null);
   const isDrawing = useRef(false);
-  const imageRef: RefObject<HTMLInputElement | null> = useRef<HTMLInputElement>(null);
+  const imageRef: RefObject<HTMLInputElement | null> =
+    useRef<HTMLInputElement>(null);
   const selectedShapeRef: MutableRefObject<string | null> = useRef<
     string | null
   >(null);

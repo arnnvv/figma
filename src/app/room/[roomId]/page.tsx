@@ -8,25 +8,21 @@ import { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { JSX } from "react";
 
-export const generateMetadata = async (
-  props: {
-    params: Promise<{
-      roomId: string;
-    }>;
-  }
-): Promise<Metadata> => {
+export const generateMetadata = async (props: {
+  params: Promise<{
+    roomId: string;
+  }>;
+}): Promise<Metadata> => {
   const params = await props.params;
 
-  return ({
-    title: `RoomId: ${params.roomId}`
-  });
+  return {
+    title: `RoomId: ${params.roomId}`,
+  };
 };
 
-export default async (
-  props: {
-    params: Promise<{ roomId: string }>;
-  }
-): Promise<JSX.Element> => {
+export default async (props: {
+  params: Promise<{ roomId: string }>;
+}): Promise<JSX.Element> => {
   const params = await props.params;
   const { roomId } = params;
   const { session } = await getCurrentSession();
