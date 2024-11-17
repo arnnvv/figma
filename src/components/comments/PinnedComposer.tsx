@@ -1,6 +1,6 @@
 import { Composer, ComposerProps } from "@liveblocks/react-ui";
 import Image from "next/image";
-import { KeyboardEvent as ReactKeyboardEvent } from "react";
+import { JSX, KeyboardEvent as ReactKeyboardEvent } from "react";
 
 export const PinnedComposer = ({
   onComposerSubmit,

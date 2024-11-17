@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import styles from "./FlyingReaction.module.css";
 
 export const FlyingReaction = ({

@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { FormComponent } from "@/components/FormComponent";
 import { getCurrentSession, signUpAction } from "@/actions";
+import { JSX } from "react";
 
 export default async function Page(): Promise<JSX.Element> {
   const { session } = await getCurrentSession();

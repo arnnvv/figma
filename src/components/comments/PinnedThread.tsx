@@ -1,7 +1,7 @@
 import { ThreadData } from "@liveblocks/client";
 import { Thread } from "@liveblocks/react-ui";
 import Image from "next/image";
-import { KeyboardEvent as ReactKeyboardEvent, useMemo, useState } from "react";
+import { JSX, KeyboardEvent as ReactKeyboardEvent, useMemo, useState } from "react";
 
 export const PinnedThread = ({
   thread,

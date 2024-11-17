@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { Skeleton } from "./ui/skeleton";
 
 export const ModernLoader = (): JSX.Element => (

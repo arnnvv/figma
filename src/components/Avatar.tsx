@@ -1,5 +1,6 @@
 import Image from "next/image";
 import styles from "./Avatar.module.css";
+import { JSX } from "react";
 
 export const Avatar = ({
   namename,

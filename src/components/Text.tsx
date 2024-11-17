@@ -10,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
+import { JSX } from "react";
 
 const selectConfigs = [
   {

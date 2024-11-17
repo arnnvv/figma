@@ -6,6 +6,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { ActiveElement, ShapesMenuProps } from "../../types";
+import { JSX } from "react";
 
 export const ShapesMenu = ({
   item,

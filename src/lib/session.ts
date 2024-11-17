@@ -1,7 +1,7 @@
-import { cookies } from "next/headers";
+import { cookies, type UnsafeUnwrappedCookies } from "next/headers";
 
 export function setSessionTokenCookie(token: string, expiresAt: Date): void {
-  cookies().set("session", token, {
+  (cookies() as unknown as UnsafeUnwrappedCookies).set("session", token, {
     httpOnly: true,
     path: "/",
     secure: process.env.NODE_ENV === "production",
@@ -11,7 +11,7 @@ export function setSessionTokenCookie(token: string, expiresAt: Date): void {
 }
 
 export function deleteSessionTokenCookie(): void {
-  cookies().set("session", "", {
+  (cookies() as unknown as UnsafeUnwrappedCookies).set("session", "", {
     httpOnly: true,
     path: "/",
     secure: process.env.NODE_ENV === "production",

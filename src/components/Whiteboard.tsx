@@ -21,6 +21,7 @@ import {
   MutableRefObject,
   useRef,
   RefObject,
+  JSX,
 } from "react";
 import {
   ActiveElement,
@@ -73,12 +74,12 @@ export const Whiteboard = (): JSX.Element => {
     value: "",
     icon: "",
   });
-  const canvasRef: RefObject<HTMLCanvasElement> =
+  const canvasRef: RefObject<HTMLCanvasElement | null> =
     useRef<HTMLCanvasElement>(null);
   const fabricRef: MutableRefObject<fabric.Canvas | null> =
     useRef<fabric.Canvas | null>(null);
   const isDrawing = useRef(false);
-  const imageRef: RefObject<HTMLInputElement> = useRef<HTMLInputElement>(null);
+  const imageRef: RefObject<HTMLInputElement | null> = useRef<HTMLInputElement>(null);
   const selectedShapeRef: MutableRefObject<string | null> = useRef<
     string | null
   >(null);

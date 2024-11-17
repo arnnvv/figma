@@ -8,6 +8,7 @@ import {
   ElementRef,
   ForwardedRef,
   forwardRef,
+  JSX,
   RefAttributes,
 } from "react";
 import { ClassProp } from "class-variance-authority/types";

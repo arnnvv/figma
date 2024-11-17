@@ -3,7 +3,7 @@ import { Avatar } from "./Avatar";
 import styles from "./Users.module.css";
 import { User } from "@liveblocks/client";
 import { generateRandomName } from "@/lib/utils";
-import { useMemo } from "react";
+import { JSX, useMemo } from "react";
 
 export const Users = (): JSX.Element => {
   const users = useOthers();

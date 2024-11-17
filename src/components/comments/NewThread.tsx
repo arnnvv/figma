@@ -2,6 +2,7 @@
 
 import {
   FormEvent,
+  JSX,
   ReactNode,
   useCallback,
   useEffect,
@@ -31,7 +32,7 @@ export const NewThread = ({
     x: number;
     y: number;
   }>(null);
-  const lastPointerEvent = useRef<PointerEvent>();
+  const lastPointerEvent = useRef<PointerEvent | null>(null);
   const [allowUseComposer, setAllowUseComposer] = useState(false);
   const allowComposerRef = useRef(allowUseComposer);
   allowComposerRef.current = allowUseComposer;

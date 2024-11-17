@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { JSX, memo } from "react";
 import { ActiveElement, AppbarProps } from "../../types";
 import Image from "next/image";
 import { navElements } from "@/lib/constants";

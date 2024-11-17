@@ -6,22 +6,28 @@ import { rooms } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { JSX } from "react";
 
-export const generateMetadata = ({
-  params,
-}: {
-  params: {
-    roomId: string;
-  };
-}): Metadata => ({
-  title: `RoomId: ${params.roomId}`,
-});
+export const generateMetadata = async (
+  props: {
+    params: Promise<{
+      roomId: string;
+    }>;
+  }
+): Promise<Metadata> => {
+  const params = await props.params;
 
-export default async ({
-  params,
-}: {
-  params: { roomId: string };
-}): Promise<JSX.Element> => {
+  return ({
+    title: `RoomId: ${params.roomId}`
+  });
+};
+
+export default async (
+  props: {
+    params: Promise<{ roomId: string }>;
+  }
+): Promise<JSX.Element> => {
+  const params = await props.params;
   const { roomId } = params;
   const { session } = await getCurrentSession();
   if (session === null) return redirect("/login");

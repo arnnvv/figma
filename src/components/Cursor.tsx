@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { CursorSVG } from "./CursorSVG";
 
 export const Cursor = ({

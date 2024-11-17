@@ -1,6 +1,6 @@
 import "./globals.css";
 import type { Metadata, Viewport } from "next";
-import { ReactNode } from "react";
+import { JSX, ReactNode } from "react";
 import { Toaster } from "sonner";
 import { Inter as FontSans } from "next/font/google";
 import { cn } from "@/lib/utils";

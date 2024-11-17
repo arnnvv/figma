@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode, useActionState, useEffect } from "react";
+import { JSX, type ReactNode, useActionState, useEffect } from "react";
 import { toast } from "sonner";
 
 export type ActionResult =

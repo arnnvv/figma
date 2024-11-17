@@ -37,6 +37,7 @@ import {
   ForwardedRef,
   forwardRef,
   HTMLAttributes,
+  JSX,
   RefAttributes,
 } from "react";
 

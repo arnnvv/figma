@@ -6,6 +6,7 @@ import { NavbarClient } from "./NavbarClient";
 import { db } from "@/lib/db";
 import { rooms } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
+import { JSX } from "react";
 
 export const Navbar = async (): Promise<JSX.Element> => {
   const { user, session } = await getCurrentSession();

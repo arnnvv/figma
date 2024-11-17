@@ -1,7 +1,7 @@
 "use client";
 
 import { useAtom } from "jotai";
-import { MutableRefObject, RefObject, useMemo, useRef } from "react";
+import { JSX, MutableRefObject, RefObject, useMemo, useRef } from "react";
 import { fabric } from "fabric";
 import { elementAttributesAtom } from "@/lib/atoms";
 import { Attributes } from "../../types";

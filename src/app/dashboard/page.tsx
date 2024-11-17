@@ -23,6 +23,7 @@ import {
   Edit,
 } from "lucide-react";
 import { redirect } from "next/navigation";
+import { JSX } from "react";
 
 export default async (): Promise<JSX.Element> => {
   const { user, session } = await getCurrentSession();
