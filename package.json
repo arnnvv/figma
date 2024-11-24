@@ -9,10 +9,10 @@
     "lint": "next lint",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,mjs,js,md}\"",
     "ui:add": "pnpm dlx shadcn@latest add",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:push": "drizzle-kit push",
-    "db:studio": "drizzle-kit studio"
+    "dg": "drizzle-kit generate",
+    "dm": "drizzle-kit migrate",
+    "dp": "drizzle-kit push",
+    "ds": "drizzle-kit studio"
   },
   "dependencies": {
     "@liveblocks/client": "^2.7.0",

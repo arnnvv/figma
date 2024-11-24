@@ -1,11 +1,11 @@
 {
-  "id": "03cb69ee-415d-4a21-9d14-ebdc70ad0d68",
+  "id": "1613490b-6932-490a-8622-5706fff3b4b9",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.figma_editAccess": {
-      "name": "figma_editAccess",
+    "public.figma_edit_access": {
+      "name": "figma_edit_access",
       "schema": "",
       "columns": {
         "id": {
@@ -36,9 +36,9 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "figma_editAccess_requester_id_figma_users_id_fk": {
-          "name": "figma_editAccess_requester_id_figma_users_id_fk",
-          "tableFrom": "figma_editAccess",
+        "figma_edit_access_requester_id_figma_users_id_fk": {
+          "name": "figma_edit_access_requester_id_figma_users_id_fk",
+          "tableFrom": "figma_edit_access",
           "tableTo": "figma_users",
           "columnsFrom": [
             "requester_id"
@@ -49,12 +49,134 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "figma_editAccess_room_id_requested_for_figma_rooms_id_fk": {
-          "name": "figma_editAccess_room_id_requested_for_figma_rooms_id_fk",
-          "tableFrom": "figma_editAccess",
+        "figma_edit_access_room_id_requested_for_figma_rooms_id_fk": {
+          "name": "figma_edit_access_room_id_requested_for_figma_rooms_id_fk",
+          "tableFrom": "figma_edit_access",
           "tableTo": "figma_rooms",
           "columnsFrom": [
             "room_id_requested_for"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.figma_email_verification_request": {
+      "name": "figma_email_verification_request",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "code": {
+          "name": "code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "figma_email_verification_request_user_id_figma_users_id_fk": {
+          "name": "figma_email_verification_request_user_id_figma_users_id_fk",
+          "tableFrom": "figma_email_verification_request",
+          "tableTo": "figma_users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.figma_password_reset_session": {
+      "name": "figma_password_reset_session",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "code": {
+          "name": "code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email_verified": {
+          "name": "email_verified",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "two_factor_verified": {
+          "name": "two_factor_verified",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "figma_password_reset_session_user_id_figma_users_id_fk": {
+          "name": "figma_password_reset_session_user_id_figma_users_id_fk",
+          "tableFrom": "figma_password_reset_session",
+          "tableTo": "figma_users",
+          "columnsFrom": [
+            "user_id"
           ],
           "columnsTo": [
             "id"
@@ -177,6 +299,13 @@
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
+        },
+        "verified": {
+          "name": "verified",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
         }
       },
       "indexes": {},
