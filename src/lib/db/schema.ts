@@ -44,20 +44,24 @@ export const sessions = createTable("sessions", {
 
 export type Session = typeof sessions.$inferSelect;
 
-export const emailVerificationRequests = createTable("email_verification_request", {
-  id: text("id").primaryKey(),
-  userId: integer("user_id")
-    .notNull()
-    .references(() => users.id),
-  email: text("email").notNull(),
-  code: text("code").notNull(),
-  expiresAt: timestamp("expires_at", {
-    withTimezone: true,
-    mode: "date",
-  }).notNull(),
-})
+export const emailVerificationRequests = createTable(
+  "email_verification_request",
+  {
+    id: text("id").primaryKey(),
+    userId: integer("user_id")
+      .notNull()
+      .references(() => users.id),
+    email: text("email").notNull(),
+    code: text("code").notNull(),
+    expiresAt: timestamp("expires_at", {
+      withTimezone: true,
+      mode: "date",
+    }).notNull(),
+  },
+);
 
-export type EmailVerificationRequest = typeof emailVerificationRequests.$inferSelect;
+export type EmailVerificationRequest =
+  typeof emailVerificationRequests.$inferSelect;
 
 export const rooms = createTable("rooms", {
   id: varchar("id").primaryKey(),
@@ -77,12 +81,8 @@ export const passwordResetSession = createTable("password_reset_session", {
     withTimezone: true,
     mode: "date",
   }).notNull(),
-  emailVerified: boolean("email_verified")
-    .notNull()
-    .default(false),
-  twoFactorVerified: boolean("two_factor_verified")
-    .notNull()
-    .default(false),
+  emailVerified: boolean("email_verified").notNull().default(false),
+  twoFactorVerified: boolean("two_factor_verified").notNull().default(false),
 });
 
 export const editAccess = createTable("edit_access", {
