@@ -157,7 +157,7 @@ export const deleteRoomAction = async (
 };
 
 export async function verifyOTPAction(formData: FormData) {
-  console.log("action started")
+  console.log("action started");
   const otpValues = [];
   for (let i = 0; i < 8; i++) {
     otpValues.push(formData.get(`otp[${i}]`) || "");

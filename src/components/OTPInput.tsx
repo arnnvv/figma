@@ -14,7 +14,7 @@ export function OTPInput(): JSX.Element {
       input.value = input.value.toUpperCase();
       if (index < 7) {
         const nextInput = document.querySelector<HTMLInputElement>(
-          `input[name='otp[${index + 1}]']`
+          `input[name='otp[${index + 1}]']`,
         );
         nextInput?.focus();
       } else if (index === 7) {
@@ -24,13 +24,10 @@ export function OTPInput(): JSX.Element {
     }
   };
 
-  const handleKeyDown = (
-    e: KeyboardEvent<HTMLInputElement>,
-    index: number
-  ) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>, index: number) => {
     if (e.key === "Backspace" && !e.currentTarget.value && index > 0) {
       const prevInput = document.querySelector<HTMLInputElement>(
-        `input[name='otp[${index - 1}]']`
+        `input[name='otp[${index - 1}]']`,
       );
       prevInput?.focus();
     }
