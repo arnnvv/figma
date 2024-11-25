@@ -120,6 +120,7 @@ export const signUpAction = async (
     const sessionToken = generateSessionToken();
     const session = await createSession(sessionToken, userId);
     await setSessionTokenCookie(sessionToken, session.expiresAt);
+
   } catch (e) {
     return { error: JSON.stringify(e) };
   }
@@ -225,6 +226,35 @@ export async function verifyOTPAction(formData: FormData) {
     return {
       success: false,
       message: "An unexpected error occurred",
+    };
+  }
+}
+
+export async function resendOTPAction() {
+  const { user } = await getCurrentSession();
+  if (!user) return {
+    success: false,
+    message: "Account Dosen't exist",
+  }
+  try {
+    const emailVerificationRequest = await createEmailVerificationRequest(
+      user.id,
+      user.email,
+    );
+
+    sendVerificationEmail(
+      emailVerificationRequest.email,
+      emailVerificationRequest.code,
+    );
+
+    return { 
+      success: true, 
+      message: "New OTP has been sent to your email." 
+    };
+  } catch (error) {
+    return { 
+      success: false, 
+      message: "Failed to resend OTP. Please try again." 
     };
   }
 }

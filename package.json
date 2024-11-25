@@ -5,7 +5,7 @@
   "scripts": {
     "d": "next dev --turbopack",
     "b": "next build",
-    "s": "next start",
+    "st": "next start",
     "l": "next lint",
     "f": "prettier --write \"**/*.{ts,tsx,js,jsx,mjs,js,md}\"",
     "ua": "pnpm dlx shadcn@latest add",
