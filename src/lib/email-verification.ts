@@ -55,20 +55,20 @@ export const sendVerificationEmail = async (
       user: process.env.EMAIL,
       pass: process.env.EMAIL_PASS,
     },
-  })
+  });
 
   const mailOptions = {
     from: process.env.EMAIL,
     to: email,
-    subject: 'Your OTP',
+    subject: "Your OTP",
     text: `Your OTP is ${code}`,
   };
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log('Email sent to:', email);
+    console.log("Email sent to:", email);
   } catch (error) {
-    console.error('Error sending email:', error);
+    console.error("Error sending email:", error);
     throw error;
   }
 };
