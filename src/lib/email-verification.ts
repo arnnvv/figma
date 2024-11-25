@@ -5,6 +5,7 @@ import {
   emailVerificationRequests,
 } from "./db/schema";
 import { eq } from "drizzle-orm";
+import { createTransport } from "nodemailer";
 
 export const createEmailVerificationRequest = async (
   userId: number,
@@ -46,5 +47,28 @@ export const sendVerificationEmail = async (
   email: string,
   code: string,
 ): Promise<void> => {
-  console.log(`To ${email}: Your verification code is ${code}`);
+  const transporter = createTransport({
+    host: process.env.SMTP_HOST,
+    port: Number(process.env.SMTP_PORT),
+    secure: true,
+    auth: {
+      user: process.env.EMAIL,
+      pass: process.env.EMAIL_PASS,
+    },
+  })
+
+  const mailOptions = {
+    from: process.env.EMAIL,
+    to: email,
+    subject: 'Your OTP',
+    text: `Your OTP is ${code}`,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log('Email sent to:', email);
+  } catch (error) {
+    console.error('Error sending email:', error);
+    throw error;
+  }
 };

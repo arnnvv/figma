@@ -37,6 +37,7 @@
     "lucide-react": "^0.441.0",
     "next": "15.0.4-canary.21",
     "next-themes": "^0.3.0",
+    "nodemailer": "^6.9.16",
     "react": "19.0.0-rc-66855b96-20241106",
     "react-dom": "19.0.0-rc-66855b96-20241106",
     "sonner": "^1.5.0",
@@ -47,6 +48,7 @@
   "devDependencies": {
     "@types/fabric": "^5.3.6",
     "@types/node": "^20",
+    "@types/nodemailer": "^6.4.17",
     "@types/react": "npm:types-react@19.0.0-rc.1",
     "@types/react-dom": "npm:types-react-dom@19.0.0-rc.1",
     "@types/uuid": "^10.0.0",
