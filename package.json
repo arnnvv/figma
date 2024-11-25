@@ -3,15 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
+    "d": "next dev --turbopack",
+    "b": "next build",
+    "s": "next start",
+    "l": "next lint",
     "f": "prettier --write \"**/*.{ts,tsx,js,jsx,mjs,js,md}\"",
     "ua": "pnpm dlx shadcn@latest add",
     "dg": "drizzle-kit generate",
     "dm": "drizzle-kit migrate",
-    "dp": "drizzle-kit push",
     "ds": "drizzle-kit studio"
   },
   "dependencies": {

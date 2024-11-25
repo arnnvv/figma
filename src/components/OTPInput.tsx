@@ -1,17 +1,18 @@
 "use client";
-
 import { verifyOTPAction } from "@/actions";
-import { FormEvent, JSX, KeyboardEvent, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { FormEvent, JSX, KeyboardEvent, useTransition } from "react";
+import { toast } from "sonner";
 
 export function OTPInput(): JSX.Element {
-  const [message, setMessage] = useState("");
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   const handleInput = (e: FormEvent<HTMLInputElement>, index: number) => {
     const input = e.currentTarget;
+    // Convert input to uppercase immediately
+    input.value = input.value.toUpperCase();
     if (input.value.length >= 1) {
-      // Optionally convert input to uppercase
-      input.value = input.value.toUpperCase();
       if (index < 7) {
         const nextInput = document.querySelector<HTMLInputElement>(
           `input[name='otp[${index + 1}]']`,
@@ -36,10 +37,14 @@ export function OTPInput(): JSX.Element {
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-
     startTransition(async () => {
       const result = await verifyOTPAction(formData);
-      setMessage(result.message);
+      if (result?.success) {
+        toast.success(result.message);
+        router.push("/dashboard");
+      } else {
+        toast.error(result?.message);
+      }
     });
   };
 
@@ -50,10 +55,10 @@ export function OTPInput(): JSX.Element {
           <input
             key={index}
             type="text"
-            pattern="[A-Za-z0-9]" // Accept alphanumeric characters
+            pattern="[A-Za-z0-9]"
             maxLength={1}
             name={`otp[${index}]`}
-            className="w-12 h-16 text-2xl text-center border-b-2 border-gray-300 bg-transparent text-gray-800 focus:outline-none focus:border-blue-500 transition-colors"
+            className="w-12 h-16 text-2xl text-center border-b-2 border-gray-300 bg-transparent text-gray-800 uppercase focus:outline-none focus:border-blue-500 transition-colors"
             required
             autoFocus={index === 0}
             onInput={(e) => handleInput(e, index)}
@@ -61,11 +66,7 @@ export function OTPInput(): JSX.Element {
           />
         ))}
       </div>
-      <button type="submit" disabled={isPending}>
-        Submit
-      </button>
-      {isPending && <p>Submitting...</p>}
-      <p>{message}</p>
+      <button type="submit" disabled={isPending} className="hidden" />
     </form>
   );
 }
