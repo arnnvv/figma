@@ -27,7 +27,7 @@ export default async (props: {
   const { roomId } = params;
   const { user, session } = await getCurrentSession();
   if (session === null) return redirect("/login");
-  if (!user.verified) return redirect("/email-verification")
+  if (!user.verified) return redirect("/email-verification");
   const result = await db
     .select({ id: rooms.id })
     .from(rooms)

@@ -3,7 +3,13 @@
 import { cache } from "react";
 import { cookies } from "next/headers";
 import { ActionResult } from "./components/FormComponent";
-import { editAccess, emailVerificationRequests, rooms, type User, users } from "./lib/db/schema";
+import {
+  editAccess,
+  emailVerificationRequests,
+  rooms,
+  type User,
+  users,
+} from "./lib/db/schema";
 import { db, pool } from "./lib/db";
 import { redirect } from "next/navigation";
 import { and, eq } from "drizzle-orm";
@@ -168,56 +174,57 @@ export async function verifyOTPAction(formData: FormData) {
     const otpValue = otpValues.join("");
 
     // Find the verification request for this user
-    const verificationRequest = await db.query.emailVerificationRequests.findFirst({
-      where: and(
-        eq(emailVerificationRequests.userId, user.id),
-        eq(emailVerificationRequests.code, otpValue)
-      )
-    });
+    const verificationRequest =
+      await db.query.emailVerificationRequests.findFirst({
+        where: and(
+          eq(emailVerificationRequests.userId, user.id),
+          eq(emailVerificationRequests.code, otpValue),
+        ),
+      });
 
     // Check if OTP is valid
     if (!verificationRequest) {
       // Delete the verification request regardless of success
-      await db.delete(emailVerificationRequests)
+      await db
+        .delete(emailVerificationRequests)
         .where(eq(emailVerificationRequests.userId, user.id));
-      
-      return { 
-        success: false, 
-        message: "Invalid or expired verification code" 
+
+      return {
+        success: false,
+        message: "Invalid or expired verification code",
       };
     }
 
     // Check if OTP has expired
     if (verificationRequest.expiresAt < new Date()) {
       // Delete the verification request
-      await db.delete(emailVerificationRequests)
+      await db
+        .delete(emailVerificationRequests)
         .where(eq(emailVerificationRequests.userId, user.id));
-      
-      return { 
-        success: false, 
-        message: "Verification code has expired" 
+
+      return {
+        success: false,
+        message: "Verification code has expired",
       };
     }
 
     // Update user as verified
-    await db.update(users)
-      .set({ verified: true })
-      .where(eq(users.id, user.id));
+    await db.update(users).set({ verified: true }).where(eq(users.id, user.id));
 
     // Delete the verification request
-    await db.delete(emailVerificationRequests)
+    await db
+      .delete(emailVerificationRequests)
       .where(eq(emailVerificationRequests.userId, user.id));
 
-    return { 
-      success: true, 
-      message: "Email verified successfully" 
+    return {
+      success: true,
+      message: "Email verified successfully",
     };
-
   } catch (error) {
-    console.error('OTP Verification Error:', error);
-    return { 
-      success: false, 
-      message: "An unexpected error occurred" 
+    console.error("OTP Verification Error:", error);
+    return {
+      success: false,
+      message: "An unexpected error occurred",
     };
   }
 }
