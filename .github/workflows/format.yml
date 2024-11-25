@@ -21,7 +21,7 @@ jobs:
           pnpm install
 
       - name: Run Prettier
-        run: pnpm format
+        run: pnpm f
 
       - name: Commit changes
         run: |

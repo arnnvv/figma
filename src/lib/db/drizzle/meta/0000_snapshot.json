@@ -1,5 +1,5 @@
 {
-  "id": "1613490b-6932-490a-8622-5706fff3b4b9",
+  "id": "eb06883f-1286-45ae-97cb-14d7da8baa45",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -72,7 +72,7 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "text",
+          "type": "serial",
           "primaryKey": true,
           "notNull": true
         },
@@ -288,12 +288,6 @@
           "primaryKey": false,
           "notNull": true
         },
-        "number": {
-          "name": "number",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": false
-        },
         "password": {
           "name": "password",
           "type": "varchar(255)",
@@ -317,13 +311,6 @@
           "nullsNotDistinct": false,
           "columns": [
             "email"
-          ]
-        },
-        "figma_users_number_unique": {
-          "name": "figma_users_number_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "number"
           ]
         }
       }

@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS "figma_edit_access" (
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "figma_email_verification_request" (
-	"id" text PRIMARY KEY NOT NULL,
+	"id" serial PRIMARY KEY NOT NULL,
 	"user_id" integer NOT NULL,
 	"email" text NOT NULL,
 	"code" text NOT NULL,
@@ -44,11 +44,9 @@ CREATE TABLE IF NOT EXISTS "figma_users" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"name" varchar NOT NULL,
 	"email" varchar(255) NOT NULL,
-	"number" varchar,
 	"password" varchar(255) NOT NULL,
 	"verified" boolean DEFAULT false NOT NULL,
-	CONSTRAINT "figma_users_email_unique" UNIQUE("email"),
-	CONSTRAINT "figma_users_number_unique" UNIQUE("number")
+	CONSTRAINT "figma_users_email_unique" UNIQUE("email")
 );
 --> statement-breakpoint
 DO $$ BEGIN
