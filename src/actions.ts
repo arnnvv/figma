@@ -155,3 +155,16 @@ export const deleteRoomAction = async (
     connection?.release();
   }
 };
+
+export async function verifyOTPAction(formData: FormData) {
+  console.log("action started")
+  const otpValues = [];
+  for (let i = 0; i < 8; i++) {
+    otpValues.push(formData.get(`otp[${i}]`) || "");
+  }
+  const otpValue = otpValues.join("");
+  console.log("OTP submitted:", otpValue);
+
+  // Here you would typically send the OTP to your server for verification
+  return { message: `OTP submitted: ${otpValue}` };
+}

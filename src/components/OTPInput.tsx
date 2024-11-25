@@ -1,61 +1,74 @@
 "use client";
 
-import { useState, useRef, useEffect, JSX, type KeyboardEvent } from "react";
+import { verifyOTPAction } from "@/actions";
+import { FormEvent, JSX, KeyboardEvent, useState, useTransition } from "react";
 
-export const OTPInput = (): JSX.Element => {
-  const [otp, setOtp] = useState(["", "", "", "", "", "", "", ""]);
-  const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
+export function OTPInput(): JSX.Element {
+  const [message, setMessage] = useState("");
+  const [isPending, startTransition] = useTransition();
 
-  useEffect(() => {
-    inputRefs.current[0]?.focus();
-  }, []);
-
-  const handleChange = (index: number, value: string) => {
-    if (value.length > 1) {
-      value = value.slice(0, 1);
-    }
-    const newOtp = [...otp];
-    newOtp[index] = value;
-    setOtp(newOtp);
-
-    if (value !== "" && index < 7) {
-      inputRefs.current[index + 1]?.focus();
-    }
-
-    if (index === 7 && value !== "") {
-      handleSubmit(newOtp.join(""));
+  const handleInput = (e: FormEvent<HTMLInputElement>, index: number) => {
+    const input = e.currentTarget;
+    if (input.value.length >= 1) {
+      // Optionally convert input to uppercase
+      input.value = input.value.toUpperCase();
+      if (index < 7) {
+        const nextInput = document.querySelector<HTMLInputElement>(
+          `input[name='otp[${index + 1}]']`
+        );
+        nextInput?.focus();
+      } else if (index === 7) {
+        // Submit the form when the last input is filled
+        input.form?.requestSubmit();
+      }
     }
   };
 
-  const handleKeyDown = (index: number, e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Backspace" && otp[index] === "" && index > 0) {
-      inputRefs.current[index - 1]?.focus();
+  const handleKeyDown = (
+    e: KeyboardEvent<HTMLInputElement>,
+    index: number
+  ) => {
+    if (e.key === "Backspace" && !e.currentTarget.value && index > 0) {
+      const prevInput = document.querySelector<HTMLInputElement>(
+        `input[name='otp[${index - 1}]']`
+      );
+      prevInput?.focus();
     }
   };
 
-  const handleSubmit = (otpValue: string) => {
-    console.log("OTP submitted:", otpValue);
-    // Here you would typically send the OTP to your server for verification
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+
+    startTransition(async () => {
+      const result = await verifyOTPAction(formData);
+      setMessage(result.message);
+    });
   };
 
   return (
-    <div className="flex justify-center space-x-4">
-      {otp.map((digit, index) => (
-        <input
-          key={index}
-          ref={(el) => {
-            inputRefs.current[index] = el;
-          }}
-          type="text"
-          inputMode="numeric"
-          pattern="\d*"
-          maxLength={1}
-          value={digit}
-          onChange={(e) => handleChange(index, e.target.value)}
-          onKeyDown={(e) => handleKeyDown(index, e)}
-          className="w-12 h-16 text-2xl text-center border-b-2 border-gray-300 bg-transparent text-gray-800 focus:outline-none focus:border-blue-500 transition-colors"
-        />
-      ))}
-    </div>
+    <form onSubmit={handleSubmit}>
+      <div className="flex justify-center space-x-4">
+        {[...Array(8)].map((_, index) => (
+          <input
+            key={index}
+            type="text"
+            pattern="[A-Za-z0-9]" // Accept alphanumeric characters
+            maxLength={1}
+            name={`otp[${index}]`}
+            className="w-12 h-16 text-2xl text-center border-b-2 border-gray-300 bg-transparent text-gray-800 focus:outline-none focus:border-blue-500 transition-colors"
+            required
+            autoFocus={index === 0}
+            onInput={(e) => handleInput(e, index)}
+            onKeyDown={(e) => handleKeyDown(e, index)}
+          />
+        ))}
+      </div>
+      <button type="submit" disabled={isPending}>
+        Submit
+      </button>
+      {isPending && <p>Submitting...</p>}
+      <p>{message}</p>
+    </form>
   );
-};
+}
