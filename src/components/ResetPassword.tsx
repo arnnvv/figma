@@ -8,7 +8,11 @@ import { toast } from "sonner";
 import { resetPasswordAction } from "@/actions";
 import { useRouter } from "next/navigation";
 
-export const ResetPasswordForm = ({ email }: { email: string }): JSX.Element => {
+export const ResetPasswordForm = ({
+  email,
+}: {
+  email: string;
+}): JSX.Element => {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
@@ -40,7 +44,10 @@ export const ResetPasswordForm = ({ email }: { email: string }): JSX.Element => 
           <input type="hidden" name="email" value={email} />
           <div className="space-y-4">
             <div>
-              <Label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              <Label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
+              >
                 New Password
               </Label>
               <Input
@@ -53,7 +60,10 @@ export const ResetPasswordForm = ({ email }: { email: string }): JSX.Element => 
               />
             </div>
             <div>
-              <Label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+              <Label
+                htmlFor="confirmPassword"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Confirm New Password
               </Label>
               <Input

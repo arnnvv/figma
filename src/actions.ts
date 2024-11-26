@@ -421,12 +421,12 @@ export async function resetPasswordAction(formData: FormData) {
       };
     }
 
-  const strongPassword = await verifyPasswordStrength(password);
-  if (!strongPassword)
-    return {
-      success: false,
-      message: "Weak Password",
-  };
+    const strongPassword = await verifyPasswordStrength(password);
+    if (!strongPassword)
+      return {
+        success: false,
+        message: "Weak Password",
+      };
 
     const hashedPassword = await hashPassword(password);
 
