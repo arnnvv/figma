@@ -20,8 +20,8 @@ export const ForgotPassword = (): JSX.Element => {
 
       if (result.success) {
         toast.success(result.message);
-        const email = formData.get("email") as string;
-        router.push(`/forgot2?email=${encodeURIComponent(email)}`);
+        const email = formData.get("email");
+        router.push(`/forgot2/${email}`);
       } else {
         toast.error(result.message);
       }

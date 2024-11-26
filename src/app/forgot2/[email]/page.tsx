@@ -9,9 +9,10 @@ export default async function Page(props: {
   }>;
 }): Promise<JSX.Element> {
   const params = await props.params;
-  const email = (params.email as string) || "";
   const { session } = await getCurrentSession();
   if (session !== null) return redirect("/dashboard");
+  const emailBAD = params.email;
+  const email = decodeURIComponent(emailBAD)
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-blue-50 p-4">
