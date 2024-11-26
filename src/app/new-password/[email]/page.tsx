@@ -14,5 +14,5 @@ export default async function Page(props: {
   const emailBAD = params.email;
   const email = decodeURIComponent(emailBAD);
 
-  return <ResetPasswordForm email={email}/>;
+  return <ResetPasswordForm email={email} />;
 }

@@ -1,35 +1,44 @@
-'use client'
-import { FormEvent, JSX, useState } from 'react'
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
+"use client";
+import { FormEvent, JSX, useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 
-export const ResetPasswordForm = ({ email }: { email: string }): JSX.Element => {
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [error, setError] = useState('')
+export const ResetPasswordForm = ({
+  email,
+}: {
+  email: string;
+}): JSX.Element => {
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
 
   const handleSubmit = (e: FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     if (password !== confirmPassword) {
-      setError('Passwords do not match')
-      return
+      setError("Passwords do not match");
+      return;
     }
     // Here you would typically call an API to reset the password
-    console.log('Password reset for', email)
-  }
+    console.log("Password reset for", email);
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100 p-4">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
           <h2 className="text-3xl font-bold text-gray-900">Reset Password</h2>
-          <p className="mt-2 text-sm text-gray-600">Enter a new password for {email}</p>
+          <p className="mt-2 text-sm text-gray-600">
+            Enter a new password for {email}
+          </p>
         </div>
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">
           <div className="space-y-4">
             <div>
-              <Label htmlFor="new-password" className="block text-sm font-medium text-gray-700">
+              <Label
+                htmlFor="new-password"
+                className="block text-sm font-medium text-gray-700"
+              >
                 New Password
               </Label>
               <Input
@@ -42,7 +51,10 @@ export const ResetPasswordForm = ({ email }: { email: string }): JSX.Element => 
               />
             </div>
             <div>
-              <Label htmlFor="confirm-password" className="block text-sm font-medium text-gray-700">
+              <Label
+                htmlFor="confirm-password"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Confirm New Password
               </Label>
               <Input
@@ -65,5 +77,5 @@ export const ResetPasswordForm = ({ email }: { email: string }): JSX.Element => 
         </form>
       </div>
     </div>
-  )
-}
+  );
+};
