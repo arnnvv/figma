@@ -1,5 +1,5 @@
 {
-  "id": "6baf4bec-470d-40bb-b9d9-3ca71a98e6f0",
+  "id": "0fb2d14b-690a-41fa-9883-deba980c320f",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -106,74 +106,6 @@
         "figma_email_verification_request_user_id_figma_users_id_fk": {
           "name": "figma_email_verification_request_user_id_figma_users_id_fk",
           "tableFrom": "figma_email_verification_request",
-          "tableTo": "figma_users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "public.figma_password_reset_session": {
-      "name": "figma_password_reset_session",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "email": {
-          "name": "email",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "code": {
-          "name": "code",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "expires_at": {
-          "name": "expires_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "email_verified": {
-          "name": "email_verified",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "two_factor_verified": {
-          "name": "two_factor_verified",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "figma_password_reset_session_user_id_figma_users_id_fk": {
-          "name": "figma_password_reset_session_user_id_figma_users_id_fk",
-          "tableFrom": "figma_password_reset_session",
           "tableTo": "figma_users",
           "columnsFrom": [
             "user_id"

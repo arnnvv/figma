@@ -1,4 +1,5 @@
 import { getCurrentSession } from "@/actions";
+import { ResetPasswordForm } from "@/components/ResetPassword";
 import { redirect } from "next/navigation";
 import { JSX } from "react";
 
@@ -13,5 +14,5 @@ export default async function Page(props: {
   const emailBAD = params.email;
   const email = decodeURIComponent(emailBAD);
 
-  return <>{email}</>;
+  return <ResetPasswordForm email={email}/>;
 }

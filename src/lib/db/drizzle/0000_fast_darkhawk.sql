@@ -19,16 +19,6 @@ CREATE TABLE IF NOT EXISTS "figma_email_verification_request" (
 	"expires_at" timestamp with time zone NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "figma_password_reset_session" (
-	"id" text PRIMARY KEY NOT NULL,
-	"user_id" integer NOT NULL,
-	"email" text NOT NULL,
-	"code" text NOT NULL,
-	"expires_at" timestamp with time zone NOT NULL,
-	"email_verified" boolean DEFAULT false NOT NULL,
-	"two_factor_verified" boolean DEFAULT false NOT NULL
-);
---> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "figma_rooms" (
 	"id" varchar PRIMARY KEY NOT NULL,
 	"owner_id" integer NOT NULL
@@ -63,12 +53,6 @@ END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "figma_email_verification_request" ADD CONSTRAINT "figma_email_verification_request_user_id_figma_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."figma_users"("id") ON DELETE no action ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "figma_password_reset_session" ADD CONSTRAINT "figma_password_reset_session_user_id_figma_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."figma_users"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
