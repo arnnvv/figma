@@ -313,12 +313,13 @@ export async function verifyOTPForgotPassword(formData: FormData) {
       otpValues.push((formData.get(`otp[${i}]`) as string) || "");
     }
     const otpValue = otpValues.join("");
-    const verificationRequest = await db.query.emailVerificationRequests.findFirst({
-      where: and(
-        eq(emailVerificationRequests.userId, userId),
-        eq(emailVerificationRequests.code, otpValue),
-      ),
-    });
+    const verificationRequest =
+      await db.query.emailVerificationRequests.findFirst({
+        where: and(
+          eq(emailVerificationRequests.userId, userId),
+          eq(emailVerificationRequests.code, otpValue),
+        ),
+      });
 
     if (!verificationRequest) {
       await db
@@ -361,7 +362,7 @@ export async function verifyOTPForgotPassword(formData: FormData) {
 
 export async function resendOTPForgotPassword(email: string) {
   try {
-        const user = await db.query.users.findFirst({
+    const user = await db.query.users.findFirst({
       where: eq(users.email, email),
     });
 
@@ -388,4 +389,3 @@ export async function resendOTPForgotPassword(email: string) {
     };
   }
 }
-
