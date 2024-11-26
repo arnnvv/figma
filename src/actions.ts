@@ -26,10 +26,7 @@ import {
   verifyPasswordStrength,
 } from "./lib/password";
 import { deleteSessionTokenCookie, setSessionTokenCookie } from "./lib/session";
-import {
-  createEmailVerificationRequest,
-  sendVerificationEmail,
-} from "./lib/email-verification";
+import { sendEmail } from "./lib/email-verification";
 
 export const getCurrentSession = cache(
   async (): Promise<SessionValidationResult> => {
@@ -107,15 +104,10 @@ export const signUpAction = async (
 
     if (!userId) throw new Error("Failed to retrieve inserted user ID");
 
-    const emailVerificationRequest = await createEmailVerificationRequest(
+    await sendEmail({
       userId,
       email,
-    );
-
-    sendVerificationEmail(
-      emailVerificationRequest.email,
-      emailVerificationRequest.code,
-    );
+    })
 
     const sessionToken = generateSessionToken();
     const session = await createSession(sessionToken, userId);
@@ -237,15 +229,10 @@ export async function resendOTPAction() {
       message: "Account Dosen't exist",
     };
   try {
-    const emailVerificationRequest = await createEmailVerificationRequest(
-      user.id,
-      user.email,
-    );
-
-    sendVerificationEmail(
-      emailVerificationRequest.email,
-      emailVerificationRequest.code,
-    );
+    await sendEmail({
+    userId: user.id,
+    email: user.email,
+    })
 
     return {
       success: true,

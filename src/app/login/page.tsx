@@ -10,9 +10,9 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { FormComponent } from "@/components/FormComponent";
 import { getCurrentSession, logInAction } from "@/actions";
 import { JSX } from "react";
+import { FormComponent } from "@/components/FormComponent";
 
 export default async function Page(): Promise<JSX.Element> {
   const { session } = await getCurrentSession();
@@ -47,6 +47,14 @@ export default async function Page(): Promise<JSX.Element> {
                   placeholder="********"
                   required
                 />
+              </div>
+              <div className="text-left">
+                <Link
+                  href="/forgot-password"
+                  className="text-sm text-blue-600 hover:text-blue-800"
+                >
+                  Forgot Password?
+                </Link>
               </div>
               <Button type="submit" className="w-full">
                 Sign In
