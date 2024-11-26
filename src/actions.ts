@@ -158,7 +158,6 @@ export async function verifyOTPAction(formData: FormData) {
   try {
     const { user } = await getCurrentSession();
     if (!user) return;
-    // Collect OTP digits
     const otpValues = [];
     for (let i = 0; i < 8; i++) {
       otpValues.push(formData.get(`otp[${i}]`) || "");
@@ -286,3 +285,107 @@ export async function forgotPasswordAction(formData: FormData) {
     };
   }
 }
+export async function verifyOTPForgotPassword(formData: FormData) {
+  try {
+    const userEmail = formData.get("userEmail") as string;
+    if (!userEmail) {
+      return {
+        success: false,
+        message: "User email is missing",
+      };
+    }
+
+    const user = await db.query.users.findFirst({
+      where: eq(users.email, userEmail),
+    });
+
+    if (!user) {
+      return {
+        success: false,
+        message: "User not found",
+      };
+    }
+
+    const userId = user.id;
+
+    const otpValues = [];
+    for (let i = 0; i < 8; i++) {
+      otpValues.push((formData.get(`otp[${i}]`) as string) || "");
+    }
+    const otpValue = otpValues.join("");
+    const verificationRequest = await db.query.emailVerificationRequests.findFirst({
+      where: and(
+        eq(emailVerificationRequests.userId, userId),
+        eq(emailVerificationRequests.code, otpValue),
+      ),
+    });
+
+    if (!verificationRequest) {
+      await db
+        .delete(emailVerificationRequests)
+        .where(eq(emailVerificationRequests.userId, userId));
+
+      return {
+        success: false,
+        message: "Invalid or expired verification code",
+      };
+    }
+
+    if (verificationRequest.expiresAt < new Date()) {
+      await db
+        .delete(emailVerificationRequests)
+        .where(eq(emailVerificationRequests.userId, userId));
+
+      return {
+        success: false,
+        message: "Verification code has expired",
+      };
+    }
+
+    await db
+      .delete(emailVerificationRequests)
+      .where(eq(emailVerificationRequests.userId, userId));
+
+    return {
+      success: true,
+      message: "Email verified successfully",
+    };
+  } catch (error) {
+    console.error("OTP Verification Error:", error);
+    return {
+      success: false,
+      message: "An unexpected error occurred",
+    };
+  }
+}
+
+export async function resendOTPForgotPassword(email: string) {
+  try {
+        const user = await db.query.users.findFirst({
+      where: eq(users.email, email),
+    });
+
+    if (!user) {
+      return {
+        success: false,
+        message: "User not found",
+      };
+    }
+
+    await sendEmail({
+      userId: user.id,
+      email: email,
+    });
+
+    return {
+      success: true,
+      message: "New OTP has been sent to your email.",
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: "Failed to resend OTP. Please try again.",
+    };
+  }
+}
+

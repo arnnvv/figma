@@ -1,5 +1,6 @@
 "use client";
-import { resendOTPAction, verifyOTPAction } from "@/actions";
+
+import { resendOTPForgotPassword, verifyOTPForgotPassword } from "@/actions";
 import { useRouter } from "next/navigation";
 import { FormEvent, JSX, KeyboardEvent, useTransition, useState } from "react";
 import { toast } from "sonner";
@@ -42,10 +43,10 @@ export const ForgotOTP = ({
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     startTransition(async () => {
-      const result = await verifyOTPAction(formData);
+      const result = await verifyOTPForgotPassword(formData);
       if (result?.success) {
         toast.success(result.message);
-        router.push("/dashboard");
+        router.push(`/new-password/{userEmail}`);
       } else {
         toast.error(result?.message);
       }
@@ -57,7 +58,7 @@ export const ForgotOTP = ({
 
     startResendTransition(async () => {
       try {
-        const result = await resendOTPAction();
+        const result = await resendOTPForgotPassword(userEmail);
         if (result?.success) {
           toast.success(result.message);
           // Start 60-second cooldown
@@ -83,6 +84,7 @@ export const ForgotOTP = ({
   return (
     <div>
       <form onSubmit={handleSubmit}>
+        <input type="hidden" name="userEmail" value={userEmail} />
         <div className="flex justify-center space-x-4">
           {[...Array(8)].map((_, index) => (
             <input
