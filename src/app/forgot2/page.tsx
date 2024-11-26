@@ -8,7 +8,7 @@ export default async function Page(props: {
     email: string;
   }>;
 }): Promise<JSX.Element> {
-    const params = await props.params;
+  const params = await props.params;
   const email = (params.email as string) || "";
   const { session } = await getCurrentSession();
   if (session !== null) return redirect("/dashboard");
