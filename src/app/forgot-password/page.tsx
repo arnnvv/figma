@@ -4,6 +4,6 @@ import { JSX } from "react";
 
 export default async function Page(): Promise<JSX.Element> {
   const { session } = await getCurrentSession();
-  if (session!==null) return redirect("/dashboard");
-  return <>HI</>
+  if (session !== null) return redirect("/dashboard");
+  return <>HI</>;
 }

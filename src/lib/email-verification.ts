@@ -73,14 +73,20 @@ export const sendVerificationEmail = async (
   }
 };
 
-export const sendEmail = async ({ userId, email }: { userId: number, email: string } ): Promise<void> => {
-    const emailVerificationRequest = await createEmailVerificationRequest(
-      userId,
-      email,
-    );
+export const sendEmail = async ({
+  userId,
+  email,
+}: {
+  userId: number;
+  email: string;
+}): Promise<void> => {
+  const emailVerificationRequest = await createEmailVerificationRequest(
+    userId,
+    email,
+  );
 
-    sendVerificationEmail(
-      emailVerificationRequest.email,
-      emailVerificationRequest.code,
-    );
-}
+  sendVerificationEmail(
+    emailVerificationRequest.email,
+    emailVerificationRequest.code,
+  );
+};

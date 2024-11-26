@@ -107,7 +107,7 @@ export const signUpAction = async (
     await sendEmail({
       userId,
       email,
-    })
+    });
 
     const sessionToken = generateSessionToken();
     const session = await createSession(sessionToken, userId);
@@ -230,9 +230,9 @@ export async function resendOTPAction() {
     };
   try {
     await sendEmail({
-    userId: user.id,
-    email: user.email,
-    })
+      userId: user.id,
+      email: user.email,
+    });
 
     return {
       success: true,
