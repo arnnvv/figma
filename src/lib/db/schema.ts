@@ -69,21 +69,6 @@ export const rooms = createTable("rooms", {
     .references(() => users.id),
 });
 
-export const passwordResetSession = createTable("password_reset_session", {
-  id: text("id").primaryKey(),
-  userId: integer("user_id")
-    .notNull()
-    .references(() => users.id),
-  email: text("email").notNull(),
-  code: text("code").notNull(),
-  expiresAt: timestamp("expires_at", {
-    withTimezone: true,
-    mode: "date",
-  }).notNull(),
-  emailVerified: boolean("email_verified").notNull().default(false),
-  twoFactorVerified: boolean("two_factor_verified").notNull().default(false),
-});
-
 export const editAccess = createTable("edit_access", {
   id: serial("id").primaryKey(),
   requesterId: integer("requester_id")

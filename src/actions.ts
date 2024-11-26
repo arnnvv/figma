@@ -245,3 +245,44 @@ export async function resendOTPAction() {
     };
   }
 }
+
+export async function forgotPasswordAction(formData: FormData) {
+  const email = formData.get("email") as string;
+  if (typeof email !== "string")
+    return {
+      success: false,
+      message: "Email is required",
+    };
+  if (!/^.+@.+\..+$/.test(email) && email.length < 256)
+    return {
+      success: false,
+      message: "Invalid email",
+    };
+
+  const existingUser: User | undefined = (await db.query.users.findFirst({
+    where: (users, { eq }) => eq(users.email, email),
+  })) as User | undefined;
+
+  if (!existingUser)
+    return {
+      success: false,
+      message: "User not found",
+    };
+
+  try {
+    await sendEmail({
+      userId: existingUser.id,
+      email: existingUser.email,
+    });
+
+    return {
+      success: true,
+      message: "OTP Sent",
+    };
+  } catch (e) {
+    return {
+      susscess: false,
+      message: `Error occured ${e}`,
+    };
+  }
+}
