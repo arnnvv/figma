@@ -46,7 +46,7 @@ export const ForgotOTP = ({
       const result = await verifyOTPForgotPassword(formData);
       if (result?.success) {
         toast.success(result.message);
-        router.push(`/new-password/{userEmail}`);
+        router.push(`/new-password/${userEmail}`);
       } else {
         toast.error(result?.message);
       }

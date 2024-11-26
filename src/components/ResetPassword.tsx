@@ -1,78 +1,77 @@
 "use client";
-import { FormEvent, JSX, useState } from "react";
+
+import { JSX, useTransition } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import { resetPasswordAction } from "@/actions";
+import { useRouter } from "next/navigation";
 
-export const ResetPasswordForm = ({
-  email,
-}: {
-  email: string;
-}): JSX.Element => {
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
+export const ResetPasswordForm = ({ email }: { email: string }): JSX.Element => {
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
-    // Here you would typically call an API to reset the password
-    console.log("Password reset for", email);
+  const handleSubmit = (formData: FormData) => {
+    startTransition(async () => {
+      const result = await resetPasswordAction(formData);
+
+      if (result.success) {
+        toast.success(result.message);
+        router.push("/login");
+      } else {
+        toast.error(result.message);
+      }
+    });
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100 p-4">
+    <div className="flex items-center justify-center min-h-screen bg-background p-4">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
-          <h2 className="text-3xl font-bold text-gray-900">Reset Password</h2>
-          <p className="mt-2 text-sm text-gray-600">
+          <h2 className="mt-6 text-3xl font-extrabold text-black">
+            Reset Password
+          </h2>
+          <p className="mt-2 text-sm text-muted-foreground">
             Enter a new password for {email}
           </p>
         </div>
-        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+        <form className="mt-8 space-y-6" action={handleSubmit}>
+          <input type="hidden" name="email" value={email} />
           <div className="space-y-4">
             <div>
-              <Label
-                htmlFor="new-password"
-                className="block text-sm font-medium text-gray-700"
-              >
+              <Label htmlFor="password" className="block text-sm font-medium text-gray-700">
                 New Password
               </Label>
               <Input
-                id="new-password"
+                id="password"
+                name="password"
                 type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
                 required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                className="mt-1 block w-full rounded-md border border-input bg-background text-black placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-input sm:text-sm"
+                placeholder="New Password"
               />
             </div>
             <div>
-              <Label
-                htmlFor="confirm-password"
-                className="block text-sm font-medium text-gray-700"
-              >
+              <Label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
                 Confirm New Password
               </Label>
               <Input
-                id="confirm-password"
+                id="confirmPassword"
+                name="confirmPassword"
                 type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
                 required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                className="mt-1 block w-full rounded-md border border-input bg-background text-black placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-input sm:text-sm"
+                placeholder="Confirm New Password"
               />
             </div>
           </div>
-          {error && <p className="text-sm text-red-600">{error}</p>}
           <Button
             type="submit"
-            className="w-full rounded-md bg-black py-2 text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+            className="w-full py-2 px-4 border border-transparent text-sm font-medium rounded-md text-primary-foreground bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+            disabled={isPending}
           >
-            Reset Password
+            {isPending ? "Resetting..." : "Reset Password"}
           </Button>
         </form>
       </div>

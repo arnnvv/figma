@@ -389,3 +389,63 @@ export async function resendOTPForgotPassword(email: string) {
     };
   }
 }
+
+export async function resetPasswordAction(formData: FormData) {
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
+  const confirmPassword = formData.get("confirmPassword") as string;
+
+  if (!email || !password || !confirmPassword) {
+    return {
+      success: false,
+      message: "Missing required fields",
+    };
+  }
+
+  if (password !== confirmPassword) {
+    return {
+      success: false,
+      message: "Passwords don't match",
+    };
+  }
+
+  try {
+    const user = await db.query.users.findFirst({
+      where: eq(users.email, email),
+    });
+
+    if (!user) {
+      return {
+        success: false,
+        message: "User not found",
+      };
+    }
+
+  const strongPassword = await verifyPasswordStrength(password);
+  if (!strongPassword)
+    return {
+      success: false,
+      message: "Weak Password",
+  };
+
+    const hashedPassword = await hashPassword(password);
+
+    await db
+      .update(users)
+      .set({
+        password: hashedPassword,
+      })
+      .where(eq(users.email, email));
+
+    return {
+      success: true,
+      message: "Password successfully reset",
+    };
+  } catch (error) {
+    console.error("Error resetting password:", error);
+    return {
+      success: false,
+      message: "An error occurred. Please try again.",
+    };
+  }
+}
