@@ -169,7 +169,10 @@ export const signUpAction = async (
   }
 };
 
-export const signOutAction = async (): Promise<{ success: boolean; message: string }> => {
+export const signOutAction = async (): Promise<{
+  success: boolean;
+  message: string;
+}> => {
   const { session } = await getCurrentSession();
   if (session === null)
     return {
@@ -177,19 +180,19 @@ export const signOutAction = async (): Promise<{ success: boolean; message: stri
       message: "Not authenticated",
     };
 
-    try {
-  await invalidateSession(session.id);
-  await deleteSessionTokenCookie();
-  return {
-  success: true,
-  message: "LoggingOut",
+  try {
+    await invalidateSession(session.id);
+    await deleteSessionTokenCookie();
+    return {
+      success: true,
+      message: "LoggingOut",
+    };
+  } catch (e) {
+    return {
+      success: false,
+      message: `Error LoggingOut ${e}`,
+    };
   }
-    } catch (e) {
-      return {
-        success: false,
-        message: `Error LoggingOut ${e}`
-      }
-    }
 };
 
 export const deleteRoomAction = async (
