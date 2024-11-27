@@ -7,6 +7,7 @@ import { db } from "@/lib/db";
 import { rooms } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { JSX } from "react";
+import { AuthFormComponent } from "./AuthFormComponent";
 
 export const Navbar = async (): Promise<JSX.Element> => {
   const { user, session } = await getCurrentSession();
@@ -38,9 +39,9 @@ export const Navbar = async (): Promise<JSX.Element> => {
       <div className="flex items-center gap-4">
         <NavbarClient isOwner={isOwner} />
         {user && (
-          <FormComponent action={signOutAction}>
+          <AuthFormComponent action={signOutAction}>
             <Button>Logout</Button>
-          </FormComponent>
+          </AuthFormComponent>
         )}
       </div>
     </nav>

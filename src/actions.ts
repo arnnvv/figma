@@ -169,13 +169,27 @@ export const signUpAction = async (
   }
 };
 
-export const signOutAction = async (): Promise<ActionResult> => {
+export const signOutAction = async (): Promise<{ success: boolean; message: string }> => {
   const { session } = await getCurrentSession();
-  if (session === null) return { error: "Not authenticated" };
+  if (session === null)
+    return {
+      success: false,
+      message: "Not authenticated",
+    };
 
+    try {
   await invalidateSession(session.id);
   await deleteSessionTokenCookie();
-  return redirect("/login");
+  return {
+  success: true,
+  message: "LoggingOut",
+  }
+    } catch (e) {
+      return {
+        success: false,
+        message: `Error LoggingOut ${e}`
+      }
+    }
 };
 
 export const deleteRoomAction = async (
