@@ -42,33 +42,55 @@ export const getCurrentSession = cache(
 export const logInAction = async (
   _: any,
   formData: FormData,
-): Promise<{ success: boolean; message: string }> => {
+): Promise<{
+  success: boolean;
+  message: string;
+}> => {
   const email = formData.get("email");
   if (typeof email !== "string")
-    return { success: false, message: "Email is required" };
+    return {
+      success: false,
+      message: "Email is required",
+    };
 
   if (!/^.+@.+\..+$/.test(email) || email.length >= 256)
-    return { success: false, message: "Invalid email" };
+    return {
+      success: false,
+      message: "Invalid email",
+    };
 
   const password = formData.get("password");
   if (typeof password !== "string")
-    return { success: false, message: "Password is required" };
+    return {
+      success: false,
+      message: "Password is required",
+    };
 
   try {
     const existingUser: User | undefined = (await db.query.users.findFirst({
       where: (users, { eq }) => eq(users.email, email),
     })) as User | undefined;
 
-    if (!existingUser) return { success: false, message: "User not found" };
+    if (!existingUser)
+      return {
+        success: false,
+        message: "User not found",
+      };
 
     if (!(await verifyPasswordHash(existingUser.password, password)))
-      return { success: false, message: "Wrong Password" };
+      return {
+        success: false,
+        message: "Wrong Password",
+      };
 
     const sessionToken = generateSessionToken();
     const session = await createSession(sessionToken, existingUser.id);
     await setSessionTokenCookie(sessionToken, session.expiresAt);
 
-    return { success: true, message: "Login successful" };
+    return {
+      success: true,
+      message: "Login successful",
+    };
   } catch (e) {
     return {
       success: false,
