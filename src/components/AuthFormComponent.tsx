@@ -19,7 +19,7 @@ export const AuthFormComponent = ({
   const router = useRouter();
   const [state, formAction] = useActionState(action, {
     success: false,
-    message: ""
+    message: "",
   });
 
   useEffect(() => {
@@ -28,17 +28,17 @@ export const AuthFormComponent = ({
         id: "success-toast",
         action: {
           label: "Close",
-          onClick: (): string | number => toast.dismiss("success-toast")
-        }
+          onClick: (): string | number => toast.dismiss("success-toast"),
+        },
       });
       router.push("/dashboard");
     } else if (state.message) {
       toast.error(state.message, {
         id: "error-toast",
         action: {
-          label: "Close", 
-          onClick: (): string | number => toast.dismiss("error-toast")
-        }
+          label: "Close",
+          onClick: (): string | number => toast.dismiss("error-toast"),
+        },
       });
     }
   }, [state, router]);

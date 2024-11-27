@@ -44,36 +44,35 @@ export const logInAction = async (
   formData: FormData,
 ): Promise<{ success: boolean; message: string }> => {
   const email = formData.get("email");
-  if (typeof email !== "string") 
+  if (typeof email !== "string")
     return { success: false, message: "Email is required" };
-  
+
   if (!/^.+@.+\..+$/.test(email) || email.length >= 256)
     return { success: false, message: "Invalid email" };
-  
+
   const password = formData.get("password");
-  if (typeof password !== "string") 
+  if (typeof password !== "string")
     return { success: false, message: "Password is required" };
-  
+
   try {
     const existingUser: User | undefined = (await db.query.users.findFirst({
       where: (users, { eq }) => eq(users.email, email),
     })) as User | undefined;
-    
-    if (!existingUser) 
-      return { success: false, message: "User not found" };
-    
+
+    if (!existingUser) return { success: false, message: "User not found" };
+
     if (!(await verifyPasswordHash(existingUser.password, password)))
       return { success: false, message: "Wrong Password" };
-    
+
     const sessionToken = generateSessionToken();
     const session = await createSession(sessionToken, existingUser.id);
     await setSessionTokenCookie(sessionToken, session.expiresAt);
-    
+
     return { success: true, message: "Login successful" };
   } catch (e) {
-    return { 
-      success: false, 
-      message: `Login failed: ${JSON.stringify(e)}` 
+    return {
+      success: false,
+      message: `Login failed: ${JSON.stringify(e)}`,
     };
   }
 };
@@ -83,30 +82,29 @@ export const signUpAction = async (
   formData: FormData,
 ): Promise<{ success: boolean; message: string }> => {
   const email = formData.get("email");
-  if (typeof email !== "string") 
+  if (typeof email !== "string")
     return { success: false, message: "Email is required" };
-  
+
   if (!/^.+@.+\..+$/.test(email) || email.length >= 256)
     return { success: false, message: "Invalid email" };
-  
+
   const password = formData.get("password");
-  if (typeof password !== "string") 
+  if (typeof password !== "string")
     return { success: false, message: "Password is required" };
-  
+
   const strongPassword = await verifyPasswordStrength(password);
-  if (!strongPassword) 
-    return { success: false, message: "Weak Password" };
-  
+  if (!strongPassword) return { success: false, message: "Weak Password" };
+
   const username = formData.get("username");
-  if (typeof username !== "string" || !username) 
+  if (typeof username !== "string" || !username)
     return { success: false, message: "Name is required" };
-  
+
   try {
     const existingUser = (await db.query.users.findFirst({
       where: (users, { or, eq }) =>
         or(eq(users.email, email), eq(users.username, username)),
     })) as User | undefined;
-    
+
     if (existingUser) {
       if (existingUser.email === email) {
         return { success: false, message: "Email is already in use" };
@@ -115,36 +113,36 @@ export const signUpAction = async (
         return { success: false, message: "Username is already taken" };
       }
     }
-    
+
     const hashedPassword = await hashPassword(password);
     const newUser = {
       username,
       email,
       password: hashedPassword,
     };
-    
+
     const insertedUser = await db
       .insert(users)
       .values(newUser)
       .returning({ id: users.id });
-    
+
     const userId = insertedUser[0]?.id;
     if (!userId) throw new Error("Failed to retrieve inserted user ID");
-    
+
     await sendEmail({
       userId,
       email,
     });
-    
+
     const sessionToken = generateSessionToken();
     const session = await createSession(sessionToken, userId);
     await setSessionTokenCookie(sessionToken, session.expiresAt);
-    
+
     return { success: true, message: "Sign up successful" };
   } catch (e) {
-    return { 
-      success: false, 
-      message: `Sign up failed: ${JSON.stringify(e)}` 
+    return {
+      success: false,
+      message: `Sign up failed: ${JSON.stringify(e)}`,
     };
   }
 };

@@ -1,11 +1,17 @@
 import { JSX } from "react";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Github } from 'lucide-react';
+import { Github } from "lucide-react";
 import { signUpAction } from "@/actions";
 import { AuthFormComponent } from "./AuthFormComponent";
 
@@ -13,55 +19,62 @@ export const SignUpComp = (): JSX.Element => (
   <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
     <Card className="w-full max-w-md bg-gray-100 border-none shadow-none">
       <CardHeader className="space-y-2 pb-6">
-        <CardTitle className="text-3xl font-bold text-center">Sign Up</CardTitle>
-        <p className="text-sm text-muted-foreground text-center">Create an account to get started</p>
+        <CardTitle className="text-3xl font-bold text-center">
+          Sign Up
+        </CardTitle>
+        <p className="text-sm text-muted-foreground text-center">
+          Create an account to get started
+        </p>
       </CardHeader>
       <CardContent className="space-y-8">
-      <AuthFormComponent action={signUpAction}>
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email" className="text-sm font-medium">
-              Email
-            </Label>
-            <Input
-              name="email"
-              id="email"
-              placeholder="email@example.com"
-              type="email"
-              required
-              className="w-full px-3 py-2 border rounded-md"
-            />
+        <AuthFormComponent action={signUpAction}>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-sm font-medium">
+                Email
+              </Label>
+              <Input
+                name="email"
+                id="email"
+                placeholder="email@example.com"
+                type="email"
+                required
+                className="w-full px-3 py-2 border rounded-md"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="name" className="text-sm font-medium">
+                Username
+              </Label>
+              <Input
+                name="username"
+                id="username"
+                placeholder="Pick a Username"
+                type="text"
+                required
+                className="w-full px-3 py-2 border rounded-md"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-sm font-medium">
+                Password
+              </Label>
+              <Input
+                type="password"
+                name="password"
+                id="password"
+                placeholder="**********"
+                required
+                className="w-full px-3 py-2 border rounded-md"
+              />
+            </div>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="name" className="text-sm font-medium">
-              Username
-            </Label>
-            <Input
-              name="username"
-              id="username"
-              placeholder="Pick a Username"
-              type="text"
-              required
-              className="w-full px-3 py-2 border rounded-md"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password" className="text-sm font-medium">
-              Password
-            </Label>
-            <Input
-              type="password"
-              name="password"
-              id="password"
-              placeholder="**********"
-              required
-              className="w-full px-3 py-2 border rounded-md"
-            />
-          </div>
-        </div>
-        <Button type="submit" className="w-full bg-black hover:bg-gray-800 text-white py-2 mt-6">
-          Sign Up
-        </Button>
+          <Button
+            type="submit"
+            className="w-full bg-black hover:bg-gray-800 text-white py-2 mt-6"
+          >
+            Sign Up
+          </Button>
         </AuthFormComponent>
       </CardContent>
       <CardFooter className="flex flex-col items-center space-y-6">
@@ -80,11 +93,16 @@ export const SignUpComp = (): JSX.Element => (
               <Separator className="w-full" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-gray-100 px-2 text-muted-foreground">Or sign up with</span>
+              <span className="bg-gray-100 px-2 text-muted-foreground">
+                Or sign up with
+              </span>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <Button variant="outline" className="w-full bg-white hover:bg-gray-100 py-2">
+            <Button
+              variant="outline"
+              className="w-full bg-white hover:bg-gray-100 py-2"
+            >
               <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                 <path
                   d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -106,7 +124,10 @@ export const SignUpComp = (): JSX.Element => (
               </svg>
               Google
             </Button>
-            <Button variant="outline" className="w-full bg-white hover:bg-gray-100 py-2">
+            <Button
+              variant="outline"
+              className="w-full bg-white hover:bg-gray-100 py-2"
+            >
               <Github className="w-5 h-5 mr-2" />
               GitHub
             </Button>
