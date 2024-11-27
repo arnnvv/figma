@@ -5,13 +5,13 @@ import { users } from "./db/schema";
 export const getNameFromId = async (userId: number): Promise<string | null> => {
   try {
     const result = await db
-      .select({ name: users.name })
+      .select({ username: users.username })
       .from(users)
       .where(eq(users.id, userId))
       .limit(1);
 
     if (result.length > 0) {
-      return result[0].name;
+      return result[0].username;
     } else {
       console.log(`No user found with ID: ${userId}`);
       return null;

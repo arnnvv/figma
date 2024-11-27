@@ -21,7 +21,7 @@ export const editAccessStatusEnum = pgEnum("edit_access_status", [
 
 export const users = createTable("users", {
   id: serial("id").primaryKey(),
-  name: varchar("name").notNull(),
+  username: varchar("username").notNull(),
   email: varchar("email", { length: 255 }).unique().notNull(),
   password: varchar("password", { length: 255 }).notNull(),
   verified: boolean("verified").notNull().default(false),

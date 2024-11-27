@@ -42,80 +42,111 @@ export const getCurrentSession = cache(
 export const logInAction = async (
   _: any,
   formData: FormData,
-): Promise<ActionResult> => {
+): Promise<{ success: boolean; message: string }> => {
   const email = formData.get("email");
-  if (typeof email !== "string") return { error: "Email is required" };
-  if (!/^.+@.+\..+$/.test(email) && email.length < 256)
-    return { error: "Invalid email" };
+  if (typeof email !== "string") 
+    return { success: false, message: "Email is required" };
+  
+  if (!/^.+@.+\..+$/.test(email) || email.length >= 256)
+    return { success: false, message: "Invalid email" };
+  
   const password = formData.get("password");
-  if (typeof password !== "string") return { error: "Password is required" };
+  if (typeof password !== "string") 
+    return { success: false, message: "Password is required" };
+  
   try {
     const existingUser: User | undefined = (await db.query.users.findFirst({
       where: (users, { eq }) => eq(users.email, email),
     })) as User | undefined;
-
-    if (!existingUser) return { error: "User not found" };
-
+    
+    if (!existingUser) 
+      return { success: false, message: "User not found" };
+    
     if (!(await verifyPasswordHash(existingUser.password, password)))
-      return { error: "Wrong Password" };
+      return { success: false, message: "Wrong Password" };
+    
     const sessionToken = generateSessionToken();
     const session = await createSession(sessionToken, existingUser.id);
     await setSessionTokenCookie(sessionToken, session.expiresAt);
+    
+    return { success: true, message: "Login successful" };
   } catch (e) {
-    return { error: JSON.stringify(e) };
+    return { 
+      success: false, 
+      message: `Login failed: ${JSON.stringify(e)}` 
+    };
   }
-  return redirect("/dashboard");
 };
 
 export const signUpAction = async (
   _: any,
   formData: FormData,
-): Promise<ActionResult> => {
+): Promise<{ success: boolean; message: string }> => {
   const email = formData.get("email");
-  if (typeof email !== "string") return { error: "Email is required" };
-  if (!/^.+@.+\..+$/.test(email) && email.length < 256)
-    return { error: "Invalid email" };
+  if (typeof email !== "string") 
+    return { success: false, message: "Email is required" };
+  
+  if (!/^.+@.+\..+$/.test(email) || email.length >= 256)
+    return { success: false, message: "Invalid email" };
+  
   const password = formData.get("password");
-  if (typeof password !== "string") return { error: "Password is required" };
+  if (typeof password !== "string") 
+    return { success: false, message: "Password is required" };
+  
   const strongPassword = await verifyPasswordStrength(password);
-  if (!strongPassword) return { error: "Weak Password" };
-  const name = formData.get("name");
-  if (typeof name !== "string" || !name) return { error: "Name is required" };
+  if (!strongPassword) 
+    return { success: false, message: "Weak Password" };
+  
+  const username = formData.get("username");
+  if (typeof username !== "string" || !username) 
+    return { success: false, message: "Name is required" };
+  
   try {
     const existingUser = (await db.query.users.findFirst({
-      where: (users, { eq }) => eq(users.email, email),
+      where: (users, { or, eq }) =>
+        or(eq(users.email, email), eq(users.username, username)),
     })) as User | undefined;
-    if (existingUser) return { error: "User already exists" };
-
+    
+    if (existingUser) {
+      if (existingUser.email === email) {
+        return { success: false, message: "Email is already in use" };
+      }
+      if (existingUser.username === username) {
+        return { success: false, message: "Username is already taken" };
+      }
+    }
+    
     const hashedPassword = await hashPassword(password);
-
     const newUser = {
-      name,
+      username,
       email,
       password: hashedPassword,
     };
-
+    
     const insertedUser = await db
       .insert(users)
       .values(newUser)
       .returning({ id: users.id });
-
+    
     const userId = insertedUser[0]?.id;
-
     if (!userId) throw new Error("Failed to retrieve inserted user ID");
-
+    
     await sendEmail({
       userId,
       email,
     });
-
+    
     const sessionToken = generateSessionToken();
     const session = await createSession(sessionToken, userId);
     await setSessionTokenCookie(sessionToken, session.expiresAt);
+    
+    return { success: true, message: "Sign up successful" };
   } catch (e) {
-    return { error: JSON.stringify(e) };
+    return { 
+      success: false, 
+      message: `Sign up failed: ${JSON.stringify(e)}` 
+    };
   }
-  return redirect("/email-verification");
 };
 
 export const signOutAction = async (): Promise<ActionResult> => {

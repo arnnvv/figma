@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS "figma_sessions" (
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "figma_users" (
 	"id" serial PRIMARY KEY NOT NULL,
-	"name" varchar NOT NULL,
+	"username" varchar NOT NULL,
 	"email" varchar(255) NOT NULL,
 	"password" varchar(255) NOT NULL,
 	"verified" boolean DEFAULT false NOT NULL,
