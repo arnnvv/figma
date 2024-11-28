@@ -1,10 +1,10 @@
-import { cookies, type UnsafeUnwrappedCookies } from "next/headers";
+import { cookies } from "next/headers";
 
 export async function setSessionTokenCookie(
   token: string,
   expiresAt: Date,
 ): Promise<void> {
-  ((await cookies()) as unknown as UnsafeUnwrappedCookies).set(
+  (await cookies()).set(
     "session",
     token,
     {
@@ -18,7 +18,7 @@ export async function setSessionTokenCookie(
 }
 
 export async function deleteSessionTokenCookie(): Promise<void> {
-  ((await cookies()) as unknown as UnsafeUnwrappedCookies).set("session", "", {
+  (await cookies()).set("session", "", {
     httpOnly: true,
     path: "/",
     secure: process.env.NODE_ENV === "production",
