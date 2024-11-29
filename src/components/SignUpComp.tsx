@@ -99,6 +99,10 @@ export const SignUpComp = (): JSX.Element => (
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
+                    <Link
+  href="/login/google"
+  className="w-full"
+>
             <Button
               variant="outline"
               className="w-full bg-white hover:bg-gray-100 py-2"
@@ -124,6 +128,11 @@ export const SignUpComp = (): JSX.Element => (
               </svg>
               Google
             </Button>
+            </Link>
+                      <Link
+  href="/login/github"
+  className="w-full"
+>
             <Button
               variant="outline"
               className="w-full bg-white hover:bg-gray-100 py-2"
@@ -131,6 +140,7 @@ export const SignUpComp = (): JSX.Element => (
               <Github className="w-5 h-5 mr-2" />
               GitHub
             </Button>
+            </Link>
           </div>
         </div>
       </CardFooter>
