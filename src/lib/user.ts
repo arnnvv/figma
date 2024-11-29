@@ -38,7 +38,7 @@ export async function getUserFromGoogleId(
       .from(users)
       .where(eq(users.username, `google-${googleId}`))
       .limit(1);
-    
+
     return user || null;
   } catch (error) {
     console.error("Error fetching user by Google ID:", error);

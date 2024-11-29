@@ -25,7 +25,7 @@ export const users = createTable("users", {
   email: varchar("email", { length: 255 }).unique().notNull(),
   password: varchar("password", { length: 255 }).notNull(),
   verified: boolean("verified").notNull().default(false),
-  picture: text("picture")
+  picture: text("picture"),
 });
 
 export type User = typeof users.$inferSelect;
