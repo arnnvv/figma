@@ -46,8 +46,12 @@ export async function getUserFromGoogleId(
   }
 }
 
-export async function createUserGithub(githubId: number, email: string, username: string): Promise<User> {
-try {
+export async function createUserGithub(
+  githubId: number,
+  email: string,
+  username: string,
+): Promise<User> {
+  try {
     const [newUser] = await db
       .insert(users)
       .values({
@@ -67,12 +71,16 @@ try {
   }
 }
 
-export async function getUserFromGitHubId(githubId: number): Promise<User | null> {
-    const foundUsers = await db
-      .select()
-      .from(users)
-      .where(eq(users.picture, `https://avatars.githubusercontent.com/u/${githubId}`))
-      .limit(1);
+export async function getUserFromGitHubId(
+  githubId: number,
+): Promise<User | null> {
+  const foundUsers = await db
+    .select()
+    .from(users)
+    .where(
+      eq(users.picture, `https://avatars.githubusercontent.com/u/${githubId}`),
+    )
+    .limit(1);
 
-    return foundUsers.length > 0 ? foundUsers[0] : null;
+  return foundUsers.length > 0 ? foundUsers[0] : null;
 }
