@@ -6,8 +6,15 @@ import { createUserGoogle, getUserFromGoogleId } from "@/lib/user";
 import { createSession, generateSessionToken } from "@/lib/auth";
 import { setSessionTokenCookie } from "@/lib/session";
 import { getCurrentSession } from "@/actions";
+import { globalGETRateLimit } from "@/lib/request";
 
 export async function GET(request: Request): Promise<Response> {
+    if (!globalGETRateLimit()) {
+    return new Response("Too many requests", {
+      status: 429,
+    });
+  }
+
   const { session } = await getCurrentSession();
   if (session !== null)
     return new Response("Logged In", {

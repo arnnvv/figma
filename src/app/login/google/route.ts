@@ -1,9 +1,16 @@
 import { getCurrentSession } from "@/actions";
 import { google } from "@/lib/oauth";
+import { globalGETRateLimit } from "@/lib/request";
 import { generateState, generateCodeVerifier } from "arctic";
 import { cookies } from "next/headers";
 
 export async function GET(): Promise<Response> {
+    if (!globalGETRateLimit()) {
+    return new Response("Too many requests", {
+      status: 429,
+    });
+  }
+
   const { session } = await getCurrentSession();
   if (session !== null)
     return new Response("Logged In", {
