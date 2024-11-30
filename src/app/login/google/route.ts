@@ -5,7 +5,7 @@ import { generateState, generateCodeVerifier } from "arctic";
 import { cookies } from "next/headers";
 
 export async function GET(): Promise<Response> {
-    if (!globalGETRateLimit()) {
+  if (!globalGETRateLimit()) {
     return new Response("Too many requests", {
       status: 429,
     });

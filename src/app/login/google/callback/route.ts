@@ -9,7 +9,7 @@ import { getCurrentSession } from "@/actions";
 import { globalGETRateLimit } from "@/lib/request";
 
 export async function GET(request: Request): Promise<Response> {
-    if (!globalGETRateLimit()) {
+  if (!globalGETRateLimit()) {
     return new Response("Too many requests", {
       status: 429,
     });
