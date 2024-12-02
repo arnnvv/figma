@@ -9,7 +9,7 @@ export async function createUserGoogle(
   picture: string,
 ): Promise<User> {
   try {
-    const hashedPassword = await hashPassword(generateRandomPassword(10))
+    const hashedPassword = await hashPassword(generateRandomPassword(10));
     const [newUser] = await db
       .insert(users)
       .values({
@@ -53,7 +53,7 @@ export async function createUserGithub(
   username: string,
 ): Promise<User> {
   try {
-    const hashedPassword = await hashPassword(generateRandomPassword(10))
+    const hashedPassword = await hashPassword(generateRandomPassword(10));
 
     const [newUser] = await db
       .insert(users)
