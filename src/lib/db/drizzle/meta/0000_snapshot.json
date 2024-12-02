@@ -1,5 +1,5 @@
 {
-  "id": "ede36b2f-06ee-4bc2-894a-49e6f9c7261c",
+  "id": "8afa3cf4-0737-46c8-8aca-abe817616d4a",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -244,6 +244,13 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
+        "figma_users_username_unique": {
+          "name": "figma_users_username_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "username"
+          ]
+        },
         "figma_users_email_unique": {
           "name": "figma_users_email_unique",
           "nullsNotDistinct": false,

@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS "figma_users" (
 	"password" varchar(255) NOT NULL,
 	"verified" boolean DEFAULT false NOT NULL,
 	"picture" text,
+	CONSTRAINT "figma_users_username_unique" UNIQUE("username"),
 	CONSTRAINT "figma_users_email_unique" UNIQUE("email")
 );
 --> statement-breakpoint
