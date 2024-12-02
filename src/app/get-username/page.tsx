@@ -3,7 +3,7 @@ import { AuthFormComponent } from "@/components/AuthFormComponent";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AtSign } from 'lucide-react';
+import { AtSign } from "lucide-react";
 import { redirect } from "next/navigation";
 import { JSX } from "react";
 
@@ -30,7 +30,9 @@ export default async function GetUsername(): Promise<JSX.Element> {
           </div>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="username" className="text-black">Username</Label>
+              <Label htmlFor="username" className="text-black">
+                Username
+              </Label>
               <div className="relative">
                 <AtSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-black" />
                 <Input

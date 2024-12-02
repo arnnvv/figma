@@ -129,7 +129,7 @@ export const signUpAction = async (
   }
 
   const disallowedPrefixes = ["google-", "github-"];
-  if (disallowedPrefixes.some(prefix => username.startsWith(prefix))) {
+  if (disallowedPrefixes.some((prefix) => username.startsWith(prefix))) {
     return {
       success: false,
       message: "Username cannot start with 'google-' or 'github-'.",
@@ -553,8 +553,8 @@ export const changeUsernameAction = async (
     };
   }
 
-    const disallowedPrefixes = ["google-", "github-"];
-  if (disallowedPrefixes.some(prefix => username.startsWith(prefix))) {
+  const disallowedPrefixes = ["google-", "github-"];
+  if (disallowedPrefixes.some((prefix) => username.startsWith(prefix))) {
     return {
       success: false,
       message: "Username cannot start with 'google-' or 'github-'.",
