@@ -128,6 +128,13 @@ export const signUpAction = async (
     };
   }
 
+  const disallowedPrefixes = ["google-", "github-"];
+  if (disallowedPrefixes.some(prefix => username.startsWith(prefix))) {
+    return {
+      success: false,
+      message: "Username cannot start with 'google-' or 'github-'.",
+    };
+  }
   try {
     const existingUser = (await db.query.users.findFirst({
       where: (users, { or, eq }) =>
@@ -545,6 +552,15 @@ export const changeUsernameAction = async (
       message: "Username should not contain spaces.",
     };
   }
+
+    const disallowedPrefixes = ["google-", "github-"];
+  if (disallowedPrefixes.some(prefix => username.startsWith(prefix))) {
+    return {
+      success: false,
+      message: "Username cannot start with 'google-' or 'github-'.",
+    };
+  }
+
   try {
     const { user } = await getCurrentSession();
     if (!user)
