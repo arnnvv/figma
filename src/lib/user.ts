@@ -29,7 +29,7 @@ export async function createUserGoogle(
         .where(eq(users.email, email))
         .limit(1);
 
-      if (user.picture===null) {
+      if (user.picture === null) {
         const [newUser] = await db
           .update(users)
           .set({ picture })
@@ -84,7 +84,7 @@ export async function createUserGithub(
         .from(users)
         .where(eq(users.email, email))
         .limit(1);
-      if (user.picture===null) {
+      if (user.picture === null) {
         const [newUser] = await db
           .update(users)
           .set({
