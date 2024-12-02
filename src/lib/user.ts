@@ -29,7 +29,7 @@ export async function createUserGoogle(
         .where(eq(users.email, email))
         .limit(1);
 
-      if (!user.picture) {
+      if (user.picture===null) {
         const [newUser] = await db
           .update(users)
           .set({ picture })
@@ -48,7 +48,7 @@ export async function getUserFromGmail(email: string): Promise<User | null> {
     const [user] = await db
       .select()
       .from(users)
-      .where(eq(users.email, email))
+      .where(eq(users.username, `google-${email}`))
       .limit(1);
 
     return user || null;
@@ -84,7 +84,7 @@ export async function createUserGithub(
         .from(users)
         .where(eq(users.email, email))
         .limit(1);
-      if (!user.picture) {
+      if (user.picture===null) {
         const [newUser] = await db
           .update(users)
           .set({

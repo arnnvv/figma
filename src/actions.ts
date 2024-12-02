@@ -121,6 +121,13 @@ export const signUpAction = async (
   if (typeof username !== "string" || !username)
     return { success: false, message: "Name is required" };
 
+  if (username.includes(" ")) {
+    return {
+      success: false,
+      message: "Username should not contain spaces.",
+    };
+  }
+
   try {
     const existingUser = (await db.query.users.findFirst({
       where: (users, { or, eq }) =>
