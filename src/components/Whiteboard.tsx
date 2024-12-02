@@ -18,7 +18,6 @@ import {
   useEffect,
   useState,
   ChangeEvent,
-  MutableRefObject,
   useRef,
   RefObject,
   JSX,
@@ -76,15 +75,15 @@ export const Whiteboard = (): JSX.Element => {
   });
   const canvasRef: RefObject<HTMLCanvasElement | null> =
     useRef<HTMLCanvasElement>(null);
-  const fabricRef: MutableRefObject<fabric.Canvas | null> =
+  const fabricRef: RefObject<fabric.Canvas | null> =
     useRef<fabric.Canvas | null>(null);
   const isDrawing = useRef(false);
   const imageRef: RefObject<HTMLInputElement | null> =
     useRef<HTMLInputElement>(null);
-  const selectedShapeRef: MutableRefObject<string | null> = useRef<
+  const selectedShapeRef: RefObject<string | null> = useRef<
     string | null
   >(null);
-  const shapeRef: MutableRefObject<fabric.Object | null> =
+  const shapeRef: RefObject<fabric.Object | null> =
     useRef<fabric.Object | null>(null);
   const activeObjectRef = useRef<fabric.Object | null>(null);
   const isEditingRef = useRef(false);

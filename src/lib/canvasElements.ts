@@ -1,4 +1,4 @@
-import { Dispatch, MutableRefObject, SetStateAction } from "react";
+import { Dispatch, RefObject, SetStateAction } from "react";
 import { Attributes, CustomFabricObject, ModifyShape } from "../../types";
 import { fabric } from "fabric";
 import { defaultNavElement } from "./constants";
@@ -11,8 +11,8 @@ export const handleImageUpload = ({
   syncShapeInStorage,
 }: {
   file: File;
-  canvas: MutableRefObject<fabric.Canvas>;
-  shapeRef: MutableRefObject<fabric.Object | null>;
+  canvas: RefObject<fabric.Canvas>;
+  shapeRef: RefObject<fabric.Object | null>;
   syncShapeInStorage: (shape: fabric.Object) => void;
 }) => {
   const reader = new FileReader();
@@ -163,8 +163,8 @@ export const initializeFabric = ({
   fabricRef,
   canvasRef,
 }: {
-  fabricRef: MutableRefObject<fabric.Canvas | null>;
-  canvasRef: MutableRefObject<HTMLCanvasElement | null>;
+  fabricRef: RefObject<fabric.Canvas | null>;
+  canvasRef: RefObject<HTMLCanvasElement | null>;
 }): fabric.Canvas => {
   const canvasElement = document.getElementById("canvas");
   const canvas = new fabric.Canvas(canvasRef.current, {
@@ -185,8 +185,8 @@ export const handleCanvasMouseDown = ({
   options: fabric.IEvent;
   canvas: fabric.Canvas;
   selectedShapeRef: any;
-  isDrawing: MutableRefObject<boolean>;
-  shapeRef: MutableRefObject<fabric.Object | null>;
+  isDrawing: RefObject<boolean>;
+  shapeRef: RefObject<fabric.Object | null>;
 }) => {
   const pointer = canvas.getPointer(options.e);
   const target = canvas.findTarget(options.e, false);
@@ -226,7 +226,7 @@ export const handleCanvasMouseMove = ({
 }: {
   options: fabric.IEvent;
   canvas: fabric.Canvas;
-  isDrawing: MutableRefObject<boolean>;
+  isDrawing: RefObject<boolean>;
   selectedShapeRef: any;
   shapeRef: any;
   syncShapeInStorage: (shape: fabric.Object) => void;
@@ -285,9 +285,9 @@ export const handleCanvasMouseUp = ({
   setActiveElement,
 }: {
   canvas: fabric.Canvas;
-  isDrawing: MutableRefObject<boolean>;
+  isDrawing: RefObject<boolean>;
   shapeRef: any;
-  activeObjectRef: MutableRefObject<fabric.Object | null>;
+  activeObjectRef: RefObject<fabric.Object | null>;
   selectedShapeRef: any;
   syncShapeInStorage: (shape: fabric.Object) => void;
   setActiveElement: any;
@@ -369,7 +369,7 @@ export const handleCanvasSelectionCreated = ({
   setElementAttributes,
 }: {
   options: fabric.IEvent;
-  isEditingRef: MutableRefObject<boolean>;
+  isEditingRef: RefObject<boolean>;
   setElementAttributes: Dispatch<SetStateAction<Attributes>>;
 }) => {
   if (isEditingRef.current) return;
@@ -439,7 +439,7 @@ export const renderCanvas = ({
   canvasObjects,
   activeObjectRef,
 }: {
-  fabricRef: MutableRefObject<fabric.Canvas | null>;
+  fabricRef: RefObject<fabric.Canvas | null>;
   canvasObjects: any;
   activeObjectRef: any;
 }) => {

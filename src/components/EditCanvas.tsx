@@ -1,7 +1,7 @@
 "use client";
 
 import { useAtom } from "jotai";
-import { JSX, MutableRefObject, RefObject, useMemo, useRef } from "react";
+import { JSX, RefObject, useMemo, useRef } from "react";
 import { fabric } from "fabric";
 import { elementAttributesAtom } from "@/lib/atoms";
 import { Attributes } from "../../types";
@@ -19,7 +19,7 @@ export const EditCanvas = ({
 }: {
   fabricRef: RefObject<fabric.Canvas | null>;
   activeObjectRef: RefObject<fabric.Object | null>;
-  isEditingRef: MutableRefObject<boolean>;
+  isEditingRef: RefObject<boolean>;
   syncShapeInStorage: (obj: any) => void;
 }): JSX.Element => {
   const [elementAttributes, setElementAttributes] = useAtom(

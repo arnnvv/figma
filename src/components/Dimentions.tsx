@@ -1,4 +1,4 @@
-import { ChangeEvent, JSX } from "react";
+import { ChangeEvent, JSX, RefObject } from "react";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 
@@ -15,7 +15,7 @@ export const Dimentions = ({
 }: {
   width: string;
   height: string;
-  isEditingRef: React.MutableRefObject<boolean>;
+  isEditingRef: RefObject<boolean>;
   handleInputChange: (property: string, value: string) => void;
 }): JSX.Element => (
   <section className="flex flex-col border-b border-primary-grey-200">

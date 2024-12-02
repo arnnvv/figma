@@ -1,4 +1,4 @@
-import { ChangeEvent, MutableRefObject } from "react";
+import { ChangeEvent, RefObject } from "react";
 
 export enum CursorMode {
   Hidden,
@@ -45,7 +45,7 @@ export type ActiveElement = {
 
 export type AppbarProps = {
   activeElement: ActiveElement;
-  imageInputRef: MutableRefObject<HTMLInputElement | null>;
+  imageInputRef: RefObject<HTMLInputElement | null>;
   handleImageUpload: (e: ChangeEvent<HTMLInputElement>) => void;
   handleActiveElement: (element: ActiveElement) => void;
 };
@@ -81,6 +81,6 @@ export type ModifyShape = {
   canvas: fabric.Canvas;
   property: string;
   value: any;
-  activeObjectRef: MutableRefObject<fabric.Object | null>;
+  activeObjectRef: RefObject<fabric.Object | null>;
   syncShapeInStorage: (shape: fabric.Object) => void;
 };
