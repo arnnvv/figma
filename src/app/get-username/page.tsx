@@ -23,7 +23,10 @@ export default async function GetUsername(): Promise<JSX.Element> {
         <AuthFormComponent action={changeUsernameAction}>
           <div className="text-center">
             <h1 className="text-3xl font-bold text-black">Set Your Username</h1>
-            <p className="mt-2 text-sm text-black">Choose a unique username. Shouldn&apos;t start with google- or github-</p>
+            <p className="mt-2 text-sm text-black">
+              Choose a unique username. Shouldn&apos;t start with google- or
+              github-
+            </p>
           </div>
           <div className="space-y-2">
             <Label
