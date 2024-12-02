@@ -24,7 +24,8 @@ export async function createUserGoogle(
     return newUser;
   } catch (error) {
     if (error instanceof Error && error.message.includes("unique constraint")) {
-      throw new Error("A user with this Google ID or email already exists");
+     const user = await db.select().from(users).where(eq(users.email, email)).limit(1);
+     return user[0];
     }
     throw error;
   }
@@ -68,7 +69,8 @@ export async function createUserGithub(
     return newUser;
   } catch (error) {
     if (error instanceof Error && error.message.includes("unique constraint")) {
-      throw new Error("A user with this GitHub ID or email already exists");
+     const user = await db.select().from(users).where(eq(users.email, email)).limit(1);
+     return user[0];
     }
     throw error;
   }
