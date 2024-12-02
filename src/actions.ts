@@ -519,7 +519,7 @@ export async function resetPasswordAction(formData: FormData) {
 }
 
 export const changeUsernameAction = async (
-    _: any,
+  _: any,
   formData: FormData,
 ): Promise<{
   success: boolean;
@@ -532,39 +532,40 @@ export const changeUsernameAction = async (
       message: "username is required",
     };
 
- if (username.includes(' ')) {
+  if (username.includes(" ")) {
     return {
       success: false,
-      message: "Username should not contain spaces."
+      message: "Username should not contain spaces.",
     };
   }
- try {
-        const { user } = await getCurrentSession();
-        if (!user) return {
-          success: false,
-          message: "Not Logged in"
-        }
+  try {
+    const { user } = await getCurrentSession();
+    if (!user)
+      return {
+        success: false,
+        message: "Not Logged in",
+      };
 
     await db
       .update(users)
       .set({ username: username })
       .where(eq(users.email, user.email))
       .returning();
-    
+
     return {
       success: true,
       message: "Username set",
-    }
-    } catch (e) {
-      if (e instanceof Error && e.message.includes('unique constraint')) {
+    };
+  } catch (e) {
+    if (e instanceof Error && e.message.includes("unique constraint")) {
       return {
         success: false,
-        message: 'Username already taken',
+        message: "Username already taken",
       };
     }
-      return {
-        success: false,
-        message: `${e}`,
-      }
-    }
-}
+    return {
+      success: false,
+      message: `${e}`,
+    };
+  }
+};
