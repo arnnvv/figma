@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "./db";
 import { User, users } from "./db/schema";
-import { generateRandomPassword } from "./password";
+import { generateRandomPassword, hashPassword } from "./password";
 
 export async function createUserGoogle(
   googleId: string,
@@ -9,12 +9,13 @@ export async function createUserGoogle(
   picture: string,
 ): Promise<User> {
   try {
+    const hashedPassword = await hashPassword(generateRandomPassword(10))
     const [newUser] = await db
       .insert(users)
       .values({
         username: `google-${googleId}`,
         email,
-        password: generateRandomPassword(10),
+        password: hashedPassword,
         picture: picture,
         verified: true,
       })
@@ -52,12 +53,14 @@ export async function createUserGithub(
   username: string,
 ): Promise<User> {
   try {
+    const hashedPassword = await hashPassword(generateRandomPassword(10))
+
     const [newUser] = await db
       .insert(users)
       .values({
         username: `github-${username}`,
         email,
-        password: generateRandomPassword(10),
+        password: hashedPassword,
         picture: `https://avatars.githubusercontent.com/u/${githubId}`,
         verified: true,
       })

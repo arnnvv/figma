@@ -28,6 +28,7 @@ export default async (props: {
   const { user, session } = await getCurrentSession();
   if (session === null) return redirect("/login");
   if (!user.verified) return redirect("/email-verification");
+  if (user.username.startsWith('google-') || user.username.startsWith('github-')) return redirect("/get-username")
   const result = await db
     .select({ id: rooms.id })
     .from(rooms)

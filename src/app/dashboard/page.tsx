@@ -29,6 +29,7 @@ export default async (): Promise<JSX.Element> => {
   const { user, session } = await getCurrentSession();
   if (session === null) return redirect("/login");
   if (!user.verified) return redirect("/email-verification");
+  if (user.username.startsWith('google-') || user.username.startsWith('github-')) return redirect("/get-username");
   const res = await db
     .select({
       maxId: sql<number>`MAX(CAST(id AS INT))`.as("maxId"),
