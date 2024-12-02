@@ -4,7 +4,6 @@ import { User, users } from "./db/schema";
 import { generateRandomPassword, hashPassword } from "./password";
 
 export async function createUserGoogle(
-  googleId: string,
   email: string,
   picture: string,
 ): Promise<User> {
@@ -13,7 +12,7 @@ export async function createUserGoogle(
     const [newUser] = await db
       .insert(users)
       .values({
-        username: `google-${googleId}`,
+        username: `google-${email}`,
         email,
         password: hashedPassword,
         picture: picture,
@@ -24,25 +23,33 @@ export async function createUserGoogle(
     return newUser;
   } catch (error) {
     if (error instanceof Error && error.message.includes("unique constraint")) {
-      const user = await db
+      const [user] = await db
         .select()
         .from(users)
         .where(eq(users.email, email))
         .limit(1);
-      return user[0];
+
+        if (!user.picture) {
+  const [newUser] = await db
+    .update(users)
+    .set({ picture })
+    .where(eq(users.email, user.email)).returning();
+    return newUser;
+        }
+      return user;
     }
     throw error;
   }
 }
 
-export async function getUserFromGoogleId(
-  googleId: string,
+export async function getUserFromGmail(
+  email: string,
 ): Promise<User | null> {
   try {
     const [user] = await db
       .select()
       .from(users)
-      .where(eq(users.username, `google-${googleId}`))
+      .where(eq(users.email, email))
       .limit(1);
 
     return user || null;
@@ -73,12 +80,19 @@ export async function createUserGithub(
     return newUser;
   } catch (error) {
     if (error instanceof Error && error.message.includes("unique constraint")) {
-      const user = await db
+      const [user] = await db
         .select()
         .from(users)
         .where(eq(users.email, email))
         .limit(1);
-      return user[0];
+                if (!user.picture) {
+  const [newUser] = await db
+    .update(users)
+    .set({ picture: `https://avatars.githubusercontent.com/u/${githubId}` })
+    .where(eq(users.email, user.email)).returning();
+    return newUser;
+        }
+      return user;
     }
     throw error;
   }
