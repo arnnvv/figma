@@ -11,6 +11,9 @@
     "ua": "pnpm dlx shadcn@latest add",
     "dg": "drizzle-kit generate",
     "dm": "drizzle-kit migrate",
+    "dp": "drizzle-kit pull",
+    "du": "drizzle-kit up",
+    "dc": "drizzle-kit check",
     "ds": "drizzle-kit studio"
   },
   "dependencies": {
