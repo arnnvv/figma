@@ -80,9 +80,9 @@ export const Whiteboard = (): JSX.Element => {
   const isDrawing = useRef(false);
   const imageRef: RefObject<HTMLInputElement | null> =
     useRef<HTMLInputElement>(null);
-  const selectedShapeRef: RefObject<string | null> = useRef<
-    string | null
-  >(null);
+  const selectedShapeRef: RefObject<string | null> = useRef<string | null>(
+    null,
+  );
   const shapeRef: RefObject<fabric.Object | null> =
     useRef<fabric.Object | null>(null);
   const activeObjectRef = useRef<fabric.Object | null>(null);
