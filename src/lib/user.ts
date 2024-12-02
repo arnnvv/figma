@@ -29,22 +29,21 @@ export async function createUserGoogle(
         .where(eq(users.email, email))
         .limit(1);
 
-        if (!user.picture) {
-  const [newUser] = await db
-    .update(users)
-    .set({ picture })
-    .where(eq(users.email, user.email)).returning();
-    return newUser;
-        }
+      if (!user.picture) {
+        const [newUser] = await db
+          .update(users)
+          .set({ picture })
+          .where(eq(users.email, user.email))
+          .returning();
+        return newUser;
+      }
       return user;
     }
     throw error;
   }
 }
 
-export async function getUserFromGmail(
-  email: string,
-): Promise<User | null> {
+export async function getUserFromGmail(email: string): Promise<User | null> {
   try {
     const [user] = await db
       .select()
@@ -85,13 +84,16 @@ export async function createUserGithub(
         .from(users)
         .where(eq(users.email, email))
         .limit(1);
-                if (!user.picture) {
-  const [newUser] = await db
-    .update(users)
-    .set({ picture: `https://avatars.githubusercontent.com/u/${githubId}` })
-    .where(eq(users.email, user.email)).returning();
-    return newUser;
-        }
+      if (!user.picture) {
+        const [newUser] = await db
+          .update(users)
+          .set({
+            picture: `https://avatars.githubusercontent.com/u/${githubId}`,
+          })
+          .where(eq(users.email, user.email))
+          .returning();
+        return newUser;
+      }
       return user;
     }
     throw error;
