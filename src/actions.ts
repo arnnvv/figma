@@ -27,6 +27,7 @@ import {
 } from "./lib/password";
 import { deleteSessionTokenCookie, setSessionTokenCookie } from "./lib/session";
 import { sendEmail } from "./lib/email-verification";
+import { Liveblocks } from "@liveblocks/node";
 
 export const getCurrentSession = cache(
   async (): Promise<SessionValidationResult> => {
@@ -212,8 +213,16 @@ export const signOutAction = async (): Promise<{
 export const deleteRoomAction = async (
   roomId: string,
 ): Promise<ActionResult> => {
-  const { session } = await getCurrentSession();
+  const { user, session } = await getCurrentSession();
   if (!session) return { error: "Not logged in" };
+  const liveblocks = new Liveblocks({ secret: process.env.LIVEBLOCKS_SECRET_KEY! });
+  const room = await db.query.rooms.findFirst({
+    where: (rooms, { eq }) => eq(rooms.id, roomId)
+  });
+
+  if (!room) return { error: "Room not found" };
+  if (room.ownerId !== user.id) return { error: "Only the room owner can delete this room" };
+
   let connection;
   try {
     connection = await pool.connect();
@@ -224,6 +233,8 @@ export const deleteRoomAction = async (
       .where(eq(editAccess.roomIdRequestedFor, roomId));
 
     await db.delete(rooms).where(eq(rooms.id, roomId));
+
+    await liveblocks.deleteRoom(roomId);
 
     await connection.query("COMMIT");
 
