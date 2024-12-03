@@ -215,13 +215,16 @@ export const deleteRoomAction = async (
 ): Promise<ActionResult> => {
   const { user, session } = await getCurrentSession();
   if (!session) return { error: "Not logged in" };
-  const liveblocks = new Liveblocks({ secret: process.env.LIVEBLOCKS_SECRET_KEY! });
+  const liveblocks = new Liveblocks({
+    secret: process.env.LIVEBLOCKS_SECRET_KEY!,
+  });
   const room = await db.query.rooms.findFirst({
-    where: (rooms, { eq }) => eq(rooms.id, roomId)
+    where: (rooms, { eq }) => eq(rooms.id, roomId),
   });
 
   if (!room) return { error: "Room not found" };
-  if (room.ownerId !== user.id) return { error: "Only the room owner can delete this room" };
+  if (room.ownerId !== user.id)
+    return { error: "Only the room owner can delete this room" };
 
   let connection;
   try {
