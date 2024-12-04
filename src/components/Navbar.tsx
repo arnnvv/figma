@@ -1,13 +1,20 @@
 import { getCurrentSession, signOutAction } from "@/actions";
 import Image from "next/image";
-import { FormComponent } from "./FormComponent";
 import { Button } from "./ui/button";
 import { NavbarClient } from "./NavbarClient";
 import { db } from "@/lib/db";
 import { rooms } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { JSX } from "react";
-import { AuthFormComponent } from "./AuthFormComponent";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
+import { AvatarFallback, AvatarImage, AvatarSHAD } from "./ui/avatar";
+import { LogOut } from "lucide-react";
+import { SignOutFormComponent } from "./SignOutForm";
 
 export const Navbar = async (): Promise<JSX.Element> => {
   const { user, session } = await getCurrentSession();
@@ -38,11 +45,31 @@ export const Navbar = async (): Promise<JSX.Element> => {
 
       <div className="flex items-center gap-4">
         <NavbarClient isOwner={isOwner} />
-        {user && (
-          <AuthFormComponent action={signOutAction}>
-            <Button>Logout</Button>
-          </AuthFormComponent>
-        )}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <AvatarSHAD className="cursor-pointer">
+              <AvatarImage
+                src={user?.picture || "/default-avatar.png"}
+                alt={`${user?.username || "User"}'s avatar`}
+              />
+              <AvatarFallback>
+                {user?.username ? user.username.charAt(0).toUpperCase() : "U"}
+              </AvatarFallback>
+            </AvatarSHAD>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem asChild>
+              <SignOutFormComponent action={signOutAction}>
+                <Button variant="ghost" className="w-full justify-start">
+                  <>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </>
+                </Button>
+              </SignOutFormComponent>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </nav>
   );
