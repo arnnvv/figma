@@ -15,6 +15,7 @@ import {
 import { AvatarFallback, AvatarImage, AvatarSHAD } from "./ui/avatar";
 import { LogOut } from "lucide-react";
 import { SignOutFormComponent } from "./SignOutForm";
+import { UploadButton } from "./UploadButton";
 
 export const Navbar = async (): Promise<JSX.Element> => {
   const { user, session } = await getCurrentSession();
@@ -39,6 +40,8 @@ export const Navbar = async (): Promise<JSX.Element> => {
         .limit(1)
     ).length > 0;
 
+  const text: string = !user.picture ? "Upload Image" : "Change Image";
+
   return (
     <nav className="flex select-none items-center justify-between gap-4 bg-primary-black px-5 text-white">
       <Image src="/assets/logo.svg" alt="FigPro Logo" width={58} height={20} />
@@ -58,6 +61,9 @@ export const Navbar = async (): Promise<JSX.Element> => {
             </AvatarSHAD>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            <DropdownMenuItem asChild>
+              <UploadButton text={text} />
+            </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <SignOutFormComponent action={signOutAction}>
                 <Button variant="ghost" className="w-full justify-start">

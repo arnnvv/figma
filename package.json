@@ -34,6 +34,7 @@
     "@radix-ui/react-select": "^2.1.1",
     "@radix-ui/react-separator": "^1.1.0",
     "@radix-ui/react-slot": "^1.1.0",
+    "@uploadthing/react": "^7.1.2",
     "arctic": "^2.3.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
@@ -50,6 +51,7 @@
     "sonner": "^1.5.0",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
+    "uploadthing": "^7.4.0",
     "uuid": "^11.0.3"
   },
   "devDependencies": {
