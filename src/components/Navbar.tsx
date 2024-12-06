@@ -1,4 +1,4 @@
-import { getCurrentSession, signOutAction } from "@/actions";
+import { getCurrentSession, signOutAction, uploadFile } from "@/actions";
 import Image from "next/image";
 import { Button } from "./ui/button";
 import { NavbarClient } from "./NavbarClient";
@@ -13,9 +13,10 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { AvatarFallback, AvatarImage, AvatarSHAD } from "./ui/avatar";
-import { LogOut } from "lucide-react";
+import { LogOut, Upload } from "lucide-react";
 import { SignOutFormComponent } from "./SignOutForm";
-import { UploadButton } from "./UploadButton";
+import { FileInput } from "./FileInput";
+import { UploadFormComponent } from "./UploadFormComponent";
 
 export const Navbar = async (): Promise<JSX.Element> => {
   const { user, session } = await getCurrentSession();
@@ -62,7 +63,18 @@ export const Navbar = async (): Promise<JSX.Element> => {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem asChild>
-              <UploadButton text={text} />
+              <UploadFormComponent action={uploadFile}>
+                <label
+                  htmlFor="upload-button"
+                  className="w-full block cursor-pointer hover:bg-secondary p-2 rounded-md transition-colors"
+                >
+                  <div className="flex items-center">
+                    <Upload className="mr-2 h-4 w-4" />
+                    <span>{text}</span>
+                  </div>
+                  <FileInput />
+                </label>
+              </UploadFormComponent>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <SignOutFormComponent action={signOutAction}>

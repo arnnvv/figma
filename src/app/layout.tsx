@@ -1,14 +1,10 @@
 import "./globals.css";
 import type { Metadata, Viewport } from "next";
-import { JSX, ReactNode, Suspense } from "react";
+import { JSX, ReactNode } from "react";
 import { Toaster } from "sonner";
 import { Inter as FontSans } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { Navbar } from "@/components/Navbar";
-import { connection } from "next/server";
-import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
-import { extractRouterConfig } from "uploadthing/server";
-import { ourFileRouter } from "./api/uploadthing/core";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -38,12 +34,6 @@ const fontSans = FontSans({
   variable: "--font-sans",
 });
 
-async function UTSSR() {
-  await connection();
-
-  return <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />;
-}
-
 export default ({
   children,
 }: Readonly<{
@@ -56,9 +46,6 @@ export default ({
         fontSans.variable,
       )}
     >
-      <Suspense>
-        <UTSSR />
-      </Suspense>
       <Navbar />
       {children}
       <Toaster richColors={true} />

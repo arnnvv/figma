@@ -63,9 +63,6 @@ importers:
       '@radix-ui/react-slot':
         specifier: ^1.1.0
         version: 1.1.0(react@19.0.0-rc-66855b96-20241106)(types-react@19.0.0-rc.1)
-      '@uploadthing/react':
-        specifier: ^7.1.2
-        version: 7.1.2(next@15.0.4-canary.21(react-dom@19.0.0-rc-66855b96-20241106(react@19.0.0-rc-66855b96-20241106))(react@19.0.0-rc-66855b96-20241106))(react@19.0.0-rc-66855b96-20241106)(uploadthing@7.4.0(next@15.0.4-canary.21(react-dom@19.0.0-rc-66855b96-20241106(react@19.0.0-rc-66855b96-20241106))(react@19.0.0-rc-66855b96-20241106))(tailwindcss@3.4.12))
       arctic:
         specifier: ^2.3.0
         version: 2.3.0
@@ -1358,16 +1355,6 @@ packages:
   '@uploadthing/mime-types@0.3.2':
     resolution: {integrity: sha512-WP/K75S/649lM0GUcd9jq4RjeTIc/0bO2UmLx4+usTSNy/x0K8gV0JdLWeUUbmTQtJoHd4ZTSvAdG7ZQgcmXvA==}
 
-  '@uploadthing/react@7.1.2':
-    resolution: {integrity: sha512-qH6A/s53DvqGJfSsRMfbum6Zc3CZ135BmL/qmguJdzA8wqWyMoi3dbHcCn3+gUldViVHUqiR324DzK4PlCQKIQ==}
-    peerDependencies:
-      next: '*'
-      react: ^17.0.2 || ^18.0.0
-      uploadthing: 7.4.0
-    peerDependenciesMeta:
-      next:
-        optional: true
-
   '@uploadthing/shared@7.1.2':
     resolution: {integrity: sha512-RG26qUpPufDtuR6NQbFXIJAkkOLTgoU2pvF2MoUx3AsdCwM5/RrgwzsXudNBRER7rQQLg9/k8+Oq+jeVv30qhg==}
 
@@ -2069,10 +2056,6 @@ packages:
   file-entry-cache@6.0.1:
     resolution: {integrity: sha512-7Gps/XWymbLk2QLYK4NzpMOrYjMhdIxXuIvy2QBsLE6ljuodKvdkWs/cpyJJ3CVIVpH0Oi1Hvg1ovbMzLdFBBg==}
     engines: {node: ^10.12.0 || >=12.0.0}
-
-  file-selector@0.6.0:
-    resolution: {integrity: sha512-QlZ5yJC0VxHxQQsQhXvBaC7VRJ2uaxTf+Tfpu4Z/OcVQJVpZO+DGU0rkoVW5ce2SccxugvpBJoMvUs59iILYdw==}
-    engines: {node: '>= 12'}
 
   fill-range@7.1.1:
     resolution: {integrity: sha512-YsGpe3WHLK8ZYi4tWDg2Jy3ebRz2rXowDxnld4bkQB00cc/1Zw9AWnC0i9ztDJitivtQvaI9KaLyKrc+hBW0yg==}
@@ -4473,15 +4456,6 @@ snapshots:
 
   '@uploadthing/mime-types@0.3.2': {}
 
-  '@uploadthing/react@7.1.2(next@15.0.4-canary.21(react-dom@19.0.0-rc-66855b96-20241106(react@19.0.0-rc-66855b96-20241106))(react@19.0.0-rc-66855b96-20241106))(react@19.0.0-rc-66855b96-20241106)(uploadthing@7.4.0(next@15.0.4-canary.21(react-dom@19.0.0-rc-66855b96-20241106(react@19.0.0-rc-66855b96-20241106))(react@19.0.0-rc-66855b96-20241106))(tailwindcss@3.4.12))':
-    dependencies:
-      '@uploadthing/shared': 7.1.2
-      file-selector: 0.6.0
-      react: 19.0.0-rc-66855b96-20241106
-      uploadthing: 7.4.0(next@15.0.4-canary.21(react-dom@19.0.0-rc-66855b96-20241106(react@19.0.0-rc-66855b96-20241106))(react@19.0.0-rc-66855b96-20241106))(tailwindcss@3.4.12)
-    optionalDependencies:
-      next: 15.0.4-canary.21(react-dom@19.0.0-rc-66855b96-20241106(react@19.0.0-rc-66855b96-20241106))(react@19.0.0-rc-66855b96-20241106)
-
   '@uploadthing/shared@7.1.2':
     dependencies:
       '@uploadthing/mime-types': 0.3.2
@@ -5344,10 +5318,6 @@ snapshots:
   file-entry-cache@6.0.1:
     dependencies:
       flat-cache: 3.2.0
-
-  file-selector@0.6.0:
-    dependencies:
-      tslib: 2.7.0
 
   fill-range@7.1.1:
     dependencies:

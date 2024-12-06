@@ -28,6 +28,8 @@ import {
 import { deleteSessionTokenCookie, setSessionTokenCookie } from "./lib/session";
 import { sendEmail } from "./lib/email-verification";
 import { Liveblocks } from "@liveblocks/node";
+import { utapi } from "./lib/upload";
+import { UploadFileResult } from "uploadthing/types";
 
 export const getCurrentSession = cache(
   async (): Promise<SessionValidationResult> => {
@@ -606,3 +608,38 @@ export const changeUsernameAction = async (
     };
   }
 };
+
+export async function uploadFile(fd: FormData): Promise<{
+  success: boolean;
+  errorOrUrl: string;
+}> {
+  const { session, user } = await getCurrentSession();
+  if (session === null)
+    return {
+      success: false,
+      errorOrUrl: "Not Logged in",
+    };
+  const file = fd.get("file") as File;
+
+  const uploadedFile: UploadFileResult = await utapi.uploadFiles(file);
+  if (uploadedFile.error)
+    return {
+      success: false,
+      errorOrUrl: uploadedFile.error.message,
+    };
+  try {
+    await db
+      .update(users)
+      .set({ picture: uploadedFile.data.url })
+      .where(eq(users.id, user.id));
+  } catch (e) {
+    return {
+      success: false,
+      errorOrUrl: `Error updating image ${e}`,
+    };
+  }
+  return {
+    success: true,
+    errorOrUrl: uploadedFile.data.url,
+  };
+}
