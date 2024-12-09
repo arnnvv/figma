@@ -1,5 +1,4 @@
 import Image from "next/image";
-import styles from "./Avatar.module.css";
 import { JSX } from "react";
 
 export const Avatar = ({
@@ -10,13 +9,13 @@ export const Avatar = ({
   otherStyles: string;
 }): JSX.Element => (
   <div
-    className={`${styles.avatar} ${otherStyles} h-9 w-9`}
+    className={`relative flex items-center justify-center w-14 h-14 bg-gray-400 rounded-full border-4 border-white -ml-3 group ${otherStyles}`}
     data-tooltip={namename}
   >
     <Image
       src={`https://liveblocks.io/avatars/avatar-${Math.floor(Math.random() * 30)}.png`}
       fill
-      className={styles.avatar_picture}
+      className="w-full h-full rounded-full object-cover"
       alt={namename}
     />
   </div>

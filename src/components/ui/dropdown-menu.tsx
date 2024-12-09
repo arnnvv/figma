@@ -33,7 +33,7 @@ import {
 import { cn } from "@/lib/utils";
 import {
   ComponentPropsWithoutRef,
-  ElementRef,
+  ComponentRef,
   ForwardedRef,
   forwardRef,
   HTMLAttributes,
@@ -49,7 +49,7 @@ const DropdownMenuSub = Sub;
 const DropdownMenuRadioGroup = RadioGroup;
 
 const DropdownMenuSubTrigger = forwardRef<
-  ElementRef<typeof SubTrigger>,
+  ComponentRef<typeof SubTrigger>,
   ComponentPropsWithoutRef<typeof SubTrigger> & {
     inset?: boolean;
   }
@@ -83,7 +83,7 @@ const DropdownMenuSubTrigger = forwardRef<
 DropdownMenuSubTrigger.displayName = SubTrigger.displayName;
 
 const DropdownMenuSubContent = forwardRef<
-  ElementRef<typeof SubContent>,
+  ComponentRef<typeof SubContent>,
   ComponentPropsWithoutRef<typeof SubContent>
 >(
   (
@@ -106,7 +106,7 @@ const DropdownMenuSubContent = forwardRef<
 DropdownMenuSubContent.displayName = SubContent.displayName;
 
 const DropdownMenuContent = forwardRef<
-  ElementRef<typeof Content>,
+  ComponentRef<typeof Content>,
   ComponentPropsWithoutRef<typeof Content>
 >(
   (
@@ -134,7 +134,7 @@ const DropdownMenuContent = forwardRef<
 DropdownMenuContent.displayName = Content.displayName;
 
 const DropdownMenuItem = forwardRef<
-  ElementRef<typeof Item>,
+  ComponentRef<typeof Item>,
   ComponentPropsWithoutRef<typeof Item> & {
     inset?: boolean;
   }
@@ -163,7 +163,7 @@ const DropdownMenuItem = forwardRef<
 DropdownMenuItem.displayName = Item.displayName;
 
 const DropdownMenuCheckboxItem = forwardRef<
-  ElementRef<typeof CheckboxItem>,
+  ComponentRef<typeof CheckboxItem>,
   ComponentPropsWithoutRef<typeof CheckboxItem>
 >(
   (
@@ -199,7 +199,7 @@ const DropdownMenuCheckboxItem = forwardRef<
 DropdownMenuCheckboxItem.displayName = CheckboxItem.displayName;
 
 const DropdownMenuRadioItem = forwardRef<
-  ElementRef<typeof RadioItem>,
+  ComponentRef<typeof RadioItem>,
   ComponentPropsWithoutRef<typeof RadioItem>
 >(
   (
@@ -230,7 +230,7 @@ const DropdownMenuRadioItem = forwardRef<
 DropdownMenuRadioItem.displayName = RadioItem.displayName;
 
 const DropdownMenuLabel = forwardRef<
-  ElementRef<typeof Label>,
+  ComponentRef<typeof Label>,
   ComponentPropsWithoutRef<typeof Label> & {
     inset?: boolean;
   }
@@ -259,7 +259,7 @@ const DropdownMenuLabel = forwardRef<
 DropdownMenuLabel.displayName = Label.displayName;
 
 const DropdownMenuSeparator = forwardRef<
-  ElementRef<typeof Separator>,
+  ComponentRef<typeof Separator>,
   ComponentPropsWithoutRef<typeof Separator>
 >(
   (

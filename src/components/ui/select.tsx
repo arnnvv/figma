@@ -28,7 +28,7 @@ import { Check, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   ComponentPropsWithoutRef,
-  ElementRef,
+  ComponentRef,
   ForwardedRef,
   forwardRef,
   JSX,
@@ -40,7 +40,7 @@ const SelectGroup = Group;
 const SelectValue = Value;
 
 const SelectTrigger = forwardRef<
-  ElementRef<typeof Trigger>,
+  ComponentRef<typeof Trigger>,
   ComponentPropsWithoutRef<typeof Trigger>
 >(
   (
@@ -69,7 +69,7 @@ const SelectTrigger = forwardRef<
 SelectTrigger.displayName = Trigger.displayName;
 
 const SelectScrollUpButton = forwardRef<
-  ElementRef<typeof ScrollUpButton>,
+  ComponentRef<typeof ScrollUpButton>,
   ComponentPropsWithoutRef<typeof ScrollUpButton>
 >(
   (
@@ -94,7 +94,7 @@ const SelectScrollUpButton = forwardRef<
 SelectScrollUpButton.displayName = ScrollUpButton.displayName;
 
 const SelectScrollDownButton = forwardRef<
-  ElementRef<typeof ScrollDownButton>,
+  ComponentRef<typeof ScrollDownButton>,
   ComponentPropsWithoutRef<typeof ScrollDownButton>
 >(
   (
@@ -119,7 +119,7 @@ const SelectScrollDownButton = forwardRef<
 SelectScrollDownButton.displayName = ScrollDownButton.displayName;
 
 const SelectContent = forwardRef<
-  ElementRef<typeof Content>,
+  ComponentRef<typeof Content>,
   ComponentPropsWithoutRef<typeof Content>
 >(
   (
@@ -161,7 +161,7 @@ const SelectContent = forwardRef<
 SelectContent.displayName = Content.displayName;
 
 const SelectLabel = forwardRef<
-  ElementRef<typeof Label>,
+  ComponentRef<typeof Label>,
   ComponentPropsWithoutRef<typeof Label>
 >(
   (
@@ -181,7 +181,7 @@ const SelectLabel = forwardRef<
 SelectLabel.displayName = Label.displayName;
 
 const SelectItem = forwardRef<
-  ElementRef<typeof Item>,
+  ComponentRef<typeof Item>,
   ComponentPropsWithoutRef<typeof Item>
 >(
   (
@@ -213,7 +213,7 @@ const SelectItem = forwardRef<
 SelectItem.displayName = Item.displayName;
 
 const SelectSeparator = forwardRef<
-  ElementRef<typeof Separator>,
+  ComponentRef<typeof Separator>,
   ComponentPropsWithoutRef<typeof Separator>
 >(
   (

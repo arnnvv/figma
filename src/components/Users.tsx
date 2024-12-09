@@ -1,6 +1,5 @@
 import { useOthers, useSelf } from "@liveblocks/react/suspense";
 import { Avatar } from "./Avatar";
-import styles from "./Users.module.css";
 import { User } from "@liveblocks/client";
 import { generateRandomName } from "@/lib/utils";
 import { JSX, useMemo } from "react";
@@ -22,7 +21,6 @@ export const Users = (): JSX.Element => {
               />
             </div>
           )}
-
           {users.slice(0, 3).map(
             ({
               connectionId,
@@ -37,9 +35,25 @@ export const Users = (): JSX.Element => {
               />
             ),
           )}
-
           {hasMoreUsers && (
-            <div className={styles.more}>+{users.length - 3}</div>
+            <div
+              style={{
+                borderWidth: "4px",
+                borderRadius: "9999px",
+                borderColor: "white",
+                backgroundColor: "#9ca3af",
+                minWidth: "56px",
+                width: "56px",
+                height: "56px",
+                marginLeft: "-0.75rem",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                color: "white",
+              }}
+            >
+              +{users.length - 3}
+            </div>
           )}
         </div>
       </div>
