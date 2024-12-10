@@ -1,6 +1,6 @@
 {
   "name": "figma",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "d": "next dev --turbopack",
@@ -9,12 +9,12 @@
     "l": "next lint",
     "f": "prettier --write \"**/*.{ts,tsx,js,jsx,mjs,js,md}\"",
     "ua": "pnpm dlx shadcn@latest add",
-    "dg": "drizzle-kit generate",
-    "dm": "drizzle-kit migrate",
-    "dp": "drizzle-kit pull",
-    "du": "drizzle-kit up",
-    "dc": "drizzle-kit check",
-    "ds": "drizzle-kit studio"
+    "dg": "drizzle-kit generate --config=drizzle.config.ts",
+    "dm": "drizzle-kit migrate --config=drizzle.config.ts",
+    "dp": "drizzle-kit pull --config=drizzle.config.ts",
+    "du": "drizzle-kit upi --config=drizzle.config.ts",
+    "dc": "drizzle-kit check --config=drizzle.config.ts",
+    "ds": "drizzle-kit studio --config=drizzle.config.ts"
   },
   "dependencies": {
     "@liveblocks/client": "^2.7.0",
