@@ -12,7 +12,7 @@
     "dg": "drizzle-kit generate --config=drizzle.config.ts",
     "dm": "drizzle-kit migrate --config=drizzle.config.ts",
     "dp": "drizzle-kit pull --config=drizzle.config.ts",
-    "du": "drizzle-kit upi --config=drizzle.config.ts",
+    "du": "drizzle-kit up --config=drizzle.config.ts",
     "dc": "drizzle-kit check --config=drizzle.config.ts",
     "ds": "drizzle-kit studio --config=drizzle.config.ts"
   },
@@ -39,6 +39,7 @@
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.33.0",
     "fabric": "^5.3.0",
+    "framer-motion": "^11.13.5",
     "jotai": "^2.9.3",
     "jspdf": "^2.5.2",
     "lucide-react": "^0.441.0",
