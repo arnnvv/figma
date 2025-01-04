@@ -75,7 +75,7 @@ export const ForgotOTP = ({
         } else {
           toast.error(result?.message);
         }
-      } catch (error) {
+      } catch {
         toast.error("Failed to resend OTP. Please try again.");
       }
     });

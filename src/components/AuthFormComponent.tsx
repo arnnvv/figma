@@ -1,12 +1,17 @@
 "use client";
-import { JSX, type ReactNode, useState, useTransition } from "react";
+import {
+  Children,
+  cloneElement,
+  isValidElement,
+  JSX,
+  type ReactNode,
+  useState,
+  useTransition,
+} from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-
-export type ActionResult = {
-  success: boolean;
-  message: string;
-};
+import { Loader } from "./ui/loader";
+import { ActionResult, isFormControl } from "@/lib/form-control";
 
 export const AuthFormComponent = ({
   children,
@@ -17,7 +22,7 @@ export const AuthFormComponent = ({
 }): JSX.Element => {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [formState, setFormState] = useState<ActionResult>({
+  const [, setFormState] = useState<ActionResult>({
     success: false,
     message: "",
   });
@@ -46,7 +51,7 @@ export const AuthFormComponent = ({
             },
           });
         }
-      } catch (error) {
+      } catch {
         toast.error("An unexpected error occurred", {
           id: "error-toast",
           action: {
@@ -58,14 +63,17 @@ export const AuthFormComponent = ({
     });
   };
 
+  const disabledChildren = Children.map(children, (child) => {
+    if (isValidElement(child) && isFormControl(child)) {
+      return cloneElement(child, { disabled: isPending });
+    }
+    return child;
+  });
+
   return (
-    <form action={handleSubmit} aria-disabled={isPending}>
-      {children}
-      {isPending && (
-        <div className="absolute inset-0 flex items-center justify-center bg-white/50">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-        </div>
-      )}
+    <form action={handleSubmit}>
+      {disabledChildren}
+      {isPending && <Loader />}
     </form>
   );
 };

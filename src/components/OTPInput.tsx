@@ -74,7 +74,7 @@ export function OTPInput({ userEmail }: OTPInputProps): JSX.Element {
         } else {
           toast.error(result?.message);
         }
-      } catch (error) {
+      } catch {
         toast.error("Failed to resend OTP. Please try again.");
       }
     });

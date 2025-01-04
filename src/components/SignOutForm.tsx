@@ -1,9 +1,17 @@
 "use client";
 
-import { JSX, ReactNode, useTransition } from "react";
+import {
+  Children,
+  cloneElement,
+  isValidElement,
+  JSX,
+  ReactNode,
+  useTransition,
+} from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { ActionResult } from "./AuthFormComponent";
+import { ActionResult, isFormControl } from "@/lib/form-control";
+import { Loader } from "./ui/loader";
 
 export const SignOutFormComponent = ({
   children,
@@ -50,20 +58,22 @@ export const SignOutFormComponent = ({
     });
   };
 
+  const disabledChildren = Children.map(children, (child) => {
+    if (isValidElement(child) && isFormControl(child)) {
+      return cloneElement(child, { disabled: isPending });
+    }
+    return child;
+  });
+
   return (
     <form
       onSubmit={(e) => {
         e.preventDefault();
         handleSubmit();
       }}
-      aria-disabled={isPending}
     >
-      {children}
-      {isPending && (
-        <div className="absolute inset-0 flex items-center justify-center bg-white/50">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-        </div>
-      )}
+      {disabledChildren}
+      {isPending && <Loader />}
     </form>
   );
 };

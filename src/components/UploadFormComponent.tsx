@@ -1,28 +1,32 @@
 "use client";
 
-import { FormEvent, JSX, ReactNode, useState, useTransition } from "react";
+import {
+  Children,
+  cloneElement,
+  FormEvent,
+  isValidElement,
+  JSX,
+  ReactNode,
+  useState,
+  useTransition,
+} from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-
-export type ActionResult = {
-  success: boolean;
-  errorOrUrl: string;
-};
-
-type UploadFormProps = {
-  children: ReactNode;
-  action: (formdata: FormData) => Promise<ActionResult>;
-};
+import { ActionResult, isFormControl } from "@/lib/form-control";
+import { Loader } from "./ui/loader";
 
 export const UploadFormComponent = ({
   children,
   action,
-}: UploadFormProps): JSX.Element => {
+}: {
+  children: ReactNode;
+  action: (formdata: FormData) => Promise<ActionResult>;
+}): JSX.Element => {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [, setFormState] = useState<ActionResult>({
     success: false,
-    errorOrUrl: "",
+    message: "",
   });
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -43,7 +47,7 @@ export const UploadFormComponent = ({
             },
           });
         } else {
-          toast.error(result.errorOrUrl, {
+          toast.error(result.message, {
             id: "error-toast",
             action: {
               label: "Close",
@@ -66,14 +70,17 @@ export const UploadFormComponent = ({
     });
   };
 
+  const disabledChildren = Children.map(children, (child) => {
+    if (isValidElement(child) && isFormControl(child)) {
+      return cloneElement(child, { disabled: isPending });
+    }
+    return child;
+  });
+
   return (
-    <form onSubmit={handleSubmit} aria-disabled={isPending}>
-      {children}
-      {isPending && (
-        <div className="absolute inset-0 flex items-center justify-center bg-white/50">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-        </div>
-      )}
+    <form onSubmit={handleSubmit}>
+      {disabledChildren}
+      {isPending && <Loader />}
     </form>
   );
 };

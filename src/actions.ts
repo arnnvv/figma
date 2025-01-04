@@ -2,7 +2,7 @@
 
 import { cache } from "react";
 import { cookies } from "next/headers";
-import { ActionResult } from "./components/FormComponent";
+import { ActionResult as OldActionResult } from "./components/FormComponent";
 import {
   editAccess,
   emailVerificationRequests,
@@ -17,7 +17,7 @@ import {
   createSession,
   generateSessionToken,
   invalidateSession,
-  SessionValidationResult,
+  type SessionValidationResult,
   validateSessionToken,
 } from "./lib/auth";
 import {
@@ -30,6 +30,7 @@ import { sendEmail } from "./lib/email-verification";
 import { Liveblocks } from "@liveblocks/node";
 import { utapi } from "./lib/upload";
 import { UploadFileResult } from "uploadthing/types";
+import type { ActionResult } from "./lib/form-control";
 
 export const getCurrentSession = cache(
   async (): Promise<SessionValidationResult> => {
@@ -45,10 +46,7 @@ export const getCurrentSession = cache(
 export const logInAction = async (
   _: any,
   formData: FormData,
-): Promise<{
-  success: boolean;
-  message: string;
-}> => {
+): Promise<ActionResult> => {
   const email = formData.get("email");
   if (typeof email !== "string")
     return {
@@ -105,7 +103,7 @@ export const logInAction = async (
 export const signUpAction = async (
   _: any,
   formData: FormData,
-): Promise<{ success: boolean; message: string }> => {
+): Promise<ActionResult> => {
   const email = formData.get("email");
   if (typeof email !== "string")
     return { success: false, message: "Email is required" };
@@ -186,10 +184,7 @@ export const signUpAction = async (
   }
 };
 
-export const signOutAction = async (): Promise<{
-  success: boolean;
-  message: string;
-}> => {
+export const signOutAction = async (): Promise<ActionResult> => {
   const { session } = await getCurrentSession();
   if (session === null)
     return {
@@ -214,7 +209,7 @@ export const signOutAction = async (): Promise<{
 
 export const deleteRoomAction = async (
   roomId: string,
-): Promise<ActionResult> => {
+): Promise<OldActionResult> => {
   const { user, session } = await getCurrentSession();
   if (!session) return { error: "Not logged in" };
   const liveblocks = new Liveblocks({
@@ -335,7 +330,7 @@ export async function resendOTPAction() {
       success: true,
       message: "New OTP has been sent to your email.",
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       message: "Failed to resend OTP. Please try again.",
@@ -480,7 +475,7 @@ export async function resendOTPForgotPassword(email: string) {
       success: true,
       message: "New OTP has been sent to your email.",
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       message: "Failed to resend OTP. Please try again.",
@@ -551,10 +546,7 @@ export async function resetPasswordAction(formData: FormData) {
 export const changeUsernameAction = async (
   _: any,
   formData: FormData,
-): Promise<{
-  success: boolean;
-  message: string;
-}> => {
+): Promise<ActionResult> => {
   const username = formData.get("username");
   if (typeof username !== "string")
     return {
@@ -609,15 +601,12 @@ export const changeUsernameAction = async (
   }
 };
 
-export async function uploadFile(fd: FormData): Promise<{
-  success: boolean;
-  errorOrUrl: string;
-}> {
+export async function uploadFile(fd: FormData): Promise<ActionResult> {
   const { session, user } = await getCurrentSession();
   if (session === null)
     return {
       success: false,
-      errorOrUrl: "Not Logged in",
+      message: "Not Logged in",
     };
   const file = fd.get("file") as File;
 
@@ -625,7 +614,7 @@ export async function uploadFile(fd: FormData): Promise<{
   if (uploadedFile.error)
     return {
       success: false,
-      errorOrUrl: uploadedFile.error.message,
+      message: uploadedFile.error.message,
     };
   try {
     await db
@@ -635,11 +624,11 @@ export async function uploadFile(fd: FormData): Promise<{
   } catch (e) {
     return {
       success: false,
-      errorOrUrl: `Error updating image ${e}`,
+      message: `Error updating image ${e}`,
     };
   }
   return {
     success: true,
-    errorOrUrl: uploadedFile.data.url,
+    message: uploadedFile.data.url,
   };
 }
