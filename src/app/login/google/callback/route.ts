@@ -1,12 +1,12 @@
 import { cookies } from "next/headers";
-import { decodeIdToken, type OAuth2Tokens } from "arctic";
-import { ObjectParser } from "@pilcrowjs/object-parser";
-import { google } from "@/lib/oauth";
+import { decodeIdToken, google } from "@/lib/oauth";
 import { createUserGoogle, getUserFromGmail } from "@/lib/user";
 import { createSession, generateSessionToken } from "@/lib/auth";
 import { setSessionTokenCookie } from "@/lib/session";
 import { getCurrentSession } from "@/actions";
 import { globalGETRateLimit } from "@/lib/request";
+import { ObjectParser } from "@/lib/oauth-parser";
+import type { OAuth2Tokens } from "@/lib/oauth-token";
 
 export async function GET(request: Request): Promise<Response> {
   if (!globalGETRateLimit()) {
@@ -59,7 +59,7 @@ export async function GET(request: Request): Promise<Response> {
   const claims = decodeIdToken(tokens.idToken());
   const claimsParser = new ObjectParser(claims);
 
-  const name = claimsParser.getString("name");
+  //const name = claimsParser.getString("name");
   const picture = claimsParser.getString("picture");
   const email = claimsParser.getString("email");
 

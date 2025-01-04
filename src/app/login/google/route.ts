@@ -1,7 +1,6 @@
 import { getCurrentSession } from "@/actions";
-import { google } from "@/lib/oauth";
+import { generateState, google } from "@/lib/oauth";
 import { globalGETRateLimit } from "@/lib/request";
-import { generateState, generateCodeVerifier } from "arctic";
 import { cookies } from "next/headers";
 
 export async function GET(): Promise<Response> {
@@ -20,7 +19,7 @@ export async function GET(): Promise<Response> {
       },
     });
   const state = generateState();
-  const codeVerifier = generateCodeVerifier();
+  const codeVerifier = generateState();
   const url = google.createAuthorizationURL(state, codeVerifier, [
     "openid",
     "profile",

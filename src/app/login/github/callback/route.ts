@@ -1,12 +1,12 @@
 import { cookies } from "next/headers";
-import { ObjectParser } from "@pilcrowjs/object-parser";
-import type { OAuth2Tokens } from "arctic";
 import { globalGETRateLimit } from "@/lib/request";
 import { github } from "@/lib/oauth";
 import { createSession, generateSessionToken } from "@/lib/auth";
 import { setSessionTokenCookie } from "@/lib/session";
 import { createUserGithub, getUserFromGitHubId } from "@/lib/user";
 import { getCurrentSession } from "@/actions";
+import { ObjectParser } from "@/lib/oauth-parser";
+import type { OAuth2Tokens } from "@/lib/oauth-token";
 
 export async function GET(request: Request): Promise<Response> {
   if (!globalGETRateLimit()) {

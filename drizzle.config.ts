@@ -8,5 +8,5 @@ export default {
     url: getDB(),
   },
   tablesFilter: ["figma_"],
-  out: "./src/lib/db/drizzle",
+  out: "./drizzle",
 } satisfies Config;

@@ -1,7 +1,6 @@
 import { getCurrentSession } from "@/actions";
-import { github } from "@/lib/oauth";
+import { generateState, github } from "@/lib/oauth";
 import { globalGETRateLimit } from "@/lib/request";
-import { generateState } from "arctic";
 import { cookies } from "next/headers";
 
 export async function GET(): Promise<Response> {
