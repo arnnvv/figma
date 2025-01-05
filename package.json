@@ -63,7 +63,6 @@
     "eslint": "^8",
     "eslint-config-next": "15.0.4-canary.21",
     "postcss": "^8",
-    "prettier": "^3.3.3",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
   },

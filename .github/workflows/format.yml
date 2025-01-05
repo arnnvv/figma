@@ -1,5 +1,5 @@
 on:
-  push:    
+  push:
   pull_request:
 
 jobs:
@@ -15,13 +15,20 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Install dependencies with pnpm
-        run: |
-          corepack enable
-          pnpm install
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Install Prettier
+        run: pnpm add -D prettier@latest
 
       - name: Run Prettier
-        run: pnpm f
+        run: pnpm run f
+
+      - name: Remove Prettier
+        run: pnpm rm prettier
 
       - name: Commit changes
         run: |
