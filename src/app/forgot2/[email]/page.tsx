@@ -2,12 +2,14 @@ import { getCurrentSession } from "@/actions";
 import { ForgotOTP } from "@/components/ForgotOTP";
 import { redirect } from "next/navigation";
 import { JSX } from "react";
+import { globalGETRateLimit } from "@/lib/request";
 
 export default async function Page(props: {
   params: Promise<{
     email: string;
   }>;
-}): Promise<JSX.Element> {
+}): Promise<JSX.Element | undefined> {
+  if (!globalGETRateLimit()) return;
   const params = await props.params;
   const { session } = await getCurrentSession();
   if (session !== null) return redirect("/dashboard");

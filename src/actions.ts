@@ -31,6 +31,7 @@ import { Liveblocks } from "@liveblocks/node";
 import { utapi } from "./lib/upload";
 import { UploadFileResult } from "uploadthing/types";
 import type { ActionResult } from "./lib/form-control";
+import { globalGETRateLimit, globalPOSTRateLimit } from "./lib/request";
 
 export const getCurrentSession = cache(
   async (): Promise<SessionValidationResult> => {
@@ -47,6 +48,13 @@ export const logInAction = async (
   _: any,
   formData: FormData,
 ): Promise<ActionResult> => {
+  if (!globalPOSTRateLimit()) {
+    return {
+      success: false,
+      message: "Too many requests",
+    };
+  }
+
   const email = formData.get("email");
   if (typeof email !== "string")
     return {
@@ -104,6 +112,13 @@ export const signUpAction = async (
   _: any,
   formData: FormData,
 ): Promise<ActionResult> => {
+  if (!globalPOSTRateLimit()) {
+    return {
+      success: false,
+      message: "Too many requests",
+    };
+  }
+
   const email = formData.get("email");
   if (typeof email !== "string")
     return { success: false, message: "Email is required" };
@@ -185,6 +200,13 @@ export const signUpAction = async (
 };
 
 export const signOutAction = async (): Promise<ActionResult> => {
+  if (!globalGETRateLimit()) {
+    return {
+      success: false,
+      message: "Too many requests",
+    };
+  }
+
   const { session } = await getCurrentSession();
   if (session === null)
     return {
@@ -314,6 +336,13 @@ export async function verifyOTPAction(formData: FormData) {
 }
 
 export async function resendOTPAction() {
+  if (!globalGETRateLimit()) {
+    return {
+      success: false,
+      message: "Rate Limit",
+    };
+  }
+
   const { user } = await getCurrentSession();
   if (!user)
     return {
@@ -339,6 +368,13 @@ export async function resendOTPAction() {
 }
 
 export async function forgotPasswordAction(formData: FormData) {
+  if (!globalPOSTRateLimit()) {
+    return {
+      success: false,
+      message: "Rate Limit",
+    };
+  }
+
   const email = formData.get("email") as string;
   if (typeof email !== "string")
     return {
@@ -454,6 +490,13 @@ export async function verifyOTPForgotPassword(formData: FormData) {
 }
 
 export async function resendOTPForgotPassword(email: string) {
+  if (!globalPOSTRateLimit()) {
+    return {
+      success: false,
+      message: "Rate Limit",
+    };
+  }
+
   try {
     const user = await db.query.users.findFirst({
       where: eq(users.email, email),
