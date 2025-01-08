@@ -6,7 +6,7 @@ import { globalGETRateLimit } from "@/lib/request";
 
 export default async function Page(): Promise<JSX.Element | undefined> {
   if (!globalGETRateLimit()) return;
-	const { session } = await getCurrentSession();
+  const { session } = await getCurrentSession();
   if (session !== null) return redirect("/dashboard");
   return <LogInComp />;
 }
