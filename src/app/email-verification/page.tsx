@@ -1,4 +1,4 @@
-import { JSX } from "react";
+import type { JSX } from "react";
 import { getCurrentSession } from "@/actions";
 import { redirect } from "next/navigation";
 import { OTPInput } from "@/components/OTPInput";

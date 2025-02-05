@@ -3,14 +3,14 @@
 import {
   CheckboxItem,
   Content,
-  DropdownMenuCheckboxItemProps,
-  DropdownMenuContentProps,
-  DropdownMenuItemProps,
-  DropdownMenuLabelProps,
-  DropdownMenuRadioItemProps,
-  DropdownMenuSeparatorProps,
-  DropdownMenuSubContentProps,
-  DropdownMenuSubTriggerProps,
+  type DropdownMenuCheckboxItemProps,
+  type DropdownMenuContentProps,
+  type DropdownMenuItemProps,
+  type DropdownMenuLabelProps,
+  type DropdownMenuRadioItemProps,
+  type DropdownMenuSeparatorProps,
+  type DropdownMenuSubContentProps,
+  type DropdownMenuSubTriggerProps,
   Group,
   Item,
   ItemIndicator,
@@ -32,13 +32,13 @@ import {
 } from "@radix-ui/react-icons";
 import { cn } from "@/lib/utils";
 import {
-  ComponentPropsWithoutRef,
-  ComponentRef,
-  ForwardedRef,
+  type ComponentPropsWithoutRef,
+  type ComponentRef,
+  type ForwardedRef,
   forwardRef,
-  HTMLAttributes,
-  JSX,
-  RefAttributes,
+  type HTMLAttributes,
+  type JSX,
+  type RefAttributes,
 } from "react";
 
 const DropdownMenu = Root;

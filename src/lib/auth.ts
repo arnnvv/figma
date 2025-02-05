@@ -1,11 +1,9 @@
+import type { User, Session } from "./db/schema";
 import { db } from "./db";
-import { sessions, type User, users, type Session } from "./db/schema";
-import {
-  encodeBase32LowerCaseNoPadding,
-  encodeHexLowerCase,
-} from "@oslojs/encoding";
-import { sha256 } from "@oslojs/crypto/sha2";
+import { users, sessions } from "./db/schema";
 import { eq } from "drizzle-orm";
+import { sha256 } from "./sha";
+import { encodeBase32LowerCaseNoPadding, encodeHexLowerCase } from "./encoding";
 
 export type SessionValidationResult =
   | { session: Session; user: User }

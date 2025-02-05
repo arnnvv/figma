@@ -1,5 +1,5 @@
 import { CodeChallengeMethod, OAuth2Client } from "./oauth-client";
-import { OAuth2Tokens } from "./oauth-token";
+import type { OAuth2Tokens } from "./oauth-token";
 
 const tokenEndpoint = "https://oauth2.googleapis.com/token";
 

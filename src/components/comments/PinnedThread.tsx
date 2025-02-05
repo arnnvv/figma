@@ -1,9 +1,9 @@
-import { ThreadData } from "@liveblocks/client";
+import type { ThreadData } from "@liveblocks/client";
 import { Thread } from "@liveblocks/react-ui";
 import Image from "next/image";
 import {
-  JSX,
-  KeyboardEvent as ReactKeyboardEvent,
+  type JSX,
+  type KeyboardEvent as ReactKeyboardEvent,
   useMemo,
   useState,
 } from "react";

@@ -23,7 +23,7 @@ import { editAccess, rooms } from "@/lib/db/schema";
 import { and, eq, or, sql } from "drizzle-orm";
 import { Users, PlusCircle } from "lucide-react";
 import { redirect } from "next/navigation";
-import { JSX, Suspense } from "react";
+import { type JSX, Suspense } from "react";
 
 export default async (): Promise<JSX.Element> => {
   const { user, session } = await getCurrentSession();

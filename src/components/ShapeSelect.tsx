@@ -1,6 +1,6 @@
 import { getShapeInfo } from "@/lib/utils";
 import Image from "next/image";
-import { JSX, useMemo } from "react";
+import { type JSX, useMemo } from "react";
 
 export const ShapeSelect = ({
   allShapes,

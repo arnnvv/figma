@@ -5,7 +5,7 @@ import { Button } from "./ui/button";
 import { Trash2 } from "lucide-react";
 import { deleteRoomAction } from "@/actions";
 import { toast } from "sonner";
-import { JSX } from "react";
+import type { JSX } from "react";
 
 export const NavbarClient = ({
   isOwner,

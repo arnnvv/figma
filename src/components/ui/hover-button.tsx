@@ -1,8 +1,8 @@
 "use client";
 
-import { motion, HTMLMotionProps } from "framer-motion";
+import { motion, type HTMLMotionProps } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { FC, JSX, ReactNode } from "react";
+import type { FC, JSX, ReactNode } from "react";
 
 interface HoverButtonProps extends HTMLMotionProps<"button"> {
   children: ReactNode;

@@ -1,16 +1,16 @@
-import { encodeBase64urlNoPadding } from "@oslojs/encoding";
-import { sha256 } from "@oslojs/crypto/sha2";
+import { encodeBase64urlNoPadding } from "./encoding";
 import {
   createOAuth2Request,
   encodeBasicCredentials,
   sendTokenRequest,
   sendTokenRevocationRequest,
 } from "./oauth-requests";
-import { OAuth2Tokens } from "./oauth-token";
+import type { OAuth2Tokens } from "./oauth-token";
+import { sha256 } from "./sha";
 
 export enum CodeChallengeMethod {
   S256 = 0,
-  Plain,
+  Plain = 1,
 }
 
 export function createS256CodeChallenge(codeVerifier: string): string {

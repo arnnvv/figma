@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, JSX, useEffect } from "react";
+import { type FC, type JSX, useEffect } from "react";
 import { motion, stagger, useAnimate, useInView } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -77,7 +77,7 @@ export const TypewriterEffect: FC<{
         }}
         transition={{
           duration: 0.8,
-          repeat: Infinity,
+          repeat: Number.POSITIVE_INFINITY,
           repeatType: "reverse",
         }}
         className={cn(

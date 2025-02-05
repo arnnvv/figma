@@ -1,4 +1,4 @@
-import { encodeBase64 } from "@oslojs/encoding";
+import { encodeBase64 } from "./encoding";
 import { OAuth2Tokens } from "./oauth-token";
 
 export class OAuth2RequestError extends Error {
@@ -40,7 +40,7 @@ export function createOAuth2Request(
   });
   request.headers.set("Content-Type", "application/x-www-form-urlencoded");
   request.headers.set("Accept", "application/json");
-  request.headers.set("User-Agent", "arctic");
+  request.headers.set("User-Agent", "arnnvv");
   request.headers.set("Content-Length", bodyBytes.byteLength.toString());
   return request;
 }

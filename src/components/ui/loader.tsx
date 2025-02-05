@@ -1,4 +1,4 @@
-import { JSX } from "react";
+import type { JSX } from "react";
 
 export const Loader = (): JSX.Element => (
   <div className="absolute inset-0 flex items-center justify-center bg-white/50">

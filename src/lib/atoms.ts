@@ -1,5 +1,5 @@
 import { atom } from "jotai";
-import { Attributes } from "../../types";
+import type { Attributes } from "../../types";
 
 export const elementAttributesAtom = atom<Attributes>({
   width: "",

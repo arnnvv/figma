@@ -4,7 +4,7 @@ import Link from "next/link";
 import { TypewriterEffect } from "@/components/ui/typewriter-effect";
 import { SparklesCore } from "@/components/ui/sparkles";
 import { motion } from "framer-motion";
-import { JSX } from "react";
+import type { JSX } from "react";
 import { HoverButton } from "@/components/ui/hover-button";
 
 export default function NotFound(): JSX.Element {

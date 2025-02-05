@@ -6,7 +6,12 @@ import {
   Root,
 } from "@radix-ui/react-avatar";
 import { cn } from "@/lib/utils";
-import { ComponentPropsWithoutRef, ComponentRef, forwardRef, JSX } from "react";
+import {
+  type ComponentPropsWithoutRef,
+  type ComponentRef,
+  forwardRef,
+  type JSX,
+} from "react";
 
 const AvatarSHAD = forwardRef<
   ComponentRef<typeof Root>,

@@ -1,5 +1,5 @@
-import { JSX, memo } from "react";
-import { ActiveElement, AppbarProps } from "../../types";
+import { type JSX, memo } from "react";
+import type { ActiveElement, AppbarProps } from "../../types";
 import Image from "next/image";
 import { navElements } from "@/lib/constants";
 import { Button } from "./ui/button";

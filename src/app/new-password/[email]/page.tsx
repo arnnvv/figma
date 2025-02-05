@@ -1,7 +1,7 @@
 import { getCurrentSession } from "@/actions";
 import { ResetPasswordForm } from "@/components/ResetPassword";
 import { redirect } from "next/navigation";
-import { JSX } from "react";
+import type { JSX } from "react";
 
 export default async function Page(props: {
   params: Promise<{

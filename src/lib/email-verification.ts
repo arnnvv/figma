@@ -1,7 +1,7 @@
 import { db } from "./db";
 import { generateRandomOTP } from "./otp";
 import {
-  EmailVerificationRequest,
+  type EmailVerificationRequest,
   emailVerificationRequests,
 } from "./db/schema";
 import { eq } from "drizzle-orm";

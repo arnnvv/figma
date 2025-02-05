@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { HTMLAttributes, JSX } from "react";
+import type { HTMLAttributes, JSX } from "react";
 
 export const Skeleton = ({
   className,

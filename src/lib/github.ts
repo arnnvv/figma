@@ -3,7 +3,7 @@ import {
   encodeBasicCredentials,
   sendTokenRequest,
 } from "./oauth-requests";
-import { OAuth2Tokens } from "./oauth-token";
+import type { OAuth2Tokens } from "./oauth-token";
 
 const tokenEndpoint = "https://github.com/login/oauth/access_token";
 

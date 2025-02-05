@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { Button } from "./ui/button";
 import { CheckCircle, Edit, LogIn, XCircle } from "lucide-react";
 import { getNameFromId } from "@/lib/getUserName";
-import { JSX } from "react";
+import type { JSX } from "react";
 
 export async function UserRooms({
   userId,

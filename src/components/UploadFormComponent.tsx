@@ -3,16 +3,16 @@
 import {
   Children,
   cloneElement,
-  FormEvent,
+  type FormEvent,
   isValidElement,
-  JSX,
-  ReactNode,
+  type JSX,
+  type ReactNode,
   useState,
   useTransition,
 } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { ActionResult, isFormControl } from "@/lib/form-control";
+import { type ActionResult, isFormControl } from "@/lib/form-control";
 import { Loader } from "./ui/loader";
 
 export const UploadFormComponent = ({

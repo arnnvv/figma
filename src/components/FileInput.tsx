@@ -1,6 +1,6 @@
 "use client";
 
-import { JSX } from "react";
+import type { JSX } from "react";
 
 export const FileInput = (): JSX.Element => (
   <input

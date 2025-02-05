@@ -1,4 +1,4 @@
-import { ChangeEvent, JSX, RefObject } from "react";
+import type { ChangeEvent, JSX, RefObject } from "react";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 

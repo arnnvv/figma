@@ -1,5 +1,5 @@
 import { Root } from "@radix-ui/react-portal";
-import { JSX, useEffect, useState } from "react";
+import { type JSX, useEffect, useState } from "react";
 
 const DEFAULT_CURSOR_POSITION = -10000;
 

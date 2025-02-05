@@ -12,13 +12,13 @@ import {
   Root,
   ScrollDownButton,
   ScrollUpButton,
-  SelectContentProps,
-  SelectItemProps,
-  SelectLabelProps,
-  SelectScrollDownButtonProps,
-  SelectScrollUpButtonProps,
-  SelectSeparatorProps,
-  SelectTriggerProps,
+  type SelectContentProps,
+  type SelectItemProps,
+  type SelectLabelProps,
+  type SelectScrollDownButtonProps,
+  type SelectScrollUpButtonProps,
+  type SelectSeparatorProps,
+  type SelectTriggerProps,
   Separator,
   Trigger,
   Value,
@@ -27,12 +27,12 @@ import {
 import { Check, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
-  ComponentPropsWithoutRef,
-  ComponentRef,
-  ForwardedRef,
+  type ComponentPropsWithoutRef,
+  type ComponentRef,
+  type ForwardedRef,
   forwardRef,
-  JSX,
-  RefAttributes,
+  type JSX,
+  type RefAttributes,
 } from "react";
 
 const Select = Root;

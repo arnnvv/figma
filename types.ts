@@ -1,10 +1,10 @@
-import { ChangeEvent, RefObject } from "react";
+import type { ChangeEvent, RefObject } from "react";
 
 export enum CursorMode {
-  Hidden,
-  Chat,
-  ReactionSelector,
-  Reaction,
+  Hidden = 0,
+  Chat = 1,
+  ReactionSelector = 2,
+  Reaction = 3,
 }
 
 export type CursorState =

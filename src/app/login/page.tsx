@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getCurrentSession } from "@/actions";
-import { JSX } from "react";
+import type { JSX } from "react";
 import { LogInComp } from "@/components/LoginComp";
 import { globalGETRateLimit } from "@/lib/request";
 

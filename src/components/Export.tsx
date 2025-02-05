@@ -1,6 +1,6 @@
 import { exportToPdf } from "@/lib/utils";
 import { Button } from "./ui/button";
-import { JSX } from "react";
+import type { JSX } from "react";
 
 export const Export = (): JSX.Element => (
   <div className="flex flex-col gap-3 px-5 py-3">

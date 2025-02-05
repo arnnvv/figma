@@ -1,7 +1,13 @@
 "use client";
 import { verifyOTPAction, resendOTPAction } from "@/actions";
 import { useRouter } from "next/navigation";
-import { FormEvent, JSX, KeyboardEvent, useTransition, useState } from "react";
+import {
+  type FormEvent,
+  type JSX,
+  type KeyboardEvent,
+  useTransition,
+  useState,
+} from "react";
 import { toast } from "sonner";
 
 interface OTPInputProps {

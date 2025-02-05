@@ -2,7 +2,7 @@
 
 import { cache } from "react";
 import { cookies } from "next/headers";
-import { ActionResult as OldActionResult } from "./components/FormComponent";
+import type { ActionResult as OldActionResult } from "./components/FormComponent";
 import {
   editAccess,
   emailVerificationRequests,
@@ -29,7 +29,7 @@ import { deleteSessionTokenCookie, setSessionTokenCookie } from "./lib/session";
 import { sendEmail } from "./lib/email-verification";
 import { Liveblocks } from "@liveblocks/node";
 import { utapi } from "./lib/upload";
-import { UploadFileResult } from "uploadthing/types";
+import type { UploadFileResult } from "uploadthing/types";
 import type { ActionResult } from "./lib/form-control";
 import { globalGETRateLimit, globalPOSTRateLimit } from "./lib/request";
 

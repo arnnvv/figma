@@ -1,4 +1,4 @@
-import { LiveMap } from "@liveblocks/client";
+import type { LiveMap } from "@liveblocks/client";
 
 // https://liveblocks.io/docs/api-reference/liveblocks-react#Typing-your-data
 declare global {
@@ -43,5 +43,3 @@ declare global {
     };
   }
 }
-
-export {};

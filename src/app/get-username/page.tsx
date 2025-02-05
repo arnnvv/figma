@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AtSign } from "lucide-react";
 import { redirect } from "next/navigation";
-import { JSX } from "react";
+import type { JSX } from "react";
 
 export default async function GetUsername(): Promise<JSX.Element> {
   const { session, user } = await getCurrentSession();

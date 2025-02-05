@@ -5,7 +5,7 @@ import { NavbarClient } from "./NavbarClient";
 import { db } from "@/lib/db";
 import { rooms } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { JSX } from "react";
+import type { JSX } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,

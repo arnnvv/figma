@@ -1,4 +1,4 @@
-import { JSX } from "react";
+import type { JSX } from "react";
 
 export const CursorSVG = ({ color }: { color: string }): JSX.Element => (
   <svg

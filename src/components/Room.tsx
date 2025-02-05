@@ -1,6 +1,6 @@
 "use client";
 
-import { JSX, ReactNode } from "react";
+import type { JSX, ReactNode } from "react";
 import {
   LiveblocksProvider,
   RoomProvider,

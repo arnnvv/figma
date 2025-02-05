@@ -1,4 +1,4 @@
-import { JSX, PointerEvent } from "react";
+import type { JSX, PointerEvent } from "react";
 
 export const ReactionSelector = ({
   setReaction,

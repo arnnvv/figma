@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  MutationContext,
+  type MutationContext,
   useBroadcastEvent,
   useEventListener,
   useMutation,
@@ -12,28 +12,28 @@ import {
   useUndo,
 } from "@liveblocks/react/suspense";
 import {
-  KeyboardEvent as ReactKeyboardEvent,
-  PointerEvent,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type PointerEvent,
   useCallback,
   useEffect,
   useState,
-  ChangeEvent,
+  type ChangeEvent,
   useRef,
-  RefObject,
-  JSX,
+  type RefObject,
+  type JSX,
 } from "react";
 import {
-  ActiveElement,
+  type ActiveElement,
   CursorMode,
-  CursorState,
-  Reaction,
-  ReactionEvent,
+  type CursorState,
+  type Reaction,
+  type ReactionEvent,
 } from "../../types";
-import { fabric } from "fabric";
+import type { fabric } from "fabric";
 import { useInterval } from "@/lib/useInterval";
 import { Cursor } from "./Cursor";
 import { COLORS, defaultNavElement } from "@/lib/constants";
-import { LiveMap, User } from "@liveblocks/client";
+import type { LiveMap, User } from "@liveblocks/client";
 import { FlyingReaction } from "./FlyingReaction";
 import { ReactionSelector } from "./ReactionSelector";
 import { CursorSVG } from "./CursorSVG";

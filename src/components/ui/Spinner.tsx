@@ -1,4 +1,4 @@
-import { JSX } from "react";
+import type { JSX } from "react";
 
 export const Spinner = (): JSX.Element => (
   <div className="flex items-center justify-center">

@@ -1,9 +1,9 @@
 "use client";
 
 import {
-  FormEvent,
-  JSX,
-  ReactNode,
+  type FormEvent,
+  type JSX,
+  type ReactNode,
   useCallback,
   useEffect,
   useRef,
@@ -12,7 +12,7 @@ import {
 import { Slot } from "@radix-ui/react-slot";
 import { Root } from "@radix-ui/react-portal";
 import { useCreateThread } from "@liveblocks/react/suspense";
-import { ComposerSubmitComment } from "@liveblocks/react-ui";
+import type { ComposerSubmitComment } from "@liveblocks/react-ui";
 import { useMaxZIndex } from "@/lib/useMaxZIndex";
 import { PinnedComposer } from "./PinnedComposer";
 import { NewThreadCursor } from "./NewThreadCursor";

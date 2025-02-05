@@ -1,10 +1,10 @@
 "use client";
 
 import { useAtom } from "jotai";
-import { JSX, RefObject, useMemo, useRef } from "react";
-import { fabric } from "fabric";
+import { type JSX, type RefObject, useMemo, useRef } from "react";
+import type { fabric } from "fabric";
 import { elementAttributesAtom } from "@/lib/atoms";
-import { Attributes } from "../../types";
+import type { Attributes } from "../../types";
 import { modifyShape } from "@/lib/canvasElements";
 import { Dimentions } from "./Dimentions";
 import { Text } from "./Text";

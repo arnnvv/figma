@@ -1,5 +1,5 @@
-import { Dispatch, RefObject, SetStateAction } from "react";
-import { Attributes, CustomFabricObject, ModifyShape } from "../../types";
+import type { Dispatch, RefObject, SetStateAction } from "react";
+import type { Attributes, CustomFabricObject, ModifyShape } from "../../types";
 import { fabric } from "fabric";
 import { defaultNavElement } from "./constants";
 import { v4 } from "uuid";

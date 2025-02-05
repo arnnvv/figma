@@ -1,4 +1,4 @@
-import { ChangeEvent, JSX } from "react";
+import type { ChangeEvent, JSX } from "react";
 import { Label } from "./ui/label";
 
 export const Color = ({

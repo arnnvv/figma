@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { db } from "./db";
-import { User, users } from "./db/schema";
+import { type User, users } from "./db/schema";
 import { generateRandomPassword, hashPassword } from "./password";
 
 export async function createUserGoogle(

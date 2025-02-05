@@ -3,7 +3,7 @@ import {
   Children,
   cloneElement,
   isValidElement,
-  JSX,
+  type JSX,
   type ReactNode,
   useState,
   useTransition,
@@ -11,7 +11,7 @@ import {
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Loader } from "./ui/loader";
-import { ActionResult, isFormControl } from "@/lib/form-control";
+import { type ActionResult, isFormControl } from "@/lib/form-control";
 
 export const AuthFormComponent = ({
   children,

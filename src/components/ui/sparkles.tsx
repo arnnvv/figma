@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, JSX } from "react";
+import { useRef, useEffect, type JSX } from "react";
 import { useTheme } from "next-themes";
 
 export const SparklesCore = ({

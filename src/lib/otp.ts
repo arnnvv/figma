@@ -1,4 +1,4 @@
-import { encodeBase32UpperCaseNoPadding } from "@oslojs/encoding";
+import { encodeBase32UpperCaseNoPadding } from "./encoding";
 
 export const generateRandomOTP = (): string => {
   const bytes = new Uint8Array(5);
