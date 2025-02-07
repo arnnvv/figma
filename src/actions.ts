@@ -415,6 +415,13 @@ export async function forgotPasswordAction(formData: FormData) {
   }
 }
 export async function verifyOTPForgotPassword(formData: FormData) {
+  if (!globalPOSTRateLimit()) {
+    return {
+      success: false,
+      message: "Rate Limit",
+    };
+  }
+
   try {
     const userEmail = formData.get("userEmail") as string;
     if (!userEmail) {

@@ -1,3 +1,18 @@
+interface RefillBucket {
+  count: number;
+  refilledAt: number;
+}
+
+interface ExpiringBucket {
+  count: number;
+  createdAt: number;
+}
+
+interface ThrottlingCounter {
+  timeout: number;
+  updatedAt: number;
+}
+
 export class RefillingTokenBucket<_Key> {
   public max: number;
   public refillIntervalSeconds: number;
@@ -134,19 +149,4 @@ export class ExpiringTokenBucket<_Key> {
   public reset(key: _Key): void {
     this.storage.delete(key);
   }
-}
-
-interface RefillBucket {
-  count: number;
-  refilledAt: number;
-}
-
-interface ExpiringBucket {
-  count: number;
-  createdAt: number;
-}
-
-interface ThrottlingCounter {
-  timeout: number;
-  updatedAt: number;
 }
