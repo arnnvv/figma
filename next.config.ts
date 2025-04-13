@@ -18,6 +18,7 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ["@node-rs/argon2"],
   experimental: {
     ppr: "incremental",
+    reactCompiler: true,
   },
 };
 
