@@ -1,4 +1,4 @@
-import { getCurrentSession } from "@/actions";
+import { getCurrentSession, askEditAccessAction } from "@/actions";
 import {
   EditableRooms,
   EditableRoomsSkeleton,
@@ -18,9 +18,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { db } from "@/lib/db";
-import { editAccess, rooms } from "@/lib/db/schema";
-import { and, eq, or, sql } from "drizzle-orm";
+import { getMaxRoomId_Raw, insertRoom_Raw } from "@/lib/db/inlinequeries";
 import { Users, PlusCircle } from "lucide-react";
 import { redirect } from "next/navigation";
 import { type JSX, Suspense } from "react";
@@ -34,13 +32,9 @@ export default async (): Promise<JSX.Element> => {
     user.username.startsWith("github-")
   )
     return redirect("/get-username");
-  const res = await db
-    .select({
-      maxId: sql<number>`MAX(CAST(id AS INT))`.as("maxId"),
-    })
-    .from(rooms);
-  const maxId: number = res[0]?.maxId ?? 0;
-  const roomId: number = maxId + 1;
+
+  const maxId: number = await getMaxRoomId_Raw();
+  const nextRoomId: number = maxId + 1;
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
@@ -70,50 +64,8 @@ export default async (): Promise<JSX.Element> => {
             >
               Ask Edit Access
             </label>
-            <FormComponent
-              action={async (_, formData) => {
-                "use server";
-                const { session } = await getCurrentSession();
-                if (session === null) return { error: "Not logged in" };
-                const roomId = formData.get("roomId") as string;
-                try {
-                  const existingRoom = await db.query.rooms.findFirst({
-                    where: eq(rooms.id, roomId),
-                  });
-                  if (!existingRoom) return { error: "Room doesn't exist" };
-                  if (existingRoom.ownerId === user.id)
-                    return { error: "Can't send Req to yourself" };
-                  try {
-                    const existingRequest = await db.query.editAccess.findFirst(
-                      {
-                        where: and(
-                          eq(editAccess.requesterId, user.id),
-                          eq(editAccess.roomIdRequestedFor, roomId),
-                          or(
-                            eq(editAccess.status, "pending"),
-                            eq(editAccess.status, "accepted"),
-                          ),
-                        ),
-                      },
-                    );
-
-                    if (existingRequest)
-                      return { error: "Request already sent" };
-
-                    await db.insert(editAccess).values({
-                      requesterId: user.id,
-                      roomIdRequestedFor: roomId,
-                      status: "pending",
-                    });
-                    return { message: "Request Sent" };
-                  } catch {
-                    return { error: "Couldn't send Req" };
-                  }
-                } catch {
-                  return { error: "Couldn't find room" };
-                }
-              }}
-            >
+            {/* Use the dedicated server action */}
+            <FormComponent action={askEditAccessAction}>
               <div className="flex space-x-2">
                 <Input
                   id="roomId"
@@ -148,11 +100,30 @@ export default async (): Promise<JSX.Element> => {
           <FormComponent
             action={async () => {
               "use server";
-              await db.insert(rooms).values({
-                id: String(roomId),
-                ownerId: user.id,
-              });
-              return redirect(`/room/${roomId}`);
+              const { user: currentUser, session: currentSession } =
+                await getCurrentSession();
+              if (!currentSession || !currentUser) {
+                console.error("Create room action failed: User not logged in.");
+                return { error: "Authentication required." };
+              }
+
+              const newRoomIdString = String(nextRoomId);
+
+              try {
+                await insertRoom_Raw({
+                  id: newRoomIdString,
+                  owner_id: currentUser.id,
+                });
+              } catch (error: any) {
+                console.error(
+                  `Failed to create room ${newRoomIdString}:`,
+                  error,
+                );
+                return {
+                  error: `Failed to create room: ${error.message || "Unknown error"}`,
+                };
+              }
+              redirect(`/room/${newRoomIdString}`);
             }}
           >
             <Button

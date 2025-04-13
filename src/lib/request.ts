@@ -1,4 +1,3 @@
-//X-Forwarded-For will always be defined.
 import { headers } from "next/headers";
 import { RefillingTokenBucket } from "./rate-limit";
 

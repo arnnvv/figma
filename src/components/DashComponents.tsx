@@ -1,22 +1,33 @@
-import { db } from "@/lib/db";
-import { editAccess, rooms } from "@/lib/db/schema";
-import { and, eq } from "drizzle-orm";
 import { FormComponent } from "./FormComponent";
 import { redirect } from "next/navigation";
 import { Button } from "./ui/button";
 import { CheckCircle, Edit, LogIn, XCircle } from "lucide-react";
-import { getNameFromId } from "@/lib/getUserName";
 import type { JSX } from "react";
+import type {
+  Room,
+  EditableRoomInfo,
+  EditAccessRequestWithRoomOwner,
+} from "@/lib/db/types";
+import { handleEditAccessAction } from "@/actions";
+import {
+  findEditableRoomsForUser_Raw,
+  findPendingEditRequestsForOwner_Raw,
+  findRoomsByOwnerId_Raw,
+  getNameFromId,
+} from "@/lib/db/inlinequeries";
 
 export async function UserRooms({
   userId,
 }: {
   userId: number;
 }): Promise<JSX.Element | null> {
-  const userRooms = await db
-    .select()
-    .from(rooms)
-    .where(eq(rooms.ownerId, userId));
+  let userRooms: Room[] = [];
+  try {
+    userRooms = await findRoomsByOwnerId_Raw(userId);
+  } catch (error) {
+    console.error(`Error fetching user rooms for user ${userId}:`, error);
+    return null;
+  }
 
   return userRooms.length > 0 ? (
     <div className="space-y-2">
@@ -50,19 +61,13 @@ export async function EditableRooms({
 }: {
   userId: number;
 }): Promise<JSX.Element | null> {
-  const editableRooms = await db
-    .select({
-      id: rooms.id,
-      ownerId: rooms.ownerId,
-    })
-    .from(rooms)
-    .innerJoin(editAccess, eq(editAccess.roomIdRequestedFor, rooms.id))
-    .where(
-      and(
-        eq(editAccess.requesterId, userId),
-        eq(editAccess.status, "accepted"),
-      ),
-    );
+  let editableRooms: EditableRoomInfo[] = [];
+  try {
+    editableRooms = await findEditableRoomsForUser_Raw(userId);
+  } catch (error) {
+    console.error(`Error fetching editable rooms for user ${userId}:`, error);
+    return null;
+  }
 
   return editableRooms.length > 0 ? (
     <div className="space-y-2">
@@ -96,16 +101,20 @@ export async function EditAccessRequests({
 }: {
   userId: number;
 }): Promise<JSX.Element | null> {
-  const editAccessRequests = await db
-    .select({
-      id: editAccess.id,
-      requesterId: editAccess.requesterId,
-      roomId: editAccess.roomIdRequestedFor,
-      status: editAccess.status,
-    })
-    .from(editAccess)
-    .where(and(eq(editAccess.status, "pending"), eq(rooms.ownerId, userId)))
-    .innerJoin(rooms, eq(editAccess.roomIdRequestedFor, rooms.id));
+  let editAccessRequests: EditAccessRequestWithRoomOwner[] = [];
+  try {
+    editAccessRequests = await findPendingEditRequestsForOwner_Raw(userId);
+  } catch (error) {
+    console.error(
+      `Error fetching pending edit requests for owner ${userId}:`,
+      error,
+    );
+    return null;
+  }
+
+  const requesterNames = await Promise.all(
+    editAccessRequests.map((req) => getNameFromId(req.requester_id)),
+  );
 
   return editAccessRequests.length > 0 ? (
     <div className="space-y-2">
@@ -113,23 +122,24 @@ export async function EditAccessRequests({
         Edit Access Requests
       </h3>
       <div className="space-y-2">
-        {editAccessRequests.map((request) => (
+        {editAccessRequests.map((request, index) => (
           <div
             key={request.id}
             className="flex items-center justify-between p-2 bg-white rounded-md shadow-sm"
           >
             <span>
-              Room {request.roomId} - {getNameFromId(request.requesterId)}
+              Room {request.room_id} -{" "}
+              {requesterNames[index] || `User ID: ${request.requester_id}`}
             </span>
             <div className="flex space-x-2">
               <FormComponent
                 action={async () => {
                   "use server";
-                  await db
-                    .update(editAccess)
-                    .set({ status: "accepted" })
-                    .where(eq(editAccess.id, request.id));
-                  return { message: "Request accepted" };
+                  const result = await handleEditAccessAction(
+                    request.id,
+                    "accepted",
+                  );
+                  return result;
                 }}
               >
                 <Button type="submit" variant="outline" size="sm">
@@ -139,11 +149,11 @@ export async function EditAccessRequests({
               <FormComponent
                 action={async () => {
                   "use server";
-                  await db
-                    .update(editAccess)
-                    .set({ status: "declined" })
-                    .where(eq(editAccess.id, request.id));
-                  return { message: "Request declined" };
+                  const result = await handleEditAccessAction(
+                    request.id,
+                    "declined",
+                  );
+                  return result;
                 }}
               >
                 <Button type="submit" variant="outline" size="sm">

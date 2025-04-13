@@ -2,8 +2,7 @@ import { getCurrentSession } from "@/actions";
 import { Room } from "@/components/Room";
 import { Whiteboard } from "@/components/Whiteboard";
 import { db } from "@/lib/db";
-import { rooms } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import type { QueryResult } from "pg";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import type { JSX } from "react";
@@ -26,6 +25,7 @@ export default async (props: {
   const params = await props.params;
   const { roomId } = params;
   const { user, session } = await getCurrentSession();
+
   if (session === null) return redirect("/login");
   if (!user.verified) return redirect("/email-verification");
   if (
@@ -33,13 +33,27 @@ export default async (props: {
     user.username.startsWith("github-")
   )
     return redirect("/get-username");
-  const result = await db
-    .select({ id: rooms.id })
-    .from(rooms)
-    .where(eq(rooms.id, roomId))
-    .limit(1);
 
-  if (result.length <= 0) return redirect("/dashboard");
+  const checkRoomSql = "SELECT id FROM figma_rooms WHERE id = $1 LIMIT 1";
+  let roomExists = false;
+
+  try {
+    type RoomIdResult = { id: string };
+    const result: QueryResult<RoomIdResult> = await db.query(checkRoomSql, [
+      roomId,
+    ]);
+
+    if (result.rowCount! > 0) {
+      roomExists = true;
+    }
+  } catch (error) {
+    console.error(`Error checking existence of room ${roomId}:`, error);
+    return redirect("/dashboard?error=db_error");
+  }
+  if (!roomExists) {
+    console.log(`Room ${roomId} not found, redirecting to dashboard.`);
+    return redirect("/dashboard");
+  }
 
   return (
     <Room roomId={roomId}>

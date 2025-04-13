@@ -3,8 +3,7 @@ import Image from "next/image";
 import { Button } from "./ui/button";
 import { NavbarClient } from "./NavbarClient";
 import { db } from "@/lib/db";
-import { rooms } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import type { QueryResult } from "pg";
 import type { JSX } from "react";
 import {
   DropdownMenu,
@@ -20,7 +19,8 @@ import { UploadFormComponent } from "./UploadFormComponent";
 
 export const Navbar = async (): Promise<JSX.Element> => {
   const { user, session } = await getCurrentSession();
-  if (session === null)
+
+  if (session === null || !user)
     return (
       <nav className="flex select-none items-center justify-between gap-4 bg-primary-black px-5 text-white">
         <Image
@@ -32,14 +32,17 @@ export const Navbar = async (): Promise<JSX.Element> => {
       </nav>
     );
 
-  const isOwner: boolean =
-    (
-      await db
-        .select({ id: rooms.id })
-        .from(rooms)
-        .where(eq(rooms.ownerId, user.id))
-        .limit(1)
-    ).length > 0;
+  let isOwner: boolean = false;
+  const checkOwnerSql = "SELECT 1 FROM figma_rooms WHERE owner_id = $1 LIMIT 1";
+  try {
+    const result: QueryResult = await db.query(checkOwnerSql, [user.id]);
+    if (result.rowCount! > 0) {
+      isOwner = true;
+    }
+  } catch (error) {
+    console.error(`Error checking room ownership for user ${user.id}:`, error);
+    isOwner = false;
+  }
 
   const text: string = !user.picture ? "Upload Image" : "Change Image";
 
@@ -53,11 +56,11 @@ export const Navbar = async (): Promise<JSX.Element> => {
           <DropdownMenuTrigger asChild>
             <AvatarSHAD className="cursor-pointer">
               <AvatarImage
-                src={user?.picture || "/default-avatar.png"}
-                alt={`${user?.username || "User"}'s avatar`}
+                src={user.picture || "/default-avatar.png"} // Use user directly
+                alt={`${user.username || "User"}'s avatar`}
               />
               <AvatarFallback>
-                {user?.username ? user.username.charAt(0).toUpperCase() : "U"}
+                {user.username ? user.username.charAt(0).toUpperCase() : "U"}
               </AvatarFallback>
             </AvatarSHAD>
           </DropdownMenuTrigger>

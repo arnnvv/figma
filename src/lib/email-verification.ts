@@ -1,74 +1,128 @@
+import type { QueryResult } from "pg";
 import { db } from "./db";
 import { generateRandomOTP } from "./otp";
-import {
-  type EmailVerificationRequest,
-  emailVerificationRequests,
-} from "./db/schema";
-import { eq } from "drizzle-orm";
+import type { EmailVerificationRequest } from "./db/types";
 import { createTransport } from "nodemailer";
 
-export const createEmailVerificationRequest = async (
+export async function createEmailVerificationRequest(
   userId: number,
   email: string,
-): Promise<EmailVerificationRequest> => {
-  deleteUserEmailVerificationRequest(userId);
+): Promise<EmailVerificationRequest> {
+  await deleteUserEmailVerificationRequest(userId);
 
   const code: string = generateRandomOTP();
-  const expiresAt = new Date(Date.now() + 1000 * 60 * 10);
-  const rea = await db
-    .insert(emailVerificationRequests)
-    .values({
-      userId,
-      email,
-      code,
-      expiresAt: new Date(expiresAt),
-    })
-    .returning({ id: emailVerificationRequests.id });
+  const expiresAt = new Date(Date.now() + 1000 * 60 * 10); // 10 minutes expiry
 
-  const request: EmailVerificationRequest = {
-    id: rea[0].id,
+  const insertSql = `
+    INSERT INTO figma_email_verification_request (user_id, email, code, expires_at)
+    VALUES ($1, $2, $3, $4)
+    RETURNING id
+  `;
+  const insertParams: [number, string, string, Date] = [
     userId,
-    code,
     email,
+    code,
     expiresAt,
-  };
-  return request;
-};
+  ];
 
-export const deleteUserEmailVerificationRequest = async (
+  try {
+    const result: QueryResult<{ id: number }> = await db.query(
+      insertSql,
+      insertParams,
+    );
+
+    if (result.rowCount! > 0 && result.rows[0]?.id) {
+      const request: EmailVerificationRequest = {
+        id: result.rows[0].id,
+        user_id: userId, // Use userId passed to the function
+        email: email, // Use email passed to the function
+        code: code, // Use code generated
+        expires_at: expiresAt, // Use expiresAt generated
+      };
+      return request;
+    } else {
+      throw new Error(
+        "Email verification request insertion failed, no ID returned.",
+      );
+    }
+  } catch (error) {
+    console.error(
+      `Error creating email verification request for user (${userId}):`,
+      error,
+    );
+    throw error; // Re-throw the error
+  }
+}
+
+export async function deleteUserEmailVerificationRequest(
   userId: number,
-): Promise<void> => {
-  await db
-    .delete(emailVerificationRequests)
-    .where(eq(emailVerificationRequests.userId, userId));
-};
+): Promise<void> {
+  const deleteSql =
+    "DELETE FROM figma_email_verification_request WHERE user_id = $1";
+  const deleteParams = [userId];
+
+  try {
+    const result = await db.query(deleteSql, deleteParams);
+    console.log(
+      `Deleted ${result.rowCount!} email verification requests for user ID: ${userId}`,
+    );
+  } catch (error) {
+    console.error(
+      `Error deleting email verification requests for user (${userId}):`,
+      error,
+    );
+    throw error;
+  }
+}
 
 export const sendVerificationEmail = async (
   email: string,
   code: string,
 ): Promise<void> => {
-  const transporter = createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT),
-    secure: true,
-    auth: {
-      user: process.env.EMAIL,
-      pass: process.env.EMAIL_PASS,
-    },
-  });
+  if (!email || !code) {
+    throw new Error("Email and code are required to send verification email.");
+  }
+
+  let transporter;
+  try {
+    transporter = createTransport({
+      host: process.env.SMTP_HOST,
+      port: Number(process.env.SMTP_PORT),
+      secure: process.env.SMTP_PORT === "465",
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.EMAIL_PASS,
+      },
+      // connectionTimeout: 5000, // 5 seconds
+      // greetingTimeout: 5000, // 5 seconds
+      // socketTimeout: 5000, // 5 seconds
+    });
+
+    // await transporter.verify();
+    // console.log("Nodemailer transporter verified successfully.");
+  } catch (configError) {
+    console.error("Error configuring Nodemailer transporter:", configError);
+    throw new Error("Failed to configure email service.");
+  }
 
   const mailOptions = {
     from: process.env.EMAIL,
     to: email,
-    subject: "Your OTP",
-    text: `Your OTP is ${code}`,
+    subject: "Your Verification Code",
+    text: `Your verification code is: ${code}\n\nThis code will expire in 10 minutes.`,
+    html: `<p>Your verification code is: <strong>${code}</strong></p><p>This code will expire in 10 minutes.</p>`,
   };
 
   try {
-    await transporter.sendMail(mailOptions);
+    const info = await transporter.sendMail(mailOptions);
+    console.log(
+      `Verification email sent successfully to ${email}. Message ID: ${info.messageId}`,
+    );
   } catch (error) {
-    console.error("Error sending email:", error);
-    throw error;
+    console.error(`Error sending verification email to ${email}:`, error);
+    throw new Error(
+      "Failed to send verification email. Please try again later.",
+    );
   }
 };
 
@@ -79,13 +133,21 @@ export const sendEmail = async ({
   userId: number;
   email: string;
 }): Promise<void> => {
-  const emailVerificationRequest = await createEmailVerificationRequest(
-    userId,
-    email,
-  );
+  try {
+    const emailVerificationRequest = await createEmailVerificationRequest(
+      userId,
+      email,
+    );
 
-  sendVerificationEmail(
-    emailVerificationRequest.email,
-    emailVerificationRequest.code,
-  );
+    await sendVerificationEmail(
+      emailVerificationRequest.email,
+      emailVerificationRequest.code,
+    );
+  } catch (error) {
+    console.error(
+      `Failed to send verification email process for user ${userId} (${email}):`,
+      error,
+    );
+    throw new Error("Failed to initiate email verification.");
+  }
 };

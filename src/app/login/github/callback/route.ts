@@ -9,7 +9,7 @@ import { ObjectParser } from "@/lib/oauth-parser";
 import type { OAuth2Tokens } from "@/lib/oauth-token";
 
 export async function GET(request: Request): Promise<Response> {
-  if (!globalGETRateLimit()) {
+  if (!(await globalGETRateLimit())) {
     return new Response("Too many requests", {
       status: 429,
     });
@@ -44,7 +44,6 @@ export async function GET(request: Request): Promise<Response> {
   try {
     tokens = await github.validateAuthorizationCode(code);
   } catch {
-    // Invalid code or client credentials
     return new Response("Please restart the process.", {
       status: 400,
     });
@@ -64,7 +63,7 @@ export async function GET(request: Request): Promise<Response> {
   if (existingUser !== null) {
     const sessionToken = generateSessionToken();
     const session2 = await createSession(sessionToken, existingUser.id);
-    setSessionTokenCookie(sessionToken, session2.expiresAt);
+    setSessionTokenCookie(sessionToken, session2.expires_at);
     return new Response(null, {
       status: 302,
       headers: {
@@ -100,7 +99,7 @@ export async function GET(request: Request): Promise<Response> {
   const user = await createUserGithub(githubUserId, email, username);
   const sessionToken = generateSessionToken();
   const session2 = await createSession(sessionToken, user.id);
-  setSessionTokenCookie(sessionToken, session2.expiresAt);
+  setSessionTokenCookie(sessionToken, session2.expires_at);
   return new Response(null, {
     status: 302,
     headers: {
