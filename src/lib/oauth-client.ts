@@ -13,8 +13,12 @@ export enum CodeChallengeMethod {
   Plain = 1,
 }
 
-export function createS256CodeChallenge(codeVerifier: string): string {
-  const codeChallengeBytes = sha256(new TextEncoder().encode(codeVerifier));
+export async function createS256CodeChallenge(
+  codeVerifier: string,
+): Promise<string> {
+  const codeChallengeBytes = await sha256(
+    new TextEncoder().encode(codeVerifier),
+  );
   return encodeBase64urlNoPadding(codeChallengeBytes);
 }
 
@@ -52,13 +56,13 @@ export class OAuth2Client {
     return url;
   }
 
-  public createAuthorizationURLWithPKCE(
+  public async createAuthorizationURLWithPKCE(
     authorizationEndpoint: string,
     state: string,
     codeChallengeMethod: CodeChallengeMethod,
     codeVerifier: string,
     scopes: string[],
-  ): URL {
+  ): Promise<URL> {
     const url = new URL(authorizationEndpoint);
     url.searchParams.set("response_type", "code");
     url.searchParams.set("client_id", this.clientId);
@@ -67,7 +71,7 @@ export class OAuth2Client {
     }
     url.searchParams.set("state", state);
     if (codeChallengeMethod === CodeChallengeMethod.S256) {
-      const codeChallenge = createS256CodeChallenge(codeVerifier);
+      const codeChallenge = await createS256CodeChallenge(codeVerifier);
       url.searchParams.set("code_challenge_method", "S256");
       url.searchParams.set("code_challenge", codeChallenge);
     } else if (codeChallengeMethod === CodeChallengeMethod.Plain) {

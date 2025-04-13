@@ -10,12 +10,12 @@ export class Google {
     this.client = new OAuth2Client(clientId, clientSecret, redirectURI);
   }
 
-  public createAuthorizationURL(
+  public async createAuthorizationURL(
     state: string,
     codeVerifier: string,
     scopes: string[],
-  ): URL {
-    const url = this.client.createAuthorizationURLWithPKCE(
+  ): Promise<URL> {
+    const url = await this.client.createAuthorizationURLWithPKCE(
       "https://accounts.google.com/o/oauth2/v2/auth",
       state,
       CodeChallengeMethod.S256,

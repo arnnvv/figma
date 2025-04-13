@@ -20,7 +20,7 @@ export async function GET(): Promise<Response> {
     });
   const state = generateState();
   const codeVerifier = generateState();
-  const url = google.createAuthorizationURL(state, codeVerifier, [
+  const url = await google.createAuthorizationURL(state, codeVerifier, [
     "openid",
     "profile",
     "email",
