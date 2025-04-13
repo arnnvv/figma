@@ -1,4 +1,4 @@
-import { QueryResult } from "pg";
+import type { QueryResult } from "pg";
 import type { User } from "./db/types";
 import { generateRandomPassword, hashPassword } from "./password";
 import { db } from "./db";

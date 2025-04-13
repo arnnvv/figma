@@ -2,7 +2,7 @@
 
 import { cache } from "react";
 import { cookies } from "next/headers";
-import { PoolClient } from "pg";
+import type { PoolClient } from "pg";
 import type { ActionResult as OldActionResult } from "./components/FormComponent";
 import type {
   User,

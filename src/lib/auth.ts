@@ -2,7 +2,7 @@ import { db } from "./db";
 import { sha256 } from "./sha";
 import { encodeBase32LowerCaseNoPadding, encodeHexLowerCase } from "./encoding";
 import type { Session, User } from "./db/types";
-import { QueryResult } from "pg";
+import type { QueryResult } from "pg";
 
 export type SessionValidationResult =
   | { session: Session; user: User }

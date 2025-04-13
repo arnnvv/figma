@@ -32,7 +32,7 @@ export const Navbar = async (): Promise<JSX.Element> => {
       </nav>
     );
 
-  let isOwner: boolean = false;
+  let isOwner = false;
   const checkOwnerSql = "SELECT 1 FROM figma_rooms WHERE owner_id = $1 LIMIT 1";
   try {
     const result: QueryResult = await db.query(checkOwnerSql, [user.id]);
