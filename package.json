@@ -8,13 +8,7 @@
     "st": "next start",
     "f": "pnpm biome format --write .",
     "l": "pnpm biome lint --write .",
-    "ua": "pnpm dlx shadcn@latest add",
-    "dg": "drizzle-kit generate --config=drizzle.config.ts",
-    "dm": "drizzle-kit migrate --config=drizzle.config.ts",
-    "dp": "drizzle-kit pull --config=drizzle.config.ts",
-    "du": "drizzle-kit up --config=drizzle.config.ts",
-    "dc": "drizzle-kit check --config=drizzle.config.ts",
-    "ds": "drizzle-kit studio --config=drizzle.config.ts"
+    "ua": "pnpm dlx shadcn@latest add"
   },
   "dependencies": {
     "@liveblocks/client": "^2.7.0",

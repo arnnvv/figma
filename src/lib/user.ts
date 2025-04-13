@@ -1,4 +1,4 @@
-import type { QueryResult } from "pg";
+import { DatabaseError, type QueryResult } from "pg";
 import type { User } from "./db/types";
 import { generateRandomPassword, hashPassword } from "./password";
 import { db } from "./db";
@@ -34,10 +34,8 @@ export async function createUserGoogle(
       throw new Error("Google user insertion failed, no user returned.");
     }
   } catch (error) {
-    if (error instanceof Error && (error as any).code === "23505") {
-      console.warn(
-        `Attempted to insert existing Google user (email: ${email}), checking for picture update.`,
-      );
+    if (error instanceof DatabaseError && error.code === "23505") {
+      console.error("Unique constraint violation:", error.detail);
       const selectSql = `SELECT ${USER_COLUMNS_NO_PASSWORD} FROM figma_users WHERE email = $1 LIMIT 1`;
       try {
         const existingUserResult: QueryResult<User> = await db.query(
@@ -141,10 +139,8 @@ export async function createUserGithub(
       throw new Error("GitHub user insertion failed, no user returned.");
     }
   } catch (error) {
-    if (error instanceof Error && (error as any).code === "23505") {
-      console.warn(
-        `Attempted to insert existing GitHub user (email: ${email}), checking for picture update.`,
-      );
+    if (error instanceof DatabaseError && error.code === "23505") {
+      console.error("Unique constraint violation:", error.detail);
       const selectSql = `SELECT ${USER_COLUMNS_NO_PASSWORD} FROM figma_users WHERE email = $1 LIMIT 1`;
       try {
         const existingUserResult: QueryResult<User> = await db.query(
