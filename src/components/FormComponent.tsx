@@ -19,23 +19,9 @@ export const FormComponent = ({
   });
 
   useEffect(() => {
-    if (state.error)
-      toast.error(state.error, {
-        id: "1",
-        action: {
-          label: "Close",
-          onClick: (): string | number => toast.dismiss("1"),
-        },
-      });
+    if (state.error) toast.error(state.error);
 
-    if (state.message)
-      toast.success(state.message, {
-        id: "2",
-        action: {
-          label: "Close",
-          onClick: (): string | number => toast.dismiss("2"),
-        },
-      });
+    if (state.message) toast.success(state.message);
   }, [state]);
 
   return <form action={formAction}>{children}</form>;

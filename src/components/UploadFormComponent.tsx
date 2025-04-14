@@ -39,32 +39,14 @@ export const UploadFormComponent = ({
         setFormState(result);
 
         if (result.success) {
-          toast.success("Uploaded", {
-            id: "success-toast",
-            action: {
-              label: "Close",
-              onClick: () => toast.dismiss("success-toast"),
-            },
-          });
+          toast.success("Uploaded");
         } else {
-          toast.error(result.message, {
-            id: "error-toast",
-            action: {
-              label: "Close",
-              onClick: () => toast.dismiss("error-toast"),
-            },
-          });
+          toast.error(result.message);
         }
 
         router.refresh();
       } catch {
-        toast.error("An unexpected error occurred", {
-          id: "error-toast",
-          action: {
-            label: "Close",
-            onClick: () => toast.dismiss("error-toast"),
-          },
-        });
+        toast.error("An unexpected error occurred");
         router.refresh();
       }
     });

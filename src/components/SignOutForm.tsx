@@ -29,31 +29,13 @@ export const SignOutFormComponent = ({
         const result = await action();
 
         if (result.success) {
-          toast.success(result.message, {
-            id: "success-toast",
-            action: {
-              label: "Close",
-              onClick: () => toast.dismiss("success-toast"),
-            },
-          });
+          toast.success(result.message);
           router.push("/login");
         } else {
-          toast.error(result.message, {
-            id: "error-toast",
-            action: {
-              label: "Close",
-              onClick: () => toast.dismiss("error-toast"),
-            },
-          });
+          toast.error(result.message);
         }
       } catch {
-        toast.error("An unexpected error occurred", {
-          id: "error-toast",
-          action: {
-            label: "Close",
-            onClick: () => toast.dismiss("error-toast"),
-          },
-        });
+        toast.error("An unexpected error occurred");
       }
     });
   };
