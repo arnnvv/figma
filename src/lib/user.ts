@@ -1,210 +1,107 @@
-import { DatabaseError, type QueryResult } from "pg";
-import type { User } from "./db/types";
-import { generateRandomPassword, hashPassword } from "./password";
-import { db } from "./db";
+import { PROVIDER } from "./constants";
+import {
+  findUserByEmail_Raw,
+  findUserByGithubId_Raw,
+  findUserByGoogleId_Raw,
+  insertUser_Raw,
+  updateUserLinkGitHub_Raw,
+  updateUserLinkGoogle_Raw,
+  updateUserPictureById_Raw,
+} from "./db/inlinequeries";
+import type { NewUser, User } from "./db/types";
 
-const USER_COLUMNS_NO_PASSWORD = "id, username, email, verified, picture";
+type Provider = (typeof PROVIDER)[keyof typeof PROVIDER];
 
-export async function createUserGoogle(
+type Profile = {
+  providerId: string;
+  email: string;
+  username: string;
+  picture: string;
+};
+
+async function upsertUser(provider: Provider, profile: Profile): Promise<User> {
+  const findUserByProviderId =
+    provider === "google" ? findUserByGoogleId_Raw : findUserByGithubId_Raw;
+
+  const userByProviderId = await findUserByProviderId(profile.providerId);
+
+  if (userByProviderId) {
+    if (userByProviderId.picture !== profile.picture) {
+      await updateUserPictureById_Raw(userByProviderId.id, profile.picture);
+      userByProviderId.picture = profile.picture;
+    }
+    return userByProviderId;
+  }
+
+  const userByEmail = await findUserByEmail_Raw(profile.email);
+
+  if (userByEmail) {
+    const linkUser =
+      provider === "google"
+        ? updateUserLinkGoogle_Raw
+        : updateUserLinkGitHub_Raw;
+    const linkedUser = await linkUser(userByEmail.id, profile.providerId);
+    if (linkedUser.picture !== profile.picture) {
+      await updateUserPictureById_Raw(linkedUser.id, profile.picture);
+      linkedUser.picture = profile.picture;
+    }
+    return linkedUser;
+  }
+
+  const newUserValues: NewUser = {
+    email: profile.email,
+    username: `${provider}-${profile.username}`,
+    picture: profile.picture,
+    verified: true,
+  };
+
+  if (provider === "google") {
+    newUserValues.google_id = profile.providerId;
+  } else {
+    newUserValues.github_id = profile.providerId;
+  }
+
+  const insertedResult = await insertUser_Raw(newUserValues);
+  const newUser = { ...newUserValues, id: insertedResult.id };
+
+  return newUser as User;
+}
+
+export async function upsertUserFromGoogleProfile(
+  googleId: string,
   email: string,
+  name: string,
   picture: string,
 ): Promise<User> {
-  const googleUsername = `google-${email}`;
-  let hashedPassword;
   try {
-    hashedPassword = await hashPassword(generateRandomPassword(10));
-  } catch (hashError) {
-    console.error(
-      "Error hashing password during Google user creation:",
-      hashError,
-    );
-    throw new Error("Failed to prepare user creation.");
-  }
-
-  const insertSql = `INSERT INTO figma_users (username, email, password, picture, verified)
-    VALUES ($1, $2, $3, $4, $5)
-    RETURNING ${USER_COLUMNS_NO_PASSWORD}`;
-  const insertParams = [googleUsername, email, hashedPassword, picture, true];
-
-  try {
-    const result: QueryResult<User> = await db.query(insertSql, insertParams);
-    if (result.rowCount! > 0 && result.rows[0]) {
-      return result.rows[0];
-    } else {
-      throw new Error("Google user insertion failed, no user returned.");
-    }
+    const username = name.split(" ")[0] || "user";
+    return await upsertUser(PROVIDER.GOOGLE, {
+      providerId: googleId,
+      email,
+      username,
+      picture,
+    });
   } catch (error) {
-    if (error instanceof DatabaseError && error.code === "23505") {
-      console.error("Unique constraint violation:", error.detail);
-      const selectSql = `SELECT ${USER_COLUMNS_NO_PASSWORD} FROM figma_users WHERE email = $1 LIMIT 1`;
-      try {
-        const existingUserResult: QueryResult<User> = await db.query(
-          selectSql,
-          [email],
-        );
-        if (existingUserResult.rowCount! > 0 && existingUserResult.rows[0]) {
-          const user = existingUserResult.rows[0];
-          if (user.picture === null) {
-            console.log(
-              `Updating picture for existing Google user (email: ${email})`,
-            );
-            const updateSql = `UPDATE figma_users SET picture = $1
-                      WHERE email = $2
-                      RETURNING ${USER_COLUMNS_NO_PASSWORD}`;
-            const updateResult: QueryResult<User> = await db.query(updateSql, [
-              picture,
-              email,
-            ]);
-            if (updateResult.rowCount! > 0 && updateResult.rows[0]) {
-              return updateResult.rows[0];
-            } else {
-              console.error(
-                `Failed to update picture for existing Google user (email: ${email})`,
-              );
-              return user;
-            }
-          }
-          return user;
-        } else {
-          console.error(
-            `Unique constraint error for email ${email}, but failed to fetch existing user.`,
-          );
-          throw new Error(
-            `Failed to resolve user creation conflict for email: ${email}`,
-          );
-        }
-      } catch (fetchError) {
-        console.error(
-          `Error fetching/updating existing Google user (email: ${email}) after unique constraint error:`,
-          fetchError,
-        );
-        throw fetchError;
-      }
-    }
-    console.error(`Error creating Google user (email: ${email}):`, error);
-    throw error;
+    console.error(`Error in upsertUserFromGoogleProfile: ${error}`);
+    throw new Error("Could not create or update user profile from Google.");
   }
 }
 
-export async function getUserFromGmail(email: string): Promise<User | null> {
-  const googleUsername = `google-${email}`;
-  const sql = `SELECT ${USER_COLUMNS_NO_PASSWORD} FROM figma_users WHERE username = $1 LIMIT 1`;
-  try {
-    const result: QueryResult<User> = await db.query(sql, [googleUsername]);
-    return result.rowCount! > 0 ? result.rows[0] : null; // Non-null assertion
-  } catch (error) {
-    console.error(
-      `Error fetching user by Google username (${googleUsername}):`,
-      error,
-    );
-    throw error;
-  }
-}
-
-export async function createUserGithub(
-  githubId: number,
+export async function upsertUserFromGitHubProfile(
+  githubId: string,
   email: string,
-  username: string,
+  name: string,
+  picture: string,
 ): Promise<User> {
-  const githubPrefixedUsername = `github-${username}`;
-  const pictureUrl = `https://avatars.githubusercontent.com/u/${githubId}`;
-  let hashedPassword;
   try {
-    hashedPassword = await hashPassword(generateRandomPassword(10));
-  } catch (hashError) {
-    console.error(
-      "Error hashing password during GitHub user creation:",
-      hashError,
-    );
-    throw new Error("Failed to prepare user creation.");
-  }
-
-  const insertSql = `INSERT INTO figma_users (username, email, password, picture, verified)
-    VALUES ($1, $2, $3, $4, $5)
-    RETURNING ${USER_COLUMNS_NO_PASSWORD}`;
-  const insertParams = [
-    githubPrefixedUsername,
-    email,
-    hashedPassword,
-    pictureUrl,
-    true,
-  ];
-
-  try {
-    const result: QueryResult<User> = await db.query(insertSql, insertParams);
-    if (result.rowCount! > 0 && result.rows[0]) {
-      // Non-null assertion
-      return result.rows[0];
-    } else {
-      throw new Error("GitHub user insertion failed, no user returned.");
-    }
+    return await upsertUser(PROVIDER.GITHUB, {
+      providerId: githubId,
+      email,
+      username: name,
+      picture,
+    });
   } catch (error) {
-    if (error instanceof DatabaseError && error.code === "23505") {
-      console.error("Unique constraint violation:", error.detail);
-      const selectSql = `SELECT ${USER_COLUMNS_NO_PASSWORD} FROM figma_users WHERE email = $1 LIMIT 1`;
-      try {
-        const existingUserResult: QueryResult<User> = await db.query(
-          selectSql,
-          [email],
-        );
-        if (existingUserResult.rowCount! > 0 && existingUserResult.rows[0]) {
-          const user = existingUserResult.rows[0];
-          if (user.picture === null || user.picture !== pictureUrl) {
-            console.log(
-              `Updating picture for existing GitHub user (email: ${email})`,
-            );
-            const updateSql = `UPDATE figma_users SET picture = $1, username = $2
-                      WHERE email = $3
-                      RETURNING ${USER_COLUMNS_NO_PASSWORD}`;
-            const updateResult: QueryResult<User> = await db.query(updateSql, [
-              pictureUrl,
-              githubPrefixedUsername,
-              email,
-            ]);
-            if (updateResult.rowCount! > 0 && updateResult.rows[0]) {
-              return updateResult.rows[0];
-            } else {
-              console.error(
-                `Failed to update picture/username for existing GitHub user (email: ${email})`,
-              );
-              return user;
-            }
-          }
-          return user;
-        } else {
-          console.error(
-            `Unique constraint error for email ${email}, but failed to fetch existing user.`,
-          );
-          throw new Error(
-            `Failed to resolve user creation conflict for email: ${email}`,
-          );
-        }
-      } catch (fetchError) {
-        console.error(
-          `Error fetching/updating existing GitHub user (email: ${email}) after unique constraint error:`,
-          fetchError,
-        );
-        throw fetchError;
-      }
-    }
-    console.error(`Error creating GitHub user (email: ${email}):`, error);
-    throw error;
-  }
-}
-
-export async function getUserFromGitHubId(
-  githubId: number,
-): Promise<User | null> {
-  const pictureUrl = `https://avatars.githubusercontent.com/u/${githubId}`;
-  const sql = `SELECT ${USER_COLUMNS_NO_PASSWORD} FROM figma_users WHERE picture = $1 LIMIT 1`;
-  try {
-    const result: QueryResult<User> = await db.query(sql, [pictureUrl]);
-    return result.rowCount! > 0 ? result.rows[0] : null;
-  } catch (error) {
-    console.error(
-      `Error fetching user by GitHub picture URL (${pictureUrl}):`,
-      error,
-    );
-    throw error;
+    console.error(`Error in upsertUserFromGitHubProfile: ${error}`);
+    throw new Error("Could not create or update user profile from GitHub.");
   }
 }

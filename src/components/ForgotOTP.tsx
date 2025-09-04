@@ -1,15 +1,15 @@
 "use client";
 
-import { resendOTPForgotPassword, verifyOTPForgotPassword } from "@/actions";
 import { useRouter } from "next/navigation";
 import {
   type FormEvent,
   type JSX,
   type KeyboardEvent,
-  useTransition,
   useState,
+  useTransition,
 } from "react";
 import { toast } from "sonner";
+import { resendOTPForgotPassword, verifyOTPForgotPassword } from "@/actions";
 
 export const ForgotOTP = ({
   userEmail,

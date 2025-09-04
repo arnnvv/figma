@@ -1,28 +1,80 @@
 "use client";
 
-import { type JSX, type ReactNode, useActionState, useEffect } from "react";
+import {
+  Children,
+  cloneElement,
+  isValidElement,
+  type JSX,
+  type ReactNode,
+  useState,
+  useTransition,
+} from "react";
 import { toast } from "sonner";
-
-export type ActionResult =
-  | { message: string | null; error?: never }
-  | { error: string | null; message?: never };
+import { type ActionResult, isFormControl } from "@/lib/form-control";
+import { Loader } from "./ui/loader";
 
 export const FormComponent = ({
   children,
   action,
+  onSuccessAction,
 }: {
   children: ReactNode;
-  action: (_: any, formdata: FormData) => Promise<ActionResult>;
+  action: (prevState: any, formdata: FormData) => Promise<ActionResult>;
+  onSuccessAction?: (formData: FormData) => void;
 }): JSX.Element => {
-  const [state, formAction] = useActionState(action, {
-    error: null,
+  const [isPending, startTransition] = useTransition();
+  const [, setFormState] = useState<ActionResult>({
+    success: false,
+    message: "",
   });
 
-  useEffect(() => {
-    if (state.error) toast.error(state.error);
+  const handleSubmit = async (formData: FormData) => {
+    startTransition(async () => {
+      try {
+        const result = await action(null, formData);
+        setFormState(result);
 
-    if (state.message) toast.success(state.message);
-  }, [state]);
+        if (result.success) {
+          toast.success(result.message, {
+            id: "success-toast",
+          });
+          if (onSuccessAction) {
+            onSuccessAction(formData);
+          }
+        } else if (result.message) {
+          toast.error(result.message, {
+            id: "error-toast",
+          });
+        }
+      } catch {
+        toast.error("An unexpected error occurred", {
+          id: "error-toast",
+        });
+      }
+    });
+  };
 
-  return <form action={formAction}>{children}</form>;
+  const disabledChildren = Children.map(children, (child) => {
+    if (isValidElement(child) && isFormControl(child)) {
+      return cloneElement(child, { disabled: isPending });
+    }
+    return child;
+  });
+
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        handleSubmit(formData);
+        // Reset form if it's for adding something, e.g. room access request
+        if (e.currentTarget.id === "ask-access-form") {
+          e.currentTarget.reset();
+        }
+      }}
+    >
+      {disabledChildren}
+      {isPending && <Loader />}
+    </form>
+  );
 };

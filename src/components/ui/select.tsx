@@ -25,7 +25,6 @@ import {
   Viewport,
 } from "@radix-ui/react-select";
 import { Check, ChevronDown, ChevronUp } from "lucide-react";
-import { cn } from "@/lib/utils";
 import {
   type ComponentPropsWithoutRef,
   type ComponentRef,
@@ -34,6 +33,7 @@ import {
   type JSX,
   type RefAttributes,
 } from "react";
+import { cn } from "@/lib/utils";
 
 const Select = Root;
 const SelectGroup = Group;

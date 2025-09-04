@@ -1,6 +1,6 @@
+import { redirect } from "next/navigation";
 import type { JSX } from "react";
 import { getCurrentSession } from "@/actions";
-import { redirect } from "next/navigation";
 import { OTPInput } from "@/components/OTPInput";
 import { globalGETRateLimit } from "@/lib/request";
 

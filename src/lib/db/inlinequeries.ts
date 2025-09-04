@@ -1,116 +1,94 @@
 import type { QueryResult } from "pg";
+import { db } from ".";
 import type {
-  User,
-  Session,
-  EmailVerificationRequest,
-  Room,
   EditAccess,
-  NewUser,
-  NewSession,
+  EditAccessRequestWithRoomOwner,
+  EditAccessStatus,
+  EditableRoomInfo,
+  EmailVerificationRequest,
+  NewEditAccess,
   NewEmailVerificationRequest,
   NewRoom,
-  NewEditAccess,
+  NewSession,
+  NewUser,
+  Room,
+  Session,
   SessionValidationResultRaw,
-  EditAccessRequestWithRoomOwner,
-  EditableRoomInfo,
-  EditAccessStatus,
+  User,
 } from "./types";
-import { db } from ".";
 
-const USER_COLUMNS_NO_PASSWORD = "id, username, email, verified, picture";
+const USER_COLUMNS_NO_PASSWORD =
+  "id, username, email, verified, picture, google_id, github_id";
 
 export async function findUserByEmail_Raw(email: string): Promise<User | null> {
-  const sql = `SELECT id, username, email, password, verified, picture FROM figma_users WHERE email = $1 LIMIT 1`;
-  try {
-    const result: QueryResult<User> = await db.query(sql, [email]);
-    return result.rowCount! > 0 ? result.rows[0] : null;
-  } catch (error) {
-    console.error(`Error finding user by email (${email}):`, error);
-    throw error;
-  }
-}
-
-export async function findUserByUsername_Raw(
-  username: string,
-): Promise<User | null> {
-  const sql = `SELECT id, username, email, verified, picture FROM figma_users WHERE username = $1 LIMIT 1`;
-  try {
-    const result: QueryResult<User> = await db.query(sql, [username]);
-    return result.rowCount! > 0 ? result.rows[0] : null;
-  } catch (error) {
-    console.error(`Error finding user by username (${username}):`, error);
-    throw error;
-  }
+  const sql = `SELECT id, username, email, password_hash, verified, picture, google_id, github_id FROM figma_users WHERE email = $1 LIMIT 1`;
+  const result: QueryResult<User> = await db.query(sql, [email]);
+  return result.rowCount ? result.rows[0] : null;
 }
 
 export async function findUserByEmailOrUsername_Raw(
   email: string,
   username: string,
 ): Promise<User | null> {
-  // Select password here as it might be needed for login/signup checks before hashing/verification
-  const sql = `SELECT id, username, email, password, verified, picture FROM figma_users WHERE email = $1 OR username = $2 LIMIT 1`;
-  try {
-    const result: QueryResult<User> = await db.query(sql, [email, username]);
-    return result.rowCount! > 0 ? result.rows[0] : null;
-  } catch (error) {
-    console.error(
-      `Error finding user by email (${email}) or username (${username}):`,
-      error,
-    );
-    throw error;
-  }
+  const sql = `SELECT id, username, email, password_hash, verified, picture, google_id, github_id FROM figma_users WHERE email = $1 OR username = $2 LIMIT 1`;
+  const result: QueryResult<User> = await db.query(sql, [email, username]);
+  return result.rowCount ? result.rows[0] : null;
 }
 
-export async function findUserById_Raw(userId: number): Promise<User | null> {
-  const sql = `SELECT ${USER_COLUMNS_NO_PASSWORD} FROM figma_users WHERE id = $1 LIMIT 1`;
-  try {
-    const result: QueryResult<User> = await db.query(sql, [userId]);
-    return result.rowCount! > 0 ? result.rows[0] : null;
-  } catch (error) {
-    console.error(`Error finding user by ID (${userId}):`, error);
-    throw error;
-  }
-}
-
-export async function findUserByPicture_Raw(
-  pictureUrl: string,
+export async function findUserByGoogleId_Raw(
+  googleId: string,
 ): Promise<User | null> {
-  const sql = `SELECT ${USER_COLUMNS_NO_PASSWORD} FROM figma_users WHERE picture = $1 LIMIT 1`;
-  try {
-    const result: QueryResult<User> = await db.query(sql, [pictureUrl]);
-    return result.rowCount! > 0 ? result.rows[0] : null;
-  } catch (error) {
-    console.error(`Error finding user by picture (${pictureUrl}):`, error);
-    throw error;
-  }
+  const sql = `SELECT ${USER_COLUMNS_NO_PASSWORD} FROM figma_users WHERE google_id = $1 LIMIT 1`;
+  const result: QueryResult<User> = await db.query(sql, [googleId]);
+  return result.rowCount ? result.rows[0] : null;
+}
+
+export async function findUserByGithubId_Raw(
+  githubId: string,
+): Promise<User | null> {
+  const sql = `SELECT ${USER_COLUMNS_NO_PASSWORD} FROM figma_users WHERE github_id = $1 LIMIT 1`;
+  const result: QueryResult<User> = await db.query(sql, [githubId]);
+  return result.rowCount ? result.rows[0] : null;
 }
 
 export async function insertUser_Raw(
   newUser: NewUser,
 ): Promise<{ id: number }> {
   const sql =
-    "INSERT INTO figma_users (username, email, password, verified, picture) VALUES ($1, $2, $3, $4, $5) RETURNING id";
-  const verified = newUser.verified ?? false;
+    "INSERT INTO figma_users (username, email, password_hash, verified, picture, google_id, github_id) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id";
   const params = [
     newUser.username,
     newUser.email,
-    newUser.password,
-    verified,
+    newUser.password_hash ?? null,
+    newUser.verified ?? false,
     newUser.picture ?? null,
+    newUser.google_id ?? null,
+    newUser.github_id ?? null,
   ];
-  try {
-    const result: QueryResult<{ id: number }> = await db.query(sql, params);
-    if (result.rowCount! === 0 || !result.rows[0]?.id) {
-      throw new Error("User insertion failed, no ID returned.");
-    }
-    return result.rows[0];
-  } catch (error) {
-    console.error("Error inserting user:", newUser.email, error);
-    if (error instanceof Error && (error as any).code === "23505") {
-      throw new Error("Username or Email already exists.");
-    }
-    throw error;
-  }
+  const result: QueryResult<{ id: number }> = await db.query(sql, params);
+  if (!result.rows[0]?.id)
+    throw new Error("User insertion failed, no ID returned.");
+  return result.rows[0];
+}
+
+export async function updateUserLinkGoogle_Raw(
+  userId: number,
+  googleId: string,
+): Promise<User> {
+  const sql = `UPDATE figma_users SET google_id = $1 WHERE id = $2 RETURNING ${USER_COLUMNS_NO_PASSWORD}`;
+  const result: QueryResult<User> = await db.query(sql, [googleId, userId]);
+  if (!result.rows[0]) throw new Error("Failed to link Google account.");
+  return result.rows[0];
+}
+
+export async function updateUserLinkGitHub_Raw(
+  userId: number,
+  githubId: string,
+): Promise<User> {
+  const sql = `UPDATE figma_users SET github_id = $1 WHERE id = $2 RETURNING ${USER_COLUMNS_NO_PASSWORD}`;
+  const result: QueryResult<User> = await db.query(sql, [githubId, userId]);
+  if (!result.rows[0]) throw new Error("Failed to link GitHub account.");
+  return result.rows[0];
 }
 
 export async function updateUserVerification_Raw(
@@ -118,27 +96,17 @@ export async function updateUserVerification_Raw(
   verified: boolean,
 ): Promise<number> {
   const sql = "UPDATE figma_users SET verified = $1 WHERE id = $2";
-  try {
-    const result = await db.query(sql, [verified, userId]);
-    return result.rowCount!;
-  } catch (error) {
-    console.error(`Error updating verification for user (${userId}):`, error);
-    throw error;
-  }
+  const result = await db.query(sql, [verified, userId]);
+  return result.rowCount ?? 0;
 }
 
 export async function updateUserPasswordByEmail_Raw(
   email: string,
   hashedPassword: string,
 ): Promise<number> {
-  const sql = "UPDATE figma_users SET password = $1 WHERE email = $2";
-  try {
-    const result = await db.query(sql, [hashedPassword, email]);
-    return result.rowCount!;
-  } catch (error) {
-    console.error(`Error updating password for email (${email}):`, error);
-    throw error;
-  }
+  const sql = "UPDATE figma_users SET password_hash = $1 WHERE email = $2";
+  const result = await db.query(sql, [hashedPassword, email]);
+  return result.rowCount ?? 0;
 }
 
 export async function updateUserUsernameByEmail_Raw(
@@ -148,15 +116,10 @@ export async function updateUserUsernameByEmail_Raw(
   const sql = `UPDATE figma_users SET username = $1 WHERE email = $2 RETURNING ${USER_COLUMNS_NO_PASSWORD}`;
   try {
     const result: QueryResult<User> = await db.query(sql, [newUsername, email]);
-    if (result.rowCount! === 0 || !result.rows[0]) {
+    if (!result.rows[0])
       throw new Error("Username update failed or user not found.");
-    }
     return result.rows[0];
   } catch (error) {
-    console.error(
-      `Error updating username for email (${email}) to (${newUsername}):`,
-      error,
-    );
     if (error instanceof Error && (error as any).code === "23505") {
       throw new Error("Username already taken.");
     }
@@ -169,16 +132,9 @@ export async function updateUserPictureById_Raw(
   pictureUrl: string,
 ): Promise<number> {
   const sql = "UPDATE figma_users SET picture = $1 WHERE id = $2";
-  try {
-    const result = await db.query(sql, [pictureUrl, userId]);
-    return result.rowCount!;
-  } catch (error) {
-    console.error(`Error updating picture for user (${userId}):`, error);
-    throw error;
-  }
+  const result = await db.query(sql, [pictureUrl, userId]);
+  return result.rowCount ?? 0;
 }
-
-// --- Session Queries ---
 
 export async function findSessionWithUserById_Raw(
   sessionId: string,
@@ -186,7 +142,7 @@ export async function findSessionWithUserById_Raw(
   const sql = `
         SELECT
             s.id as session_id, s.user_id as session_user_id, s.expires_at as session_expires_at,
-            u.id as user_id, u.username, u.email, u.verified, u.picture
+            u.id as user_id, u.username, u.email, u.verified, u.picture, u.password_hash, u.google_id, u.github_id
         FROM figma_sessions s
         JOIN figma_users u ON s.user_id = u.id
         WHERE s.id = $1
@@ -202,6 +158,9 @@ export async function findSessionWithUserById_Raw(
       email: string;
       verified: boolean;
       picture: string | null;
+      password_hash: string | null;
+      google_id: string | null;
+      github_id: string | null;
     };
     const result: QueryResult<JoinResult> = await db.query(sql, [sessionId]);
 
@@ -220,6 +179,9 @@ export async function findSessionWithUserById_Raw(
       email: row.email,
       verified: row.verified,
       picture: row.picture,
+      password_hash: row.password_hash,
+      google_id: row.google_id,
+      github_id: row.github_id,
     };
     return { session, user };
   } catch (error) {
@@ -233,36 +195,21 @@ export async function insertSession_Raw(
 ): Promise<Session> {
   const sql =
     "INSERT INTO figma_sessions (id, user_id, expires_at) VALUES ($1, $2, $3) RETURNING id, user_id, expires_at";
-  try {
-    const result: QueryResult<Session> = await db.query(sql, [
-      newSession.id,
-      newSession.user_id,
-      newSession.expires_at,
-    ]);
-    if (result.rowCount! === 0 || !result.rows[0]) {
-      throw new Error("Session insertion failed.");
-    }
-    return result.rows[0];
-  } catch (error) {
-    console.error(
-      `Error inserting session for user (${newSession.user_id}):`,
-      error,
-    );
-    throw error;
-  }
+  const result: QueryResult<Session> = await db.query(sql, [
+    newSession.id,
+    newSession.user_id,
+    newSession.expires_at,
+  ]);
+  if (!result.rows[0]) throw new Error("Session insertion failed.");
+  return result.rows[0];
 }
 
 export async function deleteSessionById_Raw(
   sessionId: string,
 ): Promise<number> {
   const sql = "DELETE FROM figma_sessions WHERE id = $1";
-  try {
-    const result = await db.query(sql, [sessionId]);
-    return result.rowCount!;
-  } catch (error) {
-    console.error(`Error deleting session (${sessionId}):`, error);
-    throw error;
-  }
+  const result = await db.query(sql, [sessionId]);
+  return result.rowCount ?? 0;
 }
 
 export async function updateSessionExpiry_Raw(
@@ -270,16 +217,9 @@ export async function updateSessionExpiry_Raw(
   newExpiresAt: Date,
 ): Promise<number> {
   const sql = "UPDATE figma_sessions SET expires_at = $1 WHERE id = $2";
-  try {
-    const result = await db.query(sql, [newExpiresAt, sessionId]);
-    return result.rowCount!;
-  } catch (error) {
-    console.error(`Error updating session expiry (${sessionId}):`, error);
-    throw error;
-  }
+  const result = await db.query(sql, [newExpiresAt, sessionId]);
+  return result.rowCount ?? 0;
 }
-
-// --- Email Verification Queries ---
 
 export async function findEmailVerificationByUserIdAndCode_Raw(
   userId: number,
@@ -287,35 +227,19 @@ export async function findEmailVerificationByUserIdAndCode_Raw(
 ): Promise<EmailVerificationRequest | null> {
   const sql =
     "SELECT id, user_id, email, code, expires_at FROM figma_email_verification_request WHERE user_id = $1 AND code = $2 LIMIT 1";
-  try {
-    const result: QueryResult<EmailVerificationRequest> = await db.query(sql, [
-      userId,
-      code,
-    ]);
-    return result.rowCount! > 0 ? result.rows[0] : null;
-  } catch (error) {
-    console.error(
-      `Error finding email verification for user (${userId}):`,
-      error,
-    );
-    throw error;
-  }
+  const result: QueryResult<EmailVerificationRequest> = await db.query(sql, [
+    userId,
+    code,
+  ]);
+  return result.rowCount ? result.rows[0] : null;
 }
 
 export async function deleteEmailVerificationByUserId_Raw(
   userId: number,
 ): Promise<number> {
   const sql = "DELETE FROM figma_email_verification_request WHERE user_id = $1";
-  try {
-    const result = await db.query(sql, [userId]);
-    return result.rowCount!;
-  } catch (error) {
-    console.error(
-      `Error deleting email verification for user (${userId}):`,
-      error,
-    );
-    throw error;
-  }
+  const result = await db.query(sql, [userId]);
+  return result.rowCount ?? 0;
 }
 
 export async function insertEmailVerification_Raw(
@@ -323,114 +247,44 @@ export async function insertEmailVerification_Raw(
 ): Promise<{ id: number }> {
   const sql =
     "INSERT INTO figma_email_verification_request (user_id, email, code, expires_at) VALUES ($1, $2, $3, $4) RETURNING id";
-  try {
-    const result: QueryResult<{ id: number }> = await db.query(sql, [
-      newRequest.user_id,
-      newRequest.email,
-      newRequest.code,
-      newRequest.expires_at,
-    ]);
-    if (result.rowCount! === 0 || !result.rows[0]?.id) {
-      throw new Error("Email verification request insertion failed.");
-    }
-    return result.rows[0];
-  } catch (error) {
-    console.error(
-      `Error inserting email verification for user (${newRequest.user_id}):`,
-      error,
-    );
-    throw error;
-  }
+  const result: QueryResult<{ id: number }> = await db.query(sql, [
+    newRequest.user_id,
+    newRequest.email,
+    newRequest.code,
+    newRequest.expires_at,
+  ]);
+  if (!result.rows[0]?.id)
+    throw new Error("Email verification request insertion failed.");
+  return result.rows[0];
 }
-
-// --- Room Queries ---
 
 export async function findRoomById_Raw(roomId: string): Promise<Room | null> {
   const sql = "SELECT id, owner_id FROM figma_rooms WHERE id = $1 LIMIT 1";
-  try {
-    const result: QueryResult<Room> = await db.query(sql, [roomId]);
-    return result.rowCount! > 0 ? result.rows[0] : null;
-  } catch (error) {
-    console.error(`Error finding room by ID (${roomId}):`, error);
-    throw error;
-  }
+  const result: QueryResult<Room> = await db.query(sql, [roomId]);
+  return result.rowCount ? result.rows[0] : null;
 }
 
 export async function findRoomsByOwnerId_Raw(ownerId: number): Promise<Room[]> {
   const sql = "SELECT id, owner_id FROM figma_rooms WHERE owner_id = $1";
-  try {
-    const result: QueryResult<Room> = await db.query(sql, [ownerId]);
-    return result.rows;
-  } catch (error) {
-    console.error(`Error finding rooms by owner ID (${ownerId}):`, error);
-    throw error;
-  }
+  const result: QueryResult<Room> = await db.query(sql, [ownerId]);
+  return result.rows;
 }
 
 export async function insertRoom_Raw(newRoom: NewRoom): Promise<Room> {
   const sql =
     "INSERT INTO figma_rooms (id, owner_id) VALUES ($1, $2) RETURNING id, owner_id";
-  try {
-    const result: QueryResult<Room> = await db.query(sql, [
-      newRoom.id,
-      newRoom.owner_id,
-    ]);
-    if (result.rowCount! === 0 || !result.rows[0]) {
-      throw new Error("Room insertion failed.");
-    }
-    return result.rows[0];
-  } catch (error) {
-    console.error(
-      `Error inserting room (${newRoom.id}) for owner (${newRoom.owner_id}):`,
-      error,
-    );
-    throw error;
-  }
-}
-
-export async function deleteRoomById_Raw(roomId: string): Promise<number> {
-  const sql = "DELETE FROM figma_rooms WHERE id = $1";
-  try {
-    const result = await db.query(sql, [roomId]);
-    return result.rowCount!;
-  } catch (error) {
-    console.error(`Error deleting room (${roomId}):`, error);
-    throw error;
-  }
+  const result: QueryResult<Room> = await db.query(sql, [
+    newRoom.id,
+    newRoom.owner_id,
+  ]);
+  if (!result.rows[0]) throw new Error("Room insertion failed.");
+  return result.rows[0];
 }
 
 export async function getMaxRoomId_Raw(): Promise<number> {
   const sql = "SELECT MAX(CAST(id AS INT)) as max_id FROM figma_rooms";
-  try {
-    const result: QueryResult<{ max_id: number | null }> = await db.query(sql);
-    return result.rows[0]?.max_id ?? 0;
-  } catch (error) {
-    console.error("Error fetching max room ID:", error);
-    return 0; // Return default on error
-  }
-}
-
-// --- Edit Access Queries ---
-
-export async function findEditAccess_Raw(
-  requesterId: number,
-  roomId: string,
-): Promise<EditAccess | null> {
-  const sql =
-    "SELECT id, requester_id, room_id_requested_for, status FROM figma_edit_access WHERE requester_id = $1 AND room_id_requested_for = $2 LIMIT 1";
-  try {
-    const result: QueryResult<EditAccess> = await db.query(sql, [
-      requesterId,
-      roomId,
-    ]);
-    return result.rowCount! > 0 ? result.rows[0] : null;
-  } catch (error) {
-    console.error(
-      `Error finding edit access for requester (${requesterId}) and room (${roomId}):`,
-      error,
-    );
-    throw error;
-  }
+  const result: QueryResult<{ max_id: number | null }> = await db.query(sql);
+  return result.rows[0]?.max_id ?? 0;
 }
 
 export async function findPendingOrAcceptedEditAccess_Raw(
@@ -445,19 +299,11 @@ export async function findPendingOrAcceptedEditAccess_Raw(
           AND status IN ('pending', 'accepted')
         LIMIT 1
     `;
-  try {
-    const result: QueryResult<EditAccess> = await db.query(sql, [
-      requesterId,
-      roomId,
-    ]);
-    return result.rowCount! > 0 ? result.rows[0] : null;
-  } catch (error) {
-    console.error(
-      `Error finding pending/accepted edit access for requester (${requesterId}) and room (${roomId}):`,
-      error,
-    );
-    throw error;
-  }
+  const result: QueryResult<EditAccess> = await db.query(sql, [
+    requesterId,
+    roomId,
+  ]);
+  return result.rowCount ? result.rows[0] : null;
 }
 
 export async function insertEditAccess_Raw(
@@ -465,23 +311,13 @@ export async function insertEditAccess_Raw(
 ): Promise<EditAccess> {
   const sql =
     "INSERT INTO figma_edit_access (requester_id, room_id_requested_for, status) VALUES ($1, $2, $3) RETURNING id, requester_id, room_id_requested_for, status";
-  try {
-    const result: QueryResult<EditAccess> = await db.query(sql, [
-      newAccess.requester_id,
-      newAccess.room_id_requested_for,
-      newAccess.status,
-    ]);
-    if (result.rowCount! === 0 || !result.rows[0]) {
-      throw new Error("Edit access insertion failed.");
-    }
-    return result.rows[0];
-  } catch (error) {
-    console.error(
-      `Error inserting edit access for requester (${newAccess.requester_id}) room (${newAccess.room_id_requested_for}):`,
-      error,
-    );
-    throw error;
-  }
+  const result: QueryResult<EditAccess> = await db.query(sql, [
+    newAccess.requester_id,
+    newAccess.room_id_requested_for,
+    newAccess.status,
+  ]);
+  if (!result.rows[0]) throw new Error("Edit access insertion failed.");
+  return result.rows[0];
 }
 
 export async function updateEditAccessStatus_Raw(
@@ -489,29 +325,8 @@ export async function updateEditAccessStatus_Raw(
   newStatus: EditAccessStatus,
 ): Promise<number> {
   const sql = "UPDATE figma_edit_access SET status = $1 WHERE id = $2";
-  try {
-    const result = await db.query(sql, [newStatus, accessId]);
-    return result.rowCount!;
-  } catch (error) {
-    console.error(
-      `Error updating edit access status for ID (${accessId}) to (${newStatus}):`,
-      error,
-    );
-    throw error;
-  }
-}
-
-export async function deleteEditAccessByRoomId_Raw(
-  roomId: string,
-): Promise<number> {
-  const sql = "DELETE FROM figma_edit_access WHERE room_id_requested_for = $1";
-  try {
-    const result = await db.query(sql, [roomId]);
-    return result.rowCount!;
-  } catch (error) {
-    console.error(`Error deleting edit access for room (${roomId}):`, error);
-    throw error;
-  }
+  const result = await db.query(sql, [newStatus, accessId]);
+  return result.rowCount ?? 0;
 }
 
 export async function findEditableRoomsForUser_Raw(
@@ -523,13 +338,8 @@ export async function findEditableRoomsForUser_Raw(
         JOIN figma_edit_access ea ON ea.room_id_requested_for = r.id
         WHERE ea.requester_id = $1 AND ea.status = 'accepted'
     `;
-  try {
-    const result: QueryResult<EditableRoomInfo> = await db.query(sql, [userId]);
-    return result.rows;
-  } catch (error) {
-    console.error(`Error finding editable rooms for user (${userId}):`, error);
-    throw error;
-  }
+  const result: QueryResult<EditableRoomInfo> = await db.query(sql, [userId]);
+  return result.rows;
 }
 
 export async function findPendingEditRequestsForOwner_Raw(
@@ -548,40 +358,17 @@ export async function findPendingEditRequestsForOwner_Raw(
          JOIN figma_users u ON ea.requester_id = u.id
          WHERE ea.status = 'pending' AND r.owner_id = $1
      `;
-  try {
-    const result: QueryResult<EditAccessRequestWithRoomOwner> = await db.query(
-      sql,
-      [ownerId],
-    );
-    return result.rows;
-  } catch (error) {
-    console.error(
-      `Error finding pending requests for owner (${ownerId}):`,
-      error,
-    );
-    throw error;
-  }
+  const result: QueryResult<EditAccessRequestWithRoomOwner> = await db.query(
+    sql,
+    [ownerId],
+  );
+  return result.rows;
 }
 
 export const getNameFromId = async (userId: number): Promise<string | null> => {
   const sql = "SELECT username FROM figma_users WHERE id = $1 LIMIT 1";
-  const params = [userId];
-
-  try {
-    type UsernameResult = { username: string };
-    const result: QueryResult<UsernameResult> = await db.query(sql, params);
-
-    if (result.rowCount! > 0 && result.rows[0]?.username) {
-      return result.rows[0].username;
-    } else {
-      console.log(`No user found with ID: ${userId}`);
-      return null;
-    }
-  } catch (error) {
-    console.error(
-      `Error fetching username for ID ${userId} via db.query:`,
-      error,
-    );
-    return null;
-  }
+  const result: QueryResult<{ username: string }> = await db.query(sql, [
+    userId,
+  ]);
+  return result.rows[0]?.username ?? null;
 };

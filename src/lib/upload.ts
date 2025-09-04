@@ -9,10 +9,10 @@ class UTApiInstance {
   }
 
   public static getInstance(): UTApiInstance {
-    if (!this.instance) {
-      this.instance = new UTApiInstance();
+    if (!UTApiInstance.instance) {
+      UTApiInstance.instance = new UTApiInstance();
     }
-    return this.instance;
+    return UTApiInstance.instance;
   }
 
   public getUTApi(): UTApi {

@@ -1,21 +1,21 @@
-import { getCurrentSession, signOutAction, uploadFile } from "@/actions";
+import { LogOut, Upload } from "lucide-react";
 import Image from "next/image";
-import { Button } from "./ui/button";
-import { NavbarClient } from "./NavbarClient";
-import { db } from "@/lib/db";
 import type { QueryResult } from "pg";
 import type { JSX } from "react";
+import { getCurrentSession, signOutAction, uploadFile } from "@/actions";
+import { db } from "@/lib/db";
+import { FileInput } from "./FileInput";
+import { NavbarClient } from "./NavbarClient";
+import { SignOutFormComponent } from "./SignOutForm";
+import { UploadFormComponent } from "./UploadFormComponent";
+import { AvatarFallback, AvatarImage, AvatarSHAD } from "./ui/avatar";
+import { Button } from "./ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { AvatarFallback, AvatarImage, AvatarSHAD } from "./ui/avatar";
-import { LogOut, Upload } from "lucide-react";
-import { SignOutFormComponent } from "./SignOutForm";
-import { FileInput } from "./FileInput";
-import { UploadFormComponent } from "./UploadFormComponent";
 
 export const Navbar = async (): Promise<JSX.Element> => {
   const { user, session } = await getCurrentSession();

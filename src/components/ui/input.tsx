@@ -1,10 +1,10 @@
-import { cn } from "@/lib/utils";
 import {
   type ForwardedRef,
   forwardRef,
   type InputHTMLAttributes,
   type JSX,
 } from "react";
+import { cn } from "@/lib/utils";
 
 export type InputProps = InputHTMLAttributes<HTMLInputElement>;
 

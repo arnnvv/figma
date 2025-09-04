@@ -5,13 +5,13 @@ import {
   Fallback,
   Root,
 } from "@radix-ui/react-avatar";
-import { cn } from "@/lib/utils";
 import {
   type ComponentPropsWithoutRef,
   type ComponentRef,
   forwardRef,
   type JSX,
 } from "react";
+import { cn } from "@/lib/utils";
 
 const AvatarSHAD = forwardRef<
   ComponentRef<typeof Root>,

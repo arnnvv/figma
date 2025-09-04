@@ -1,11 +1,11 @@
+import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import type { QueryResult } from "pg";
+import type { JSX } from "react";
 import { getCurrentSession } from "@/actions";
 import { Room } from "@/components/Room";
 import { Whiteboard } from "@/components/Whiteboard";
 import { db } from "@/lib/db";
-import type { QueryResult } from "pg";
-import type { Metadata } from "next";
-import { redirect } from "next/navigation";
-import type { JSX } from "react";
 
 export const generateMetadata = async (props: {
   params: Promise<{

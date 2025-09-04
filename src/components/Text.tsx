@@ -1,3 +1,4 @@
+import type { JSX } from "react";
 import {
   fontFamilyOptions,
   fontSizeOptions,
@@ -10,7 +11,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import type { JSX } from "react";
 
 const selectConfigs = [
   {

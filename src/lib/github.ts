@@ -1,67 +1,88 @@
 import {
-  createOAuth2Request,
-  encodeBasicCredentials,
-  sendTokenRequest,
-} from "./oauth-requests";
+  GITHUB_TOKEN_ENDPOINT,
+  GITHUB_USER_EMAILS_ENDPOINT,
+  GITHUB_USER_ENDPOINT,
+} from "./constants";
+import { CodeChallengeMethod, OAuth2Client } from "./oauth-client";
 import type { OAuth2Tokens } from "./oauth-token";
-
-const tokenEndpoint = "https://github.com/login/oauth/access_token";
+import { ObjectParser } from "./parser";
 
 export class GitHub {
-  private clientId: string;
-  private clientSecret: string;
-  private redirectURI: string | null;
+  private client: OAuth2Client;
 
-  constructor(
-    clientId: string,
-    clientSecret: string,
-    redirectURI: string | null,
-  ) {
-    this.clientId = clientId;
-    this.clientSecret = clientSecret;
-    this.redirectURI = redirectURI;
+  constructor(clientId: string, clientSecret: string, redirectURI: string) {
+    this.client = new OAuth2Client(clientId, clientSecret, redirectURI);
   }
 
-  public createAuthorizationURL(state: string, scopes: string[]): URL {
-    const url = new URL("https://github.com/login/oauth/authorize");
-    url.searchParams.set("response_type", "code");
-    url.searchParams.set("client_id", this.clientId);
-    url.searchParams.set("state", state);
-    url.searchParams.set("scope", scopes.join(" "));
-    if (this.redirectURI !== null) {
-      url.searchParams.set("redirect_uri", this.redirectURI);
-    }
-    return url;
-  }
-
-  public async validateAuthorizationCode(code: string): Promise<OAuth2Tokens> {
-    const body = new URLSearchParams();
-    body.set("grant_type", "authorization_code");
-    body.set("code", code);
-    if (this.redirectURI !== null) {
-      body.set("redirect_uri", this.redirectURI);
-    }
-    const request = createOAuth2Request(tokenEndpoint, body);
-    const encodedCredentials = encodeBasicCredentials(
-      this.clientId,
-      this.clientSecret,
+  public async createAuthorizationURL(
+    state: string,
+    codeVerifier: string,
+    scopes: string[],
+  ): Promise<URL> {
+    return this.client.createAuthorizationURLWithPKCE(
+      "https://github.com/login/oauth/authorize",
+      state,
+      CodeChallengeMethod.S256,
+      codeVerifier,
+      scopes,
     );
-    request.headers.set("Authorization", `Basic ${encodedCredentials}`);
-    const tokens = await sendTokenRequest(request);
-    return tokens;
   }
 
-  public async refreshAccessToken(refreshToken: string): Promise<OAuth2Tokens> {
-    const body = new URLSearchParams();
-    body.set("grant_type", "refresh_token");
-    body.set("refresh_token", refreshToken);
-    const request = createOAuth2Request(tokenEndpoint, body);
-    const encodedCredentials = encodeBasicCredentials(
-      this.clientId,
-      this.clientSecret,
+  public async validateAuthorizationCode(
+    code: string,
+    codeVerifier: string,
+  ): Promise<OAuth2Tokens> {
+    return this.client.validateAuthorizationCode(
+      GITHUB_TOKEN_ENDPOINT,
+      code,
+      codeVerifier,
     );
-    request.headers.set("Authorization", `Basic ${encodedCredentials}`);
-    const tokens = await sendTokenRequest(request);
-    return tokens;
   }
+
+  public async getUser(accessToken: string): Promise<GitHubUser> {
+    const response = await fetch(GITHUB_USER_ENDPOINT, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "User-Agent": "figma-clone-app",
+      },
+    });
+    if (!response.ok) {
+      throw new Error("Failed to fetch GitHub user");
+    }
+    const data = await response.json();
+    const parser = new ObjectParser(data);
+    return {
+      id: parser.getNumber("id"),
+      login: parser.getString("login"),
+      name: parser.getOptionalString("name") ?? null,
+      avatar_url: parser.getString("avatar_url"),
+    };
+  }
+
+  public async getEmails(accessToken: string): Promise<GitHubEmail[]> {
+    const response = await fetch(GITHUB_USER_EMAILS_ENDPOINT, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "User-Agent": "figma-clone-app",
+      },
+    });
+    if (!response.ok) {
+      throw new Error("Failed to fetch GitHub emails");
+    }
+    return response.json();
+  }
+}
+
+export interface GitHubUser {
+  id: number;
+  login: string;
+  name: string | null;
+  avatar_url: string;
+}
+
+export interface GitHubEmail {
+  email: string;
+  primary: boolean;
+  verified: boolean;
+  visibility: "public" | "private" | null;
 }

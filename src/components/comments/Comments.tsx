@@ -1,9 +1,9 @@
 "use client";
 
 import { ClientSideSuspense } from "@liveblocks/react/suspense";
-import { CommentsOverlay } from "./CommentsOverlay";
-import { ModernLoader } from "../ModernLoader";
 import type { JSX } from "react";
+import { ModernLoader } from "../ModernLoader";
+import { CommentsOverlay } from "./CommentsOverlay";
 
 export const Comments = (): JSX.Element => (
   <ClientSideSuspense fallback={<ModernLoader />}>

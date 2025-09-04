@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  type MutationContext,
   useBroadcastEvent,
   useEventListener,
   useMutation,
@@ -11,33 +10,20 @@ import {
   useStorage,
   useUndo,
 } from "@liveblocks/react/suspense";
+import type { fabric } from "fabric";
+import { useSetAtom } from "jotai";
 import {
-  type KeyboardEvent as ReactKeyboardEvent,
+  type ChangeEvent,
+  type JSX,
   type PointerEvent,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type RefObject,
   useCallback,
   useEffect,
-  useState,
-  type ChangeEvent,
   useRef,
-  type RefObject,
-  type JSX,
+  useState,
 } from "react";
-import {
-  type ActiveElement,
-  CursorMode,
-  type CursorState,
-  type Reaction,
-  type ReactionEvent,
-} from "../../types";
-import type { fabric } from "fabric";
-import { useInterval } from "@/lib/useInterval";
-import { Cursor } from "./Cursor";
-import { COLORS, defaultNavElement } from "@/lib/constants";
-import type { LiveMap, User } from "@liveblocks/client";
-import { FlyingReaction } from "./FlyingReaction";
-import { ReactionSelector } from "./ReactionSelector";
-import { CursorSVG } from "./CursorSVG";
-import { Appbar } from "./Appbar";
+import { elementAttributesAtom } from "@/lib/atoms";
 import {
   handleCanvasMouseDown,
   handleCanvasMouseMove,
@@ -53,18 +39,29 @@ import {
   initializeFabric,
   renderCanvas,
 } from "@/lib/canvasElements";
-import { ShapeSelect } from "./ShapeSelect";
-import { EditCanvas } from "./EditCanvas";
-import { useSetAtom } from "jotai";
-import { elementAttributesAtom } from "@/lib/atoms";
+import { COLORS, defaultNavElement } from "@/lib/constants";
+import { useInterval } from "@/lib/useInterval";
+import {
+  type ActiveElement,
+  CursorMode,
+  type CursorState,
+  type Reaction,
+  type ReactionEvent,
+} from "../../types";
+import { Appbar } from "./Appbar";
+import { Cursor } from "./Cursor";
 import { Comments } from "./comments/Comments";
+import { EditCanvas } from "./EditCanvas";
+import { FlyingReaction } from "./FlyingReaction";
+import { ReactionSelector } from "./ReactionSelector";
+import { ShapeSelect } from "./ShapeSelect";
 
 export const Whiteboard = (): JSX.Element => {
   const undo = useUndo();
   const redo = useRedo();
   const others = useOthers();
   const setElementAttributes = useSetAtom(elementAttributesAtom);
-  const [presence, updatePresence] = useMyPresence();
+  const [{ cursor }, updatePresence] = useMyPresence();
   const broadcast = useBroadcastEvent();
   const [state, setState] = useState<CursorState>({ mode: CursorMode.Hidden });
   const [reactions, setReactions] = useState<Reaction[]>([]);
@@ -73,6 +70,9 @@ export const Whiteboard = (): JSX.Element => {
     value: "",
     icon: "",
   });
+
+  const [localCursor, setLocalCursor] = useState({ x: 0, y: 0 });
+
   const canvasRef: RefObject<HTMLCanvasElement | null> =
     useRef<HTMLCanvasElement>(null);
   const fabricRef: RefObject<fabric.Canvas | null> =
@@ -94,56 +94,33 @@ export const Whiteboard = (): JSX.Element => {
     }): ReadonlyMap<string, any> => root.canvasObjects,
   );
 
-  const deleteAllStorageShapes = useMutation(
-    ({
-      storage,
-    }: MutationContext<
-      { cursor: { x: number; y: number } | null; message: string },
-      { canvasObjects: LiveMap<string, any> },
-      { id: string }
-    >): boolean => {
-      const canvasObjects = storage.get("canvasObjects");
-      if (!canvasObjects || canvasObjects.size === 0) return true;
-      for (const [key] of canvasObjects.entries()) {
-        canvasObjects.delete(key);
-      }
-      return canvasObjects.size === 0;
-    },
-    [],
-  );
+  const deleteAllStorageShapes = useMutation(({ storage }) => {
+    const canvasObjects = storage.get("canvasObjects");
+    if (!canvasObjects || canvasObjects.size === 0) return true;
+    for (const [key] of canvasObjects.entries()) {
+      canvasObjects.delete(key);
+    }
+    return canvasObjects.size === 0;
+  }, []);
 
-  const deleteStorageShape = useMutation(
-    (
-      {
-        storage,
-      }: MutationContext<
-        { cursor: { x: number; y: number } | null; message: string },
-        { canvasObjects: LiveMap<string, any> },
-        { id: string }
-      >,
-      objectId,
-    ) => {
-      const canvasObjects = storage.get("canvasObjects");
-      canvasObjects.delete(objectId);
-    },
-    [],
-  );
+  const deleteStorageShape = useMutation(({ storage }, objectId) => {
+    const canvasObjects = storage.get("canvasObjects");
+    canvasObjects.delete(objectId);
+  }, []);
 
   const handleActiveElement = (elem: ActiveElement) => {
     setActiveElement(elem);
 
     switch (elem?.value) {
       case "reset":
-        deleteAllStorageShapes(); //Clr from liveblocks storage
-        fabricRef.current?.clear(); //clr from existing canvas
+        deleteAllStorageShapes();
+        fabricRef.current?.clear();
         setActiveElement(defaultNavElement);
         break;
-
       case "delete":
         handleDelete(fabricRef.current as any, deleteStorageShape);
         setActiveElement(defaultNavElement);
         break;
-
       case "image":
         imageRef.current?.click();
         isDrawing.current = false;
@@ -155,29 +132,14 @@ export const Whiteboard = (): JSX.Element => {
     selectedShapeRef.current = elem?.value as string;
   };
 
-  const syncShapeInStorage = useMutation(
-    (
-      {
-        storage,
-      }: MutationContext<
-        { cursor: { x: number; y: number } | null; message: string },
-        { canvasObjects: LiveMap<string, any> },
-        { id: string }
-      >,
-      object: any,
-    ) => {
-      if (!object) return;
-
-      const { objectId } = object;
-
-      const shapeData = object.toJSON();
-      shapeData.objectId = objectId;
-
-      const canvasObjects = storage.get("canvasObjects");
-      canvasObjects.set(objectId, shapeData);
-    },
-    [],
-  );
+  const syncShapeInStorage = useMutation(({ storage }, object: any) => {
+    if (!object) return;
+    const { objectId } = object;
+    const shapeData = object.toJSON();
+    shapeData.objectId = objectId;
+    const canvasObjects = storage.get("canvasObjects");
+    canvasObjects.set(objectId, shapeData);
+  }, []);
 
   const setReaction = useCallback((reaction: string) => {
     setState({ mode: CursorMode.Reaction, reaction, isPressed: false });
@@ -185,6 +147,19 @@ export const Whiteboard = (): JSX.Element => {
 
   useEffect(() => {
     const canvas = initializeFabric({ canvasRef, fabricRef });
+
+    const handleResizeCallback = () => handleResize({ canvas });
+
+    const handleKeyDownCallback = (e: KeyboardEvent) => {
+      handleKeyDown({
+        e,
+        canvas: fabricRef.current,
+        undo,
+        redo,
+        syncShapeInStorage,
+        deleteStorageShape,
+      });
+    };
 
     canvas.on("mouse:down", (options: fabric.IEvent<MouseEvent>) => {
       handleCanvasMouseDown({
@@ -220,10 +195,7 @@ export const Whiteboard = (): JSX.Element => {
     });
 
     canvas.on("object:modified", (options: fabric.IEvent<MouseEvent>) => {
-      handleCanvasObjectModified({
-        options,
-        syncShapeInStorage,
-      });
+      handleCanvasObjectModified({ options, syncShapeInStorage });
     });
 
     canvas.on("selection:created", (options: fabric.IEvent<MouseEvent>) => {
@@ -235,67 +207,47 @@ export const Whiteboard = (): JSX.Element => {
     });
 
     canvas.on("object:scaling", (options: fabric.IEvent<MouseEvent>) => {
-      handleCanvasObjectScaling({
-        options,
-        setElementAttributes,
-      });
+      handleCanvasObjectScaling({ options, setElementAttributes });
     });
 
     canvas.on("path:created", (options: fabric.IEvent<MouseEvent>) => {
-      handlePathCreated({
-        options,
-        syncShapeInStorage,
-      });
-    });
-    window.addEventListener("resize", () => {
-      handleResize({ canvas });
+      handlePathCreated({ options, syncShapeInStorage });
     });
 
-    window.addEventListener("keydown", (e: KeyboardEvent) => {
-      handleKeyDown({
-        e,
-        canvas: fabricRef.current,
-        undo,
-        redo,
-        syncShapeInStorage,
-        deleteStorageShape: deleteStorageShape,
-      });
-    });
+    window.addEventListener("resize", handleResizeCallback);
+    window.addEventListener("keydown", handleKeyDownCallback);
 
     return () => {
       canvas.dispose();
+      window.removeEventListener("resize", handleResizeCallback);
+      window.removeEventListener("keydown", handleKeyDownCallback);
     };
-  }, [syncShapeInStorage, deleteStorageShape, undo, redo]);
+  }, [
+    syncShapeInStorage,
+    deleteStorageShape,
+    undo,
+    redo,
+    setElementAttributes,
+  ]);
 
   useInterval(() => {
-    setReactions((reactions: Reaction[]): Reaction[] =>
-      reactions.filter(
-        (reaction: Reaction): boolean => reaction.timestamp > Date.now() - 4000,
-      ),
+    setReactions((reactions) =>
+      reactions.filter((r) => r.timestamp > Date.now() - 4000),
     );
   }, 1000);
 
   useInterval(() => {
-    if (
-      state.mode === CursorMode.Reaction &&
-      state.isPressed &&
-      presence.cursor
-    ) {
-      setReactions((reactions: Reaction[]): Reaction[] =>
+    if (state.mode === CursorMode.Reaction && state.isPressed && cursor) {
+      setReactions((reactions) =>
         reactions.concat([
           {
-            //@ts-expect-error: W T F
-            point: { x: presence.cursor.x, y: presence.cursor.y },
+            point: { x: cursor.x, y: cursor.y },
             value: state.reaction,
             timestamp: Date.now(),
           },
         ]),
       );
-      broadcast({
-        x: presence.cursor.x,
-        y: presence.cursor.y,
-        value: state.reaction,
-      });
+      broadcast({ x: cursor.x, y: cursor.y, value: state.reaction });
     }
   }, 100);
 
@@ -311,12 +263,11 @@ export const Whiteboard = (): JSX.Element => {
       }
     };
 
-    window.addEventListener("keyup", onKeyUp);
-
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "/") e.preventDefault();
     };
 
+    window.addEventListener("keyup", onKeyUp);
     window.addEventListener("keydown", onKeyDown);
 
     return () => {
@@ -327,7 +278,7 @@ export const Whiteboard = (): JSX.Element => {
 
   useEventListener((eventData) => {
     const event = eventData.event as ReactionEvent;
-    setReactions((reactions: Reaction[]): Reaction[] =>
+    setReactions((reactions) =>
       reactions.concat([
         {
           point: { x: event.x, y: event.y },
@@ -339,11 +290,7 @@ export const Whiteboard = (): JSX.Element => {
   });
 
   useEffect(() => {
-    renderCanvas({
-      fabricRef,
-      canvasObjects,
-      activeObjectRef,
-    });
+    renderCanvas({ fabricRef, canvasObjects, activeObjectRef });
   }, [canvasObjects]);
 
   return (
@@ -354,13 +301,14 @@ export const Whiteboard = (): JSX.Element => {
         imageInputRef={imageRef}
         handleImageUpload={(e: ChangeEvent<HTMLInputElement>) => {
           e.stopPropagation();
-          if (e.target.files && e.target.files.length > 0)
+          if (e.target.files?.[0]) {
             handleImageUpload({
               file: e.target.files[0],
               canvas: fabricRef as any,
               shapeRef,
               syncShapeInStorage,
             });
+          }
         }}
       />
       <section className="flex h-full flex-row">
@@ -372,186 +320,122 @@ export const Whiteboard = (): JSX.Element => {
             cursor:
               state.mode === CursorMode.Chat
                 ? "none"
-                : "url(cursor.svg) 0 0, auto",
+                : "url(/assets/cursor.svg) 0 0, auto",
           }}
           onPointerMove={(event: PointerEvent<HTMLDivElement>) => {
             event.preventDefault();
-            if (
-              presence.cursor == null ||
-              state.mode !== CursorMode.ReactionSelector
-            ) {
-              updatePresence({
-                cursor: {
-                  x: Math.round(event.clientX),
-                  y: Math.round(event.clientY),
-                },
-              });
-            }
+            const rect = event.currentTarget.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+
+            setLocalCursor({ x, y });
+            updatePresence({ cursor: { x, y } });
           }}
           onPointerLeave={() => {
-            setState({
-              mode: CursorMode.Hidden,
-            });
-            updatePresence({
-              cursor: null,
-            });
+            setState({ mode: CursorMode.Hidden });
+            updatePresence({ cursor: null, message: "" });
           }}
           onPointerDown={(event: PointerEvent<HTMLDivElement>) => {
-            updatePresence({
-              cursor: {
-                x: Math.round(event.clientX),
-                y: Math.round(event.clientY),
-              },
-            });
-            setState(
-              (
-                state: CursorState,
-              ):
-                | { mode: CursorMode.Hidden }
-                | {
-                    mode: CursorMode.Chat;
-                    message: string;
-                    previousMessage: string | null;
-                  }
-                | { mode: CursorMode.ReactionSelector }
-                | {
-                    isPressed: true;
-                    mode: CursorMode.Reaction;
-                    reaction: string;
-                  } =>
-                state.mode === CursorMode.Reaction
-                  ? { ...state, isPressed: true }
-                  : state,
+            const rect = event.currentTarget.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+
+            setLocalCursor({ x, y });
+            updatePresence({ cursor: { x, y } });
+
+            setState((state) =>
+              state.mode === CursorMode.Reaction
+                ? { ...state, isPressed: true }
+                : state,
             );
           }}
           onPointerUp={() => {
-            setState(
-              (
-                state: CursorState,
-              ):
-                | { mode: CursorMode.Hidden }
-                | {
-                    mode: CursorMode.Chat;
-                    message: string;
-                    previousMessage: string | null;
-                  }
-                | { mode: CursorMode.ReactionSelector }
-                | {
-                    isPressed: false;
-                    mode: CursorMode.Reaction;
-                    reaction: string;
-                  } =>
-                state.mode === CursorMode.Reaction
-                  ? { ...state, isPressed: false }
-                  : state,
+            setState((state) =>
+              state.mode === CursorMode.Reaction
+                ? { ...state, isPressed: false }
+                : state,
             );
           }}
         >
           <canvas ref={canvasRef} />
 
-          {reactions.map(
-            (reaction: Reaction): JSX.Element => (
-              <FlyingReaction
-                key={reaction.timestamp.toString()}
-                x={reaction.point.x}
-                y={reaction.point.y}
-                timestamp={reaction.timestamp}
-                value={reaction.value}
-              />
-            ),
-          )}
-          {presence.cursor && (
-            <div
-              className="absolute top-0 left-0"
-              style={{
-                transform: `translateX(${presence.cursor.x}px) translateY(${presence.cursor.y}px)`,
-              }}
-            >
-              {state.mode === CursorMode.Chat && (
-                <>
-                  <CursorSVG color={COLORS[0]} />
+          {reactions.map((reaction) => (
+            <FlyingReaction
+              key={reaction.timestamp.toString()}
+              x={reaction.point.x}
+              y={reaction.point.y}
+              timestamp={reaction.timestamp}
+              value={reaction.value}
+            />
+          ))}
 
-                  <div
-                    className="absolute top-5 left-2 bg-blue-500 px-4 py-2 text-sm leading-relaxed text-white"
-                    onKeyUp={(e: ReactKeyboardEvent<HTMLDivElement>) =>
-                      e.stopPropagation()
-                    }
-                    style={{
-                      borderRadius: 20,
-                    }}
-                  >
-                    {state.previousMessage && (
-                      <div>{state.previousMessage}</div>
-                    )}
-                    <input
-                      className="w-60 border-none	bg-transparent text-white placeholder-blue-300 outline-none"
-                      autoFocus={true}
-                      onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                        updatePresence({ message: e.target.value });
-                        setState({
-                          mode: CursorMode.Chat,
-                          previousMessage: null,
-                          message: e.target.value,
-                        });
-                      }}
-                      onKeyDown={(e: ReactKeyboardEvent<HTMLInputElement>) => {
-                        if (e.key === "Enter") {
-                          setState({
-                            mode: CursorMode.Chat,
-                            previousMessage: state.message,
-                            message: "",
-                          });
-                        } else if (e.key === "Escape") {
-                          setState({
-                            mode: CursorMode.Hidden,
-                          });
-                        }
-                      }}
-                      placeholder={
-                        state.previousMessage ? "" : "Say something…"
-                      }
-                      value={state.message}
-                      maxLength={50}
-                    />
-                  </div>
-                </>
-              )}
-              {state.mode === CursorMode.ReactionSelector && (
-                <ReactionSelector
-                  setReaction={(reaction: string) => {
-                    setReaction(reaction);
+          <div
+            className="absolute top-0 left-0"
+            style={{
+              transform: `translateX(${localCursor.x}px) translateY(${localCursor.y}px)`,
+            }}
+          >
+            {state.mode === CursorMode.Chat && (
+              <div
+                className="absolute top-5 left-2 bg-blue-500 px-4 py-2 text-sm leading-relaxed text-white"
+                onKeyUp={(e: ReactKeyboardEvent<HTMLDivElement>) =>
+                  e.stopPropagation()
+                }
+                style={{ borderRadius: 20 }}
+              >
+                {state.previousMessage && <div>{state.previousMessage}</div>}
+                <input
+                  className="w-60 border-none bg-transparent text-white placeholder-blue-300 outline-none"
+                  autoFocus
+                  onChange={(e) => {
+                    updatePresence({ message: e.target.value });
+                    setState({
+                      mode: CursorMode.Chat,
+                      previousMessage: null,
+                      message: e.target.value,
+                    });
                   }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      setState({
+                        mode: CursorMode.Chat,
+                        previousMessage: state.message,
+                        message: "",
+                      });
+                    } else if (e.key === "Escape") {
+                      setState({ mode: CursorMode.Hidden });
+                    }
+                  }}
+                  placeholder={state.previousMessage ? "" : "Say something…"}
+                  value={state.message}
+                  maxLength={50}
                 />
-              )}
-              {state.mode === CursorMode.Reaction && (
-                <div className="pointer-events-none absolute top-3.5 left-1 select-none">
-                  {state.reaction}
-                </div>
-              )}
-            </div>
-          )}
+              </div>
+            )}
+            {state.mode === CursorMode.ReactionSelector && (
+              <ReactionSelector setReaction={setReaction} />
+            )}
+            {state.mode === CursorMode.Reaction && (
+              <div className="pointer-events-none absolute top-3.5 left-1 select-none">
+                {state.reaction}
+              </div>
+            )}
+          </div>
 
-          {others.map(
-            ({
-              connectionId,
-              presence,
-            }: User<
-              { cursor: { x: number; y: number } | null; message: string },
-              { id: string }
-            >): JSX.Element | null => {
-              if (presence == null || !presence.cursor) return null;
-
+          {others.map(({ connectionId, presence: otherPresence }) => {
+            if (otherPresence.cursor) {
               return (
                 <Cursor
                   key={connectionId}
                   color={COLORS[connectionId % COLORS.length]}
-                  x={presence.cursor.x}
-                  y={presence.cursor.y}
-                  message={presence.message}
+                  x={otherPresence.cursor.x}
+                  y={otherPresence.cursor.y}
+                  message={otherPresence.message}
                 />
               );
-            },
-          )}
+            }
+            return null;
+          })}
           <Comments />
         </div>
 

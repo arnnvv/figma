@@ -1,13 +1,6 @@
-import { FormComponent } from "./FormComponent";
-import { redirect } from "next/navigation";
-import { Button } from "./ui/button";
 import { CheckCircle, Edit, LogIn, XCircle } from "lucide-react";
+import { redirect } from "next/navigation";
 import type { JSX } from "react";
-import type {
-  Room,
-  EditableRoomInfo,
-  EditAccessRequestWithRoomOwner,
-} from "@/lib/db/types";
 import { handleEditAccessAction } from "@/actions";
 import {
   findEditableRoomsForUser_Raw,
@@ -15,6 +8,13 @@ import {
   findRoomsByOwnerId_Raw,
   getNameFromId,
 } from "@/lib/db/inlinequeries";
+import type {
+  EditAccessRequestWithRoomOwner,
+  EditableRoomInfo,
+  Room,
+} from "@/lib/db/types";
+import { FormComponent } from "./FormComponent";
+import { Button } from "./ui/button";
 
 export async function UserRooms({
   userId,

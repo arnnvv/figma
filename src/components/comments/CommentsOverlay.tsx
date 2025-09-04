@@ -1,8 +1,8 @@
 "use client";
 
+import type { ThreadData } from "@liveblocks/client";
 import { useThreads } from "@liveblocks/react/suspense";
 import { Thread } from "@liveblocks/react-ui";
-import type { ThreadData } from "@liveblocks/client";
 import type { JSX } from "react";
 
 export const CommentsOverlay = (): JSX.Element => {

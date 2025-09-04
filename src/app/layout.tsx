@@ -1,10 +1,10 @@
 import "./globals.css";
 import type { Metadata, Viewport } from "next";
+import { Inter as FontSans } from "next/font/google";
 import type { JSX, ReactNode } from "react";
 import { Toaster } from "sonner";
-import { Inter as FontSans } from "next/font/google";
-import { cn } from "@/lib/utils";
 import { Navbar } from "@/components/Navbar";
+import { cn } from "@/lib/utils";
 
 export const viewport: Viewport = {
   width: "device-width",

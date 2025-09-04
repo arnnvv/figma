@@ -1,38 +1,43 @@
-import { getCurrentSession } from "@/actions";
-import { generateState, github } from "@/lib/oauth";
-import { globalGETRateLimit } from "@/lib/request";
 import { cookies } from "next/headers";
+import { getCurrentSession } from "@/actions";
+import { appConfig } from "@/lib/config";
+import {
+  GITHUB_OAUTH_CODE_VERIFIER_COOKIE_NAME,
+  GITHUB_OAUTH_STATE_COOKIE_NAME,
+  OAUTH_COOKIE_MAX_AGE_SECONDS,
+} from "@/lib/constants";
+import { generateCodeVerifier, generateState, github } from "@/lib/oauth";
+import { globalGETRateLimit } from "@/lib/request";
 
-export async function GET(): Promise<Response> {
-  if (!(await globalGETRateLimit()))
+export async function GET(request: Request): Promise<Response> {
+  if (!(await globalGETRateLimit())) {
     return new Response("Too many requests", {
       status: 429,
     });
+  }
 
   const { session } = await getCurrentSession();
-  if (session !== null)
-    return new Response("Logged In", {
-      status: 302,
-      headers: {
-        Location: "/",
-      },
-    });
+  if (session !== null) {
+    return Response.redirect(new URL("/", request.url));
+  }
 
   const state = generateState();
-  const url = github.createAuthorizationURL(state, ["user:email"]);
+  const codeVerifier = generateCodeVerifier();
+  const url = await github.createAuthorizationURL(state, codeVerifier, [
+    "user:email",
+  ]);
 
-  (await cookies()).set("github_oauth_state", state, {
-    path: "/",
-    secure: process.env.NODE_ENV === "production",
-    httpOnly: true,
-    maxAge: 60 * 10,
-    sameSite: "lax",
-  });
+  const cookieOptions = {
+    ...appConfig.oauthCookieOptions,
+    maxAge: OAUTH_COOKIE_MAX_AGE_SECONDS,
+  };
 
-  return new Response(null, {
-    status: 302,
-    headers: {
-      Location: url.toString(),
-    },
-  });
+  (await cookies()).set(GITHUB_OAUTH_STATE_COOKIE_NAME, state, cookieOptions);
+  (await cookies()).set(
+    GITHUB_OAUTH_CODE_VERIFIER_COOKIE_NAME,
+    codeVerifier,
+    cookieOptions,
+  );
+
+  return Response.redirect(url);
 }

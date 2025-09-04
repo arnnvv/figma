@@ -1,11 +1,11 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
-import { Button } from "./ui/button";
 import { Trash2 } from "lucide-react";
-import { deleteRoomAction } from "@/actions";
-import { toast } from "sonner";
+import { useParams, useRouter } from "next/navigation";
 import type { JSX } from "react";
+import { toast } from "sonner";
+import { deleteRoomAction } from "@/actions";
+import { Button } from "./ui/button";
 
 export const NavbarClient = ({
   isOwner,

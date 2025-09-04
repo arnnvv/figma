@@ -1,4 +1,8 @@
+import { Github } from "lucide-react";
+import Link from "next/link";
 import type { JSX } from "react";
+import { logInAction } from "@/actions";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -6,13 +10,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Github } from "lucide-react";
-import { logInAction } from "@/actions";
 import { AuthFormComponent } from "./AuthFormComponent";
 
 export const LogInComp = (): JSX.Element => (
@@ -94,7 +94,7 @@ export const LogInComp = (): JSX.Element => (
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <Link href="/login/google" className="w-full">
+            <a href="/login/google" className="w-full">
               <Button
                 variant="outline"
                 className="w-full bg-white hover:bg-gray-100 py-2"
@@ -120,8 +120,8 @@ export const LogInComp = (): JSX.Element => (
                 </svg>
                 Google
               </Button>
-            </Link>
-            <Link href="/login/github" className="w-full">
+            </a>
+            <a href="/login/github" className="w-full">
               <Button
                 variant="outline"
                 className="w-full bg-white hover:bg-gray-100 py-2"
@@ -129,7 +129,7 @@ export const LogInComp = (): JSX.Element => (
                 <Github className="w-5 h-5 mr-2" />
                 GitHub
               </Button>
-            </Link>
+            </a>
           </div>
         </div>
       </CardFooter>

@@ -1,79 +1,36 @@
-import type { QueryResult } from "pg";
-import { db } from "./db";
-import { generateRandomOTP } from "./otp";
-import type { EmailVerificationRequest } from "./db/types";
 import { createTransport } from "nodemailer";
+import { appConfig } from "./config";
+import {
+  deleteEmailVerificationByUserId_Raw,
+  insertEmailVerification_Raw,
+} from "./db/inlinequeries";
+import type { EmailVerificationRequest } from "./db/types";
+import { generateRandomOTP } from "./otp";
 
-export async function createEmailVerificationRequest(
+export const createEmailVerificationRequest = async (
   userId: number,
   email: string,
-): Promise<EmailVerificationRequest> {
-  await deleteUserEmailVerificationRequest(userId);
+): Promise<EmailVerificationRequest> => {
+  await deleteEmailVerificationByUserId_Raw(userId);
 
   const code: string = generateRandomOTP();
-  const expiresAt = new Date(Date.now() + 1000 * 60 * 10); // 10 minutes expiry
+  const expiresAt = new Date(Date.now() + 1000 * 60 * 10);
 
-  const insertSql = `
-    INSERT INTO figma_email_verification_request (user_id, email, code, expires_at)
-    VALUES ($1, $2, $3, $4)
-    RETURNING id
-  `;
-  const insertParams: [number, string, string, Date] = [
-    userId,
+  const { id } = await insertEmailVerification_Raw({
+    user_id: userId,
     email,
     code,
-    expiresAt,
-  ];
+    expires_at: expiresAt,
+  });
 
-  try {
-    const result: QueryResult<{ id: number }> = await db.query(
-      insertSql,
-      insertParams,
-    );
+  return { id, user_id: userId, email, code, expires_at: expiresAt };
+};
 
-    if (result.rowCount! > 0 && result.rows[0]?.id) {
-      const request: EmailVerificationRequest = {
-        id: result.rows[0].id,
-        user_id: userId, // Use userId passed to the function
-        email: email, // Use email passed to the function
-        code: code, // Use code generated
-        expires_at: expiresAt, // Use expiresAt generated
-      };
-      return request;
-    } else {
-      throw new Error(
-        "Email verification request insertion failed, no ID returned.",
-      );
-    }
-  } catch (error) {
-    console.error(
-      `Error creating email verification request for user (${userId}):`,
-      error,
-    );
-    throw error; // Re-throw the error
-  }
-}
-
-export async function deleteUserEmailVerificationRequest(
+export const deleteUserEmailVerificationRequest = async (
   userId: number,
-): Promise<void> {
-  const deleteSql =
-    "DELETE FROM figma_email_verification_request WHERE user_id = $1";
-  const deleteParams = [userId];
-
-  try {
-    const result = await db.query(deleteSql, deleteParams);
-    console.log(
-      `Deleted ${result.rowCount!} email verification requests for user ID: ${userId}`,
-    );
-  } catch (error) {
-    console.error(
-      `Error deleting email verification requests for user (${userId}):`,
-      error,
-    );
-    throw error;
-  }
-}
+): Promise<void> => {
+  await deleteEmailVerificationByUserId_Raw(userId);
+};
 
 export const sendVerificationEmail = async (
   email: string,
@@ -86,27 +43,21 @@ export const sendVerificationEmail = async (
   let transporter;
   try {
     transporter = createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT),
-      secure: process.env.SMTP_PORT === "465",
+      host: appConfig.email.smtpHost,
+      port: appConfig.email.smtpPort,
+      secure: true,
       auth: {
-        user: process.env.EMAIL,
-        pass: process.env.EMAIL_PASS,
+        user: appConfig.email.user,
+        pass: appConfig.email.pass,
       },
-      // connectionTimeout: 5000, // 5 seconds
-      // greetingTimeout: 5000, // 5 seconds
-      // socketTimeout: 5000, // 5 seconds
     });
-
-    // await transporter.verify();
-    // console.log("Nodemailer transporter verified successfully.");
   } catch (configError) {
     console.error("Error configuring Nodemailer transporter:", configError);
     throw new Error("Failed to configure email service.");
   }
 
   const mailOptions = {
-    from: process.env.EMAIL,
+    from: appConfig.email.user,
     to: email,
     subject: "Your Verification Code",
     text: `Your verification code is: ${code}\n\nThis code will expire in 10 minutes.`,

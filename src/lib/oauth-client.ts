@@ -16,9 +16,7 @@ export enum CodeChallengeMethod {
 export async function createS256CodeChallenge(
   codeVerifier: string,
 ): Promise<string> {
-  const codeChallengeBytes = await sha256(
-    new TextEncoder().encode(codeVerifier),
-  );
+  const codeChallengeBytes = sha256(new TextEncoder().encode(codeVerifier));
   return encodeBase64urlNoPadding(codeChallengeBytes);
 }
 
@@ -36,24 +34,6 @@ export class OAuth2Client {
     this.clientId = clientId;
     this.clientPassword = clientPassword;
     this.redirectURI = redirectURI;
-  }
-
-  public createAuthorizationURL(
-    authorizationEndpoint: string,
-    state: string,
-    scopes: string[],
-  ): URL {
-    const url = new URL(authorizationEndpoint);
-    url.searchParams.set("response_type", "code");
-    url.searchParams.set("client_id", this.clientId);
-    if (this.redirectURI !== null) {
-      url.searchParams.set("redirect_uri", this.redirectURI);
-    }
-    url.searchParams.set("state", state);
-    if (scopes.length > 0) {
-      url.searchParams.set("scope", scopes.join(" "));
-    }
-    return url;
   }
 
   public async createAuthorizationURLWithPKCE(

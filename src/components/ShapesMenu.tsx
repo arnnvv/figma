@@ -1,12 +1,12 @@
 import Image from "next/image";
+import type { JSX } from "react";
+import type { ActiveElement, ShapesMenuProps } from "../../types";
 import { Button } from "./ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import type { ActiveElement, ShapesMenuProps } from "../../types";
-import type { JSX } from "react";
 
 export const ShapesMenu = ({
   item,

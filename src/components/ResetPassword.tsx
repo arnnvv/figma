@@ -1,32 +1,20 @@
 "use client";
-
-import { type JSX, useTransition } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
-import { resetPasswordAction } from "@/actions";
 import { useRouter } from "next/navigation";
+import type { JSX } from "react";
+import { resetPasswordAction } from "@/actions";
+import { AuthFormComponent } from "@/components/AuthFormComponent";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export const ResetPasswordForm = ({
   email,
 }: {
   email: string;
 }): JSX.Element => {
-  const [isPending, startTransition] = useTransition();
   const router = useRouter();
-
-  const handleSubmit = (formData: FormData) => {
-    startTransition(async () => {
-      const result = await resetPasswordAction(formData);
-
-      if (result.success) {
-        toast.success(result.message);
-        router.push("/login");
-      } else {
-        toast.error(result.message);
-      }
-    });
+  const handleSuccess = () => {
+    router.push("/login");
   };
 
   return (
@@ -40,9 +28,12 @@ export const ResetPasswordForm = ({
             Enter a new password for {email}
           </p>
         </div>
-        <form className="mt-8 space-y-6" action={handleSubmit}>
+        <AuthFormComponent
+          action={resetPasswordAction}
+          onSuccessAction={handleSuccess}
+        >
           <input type="hidden" name="email" value={email} />
-          <div className="space-y-4">
+          <div className="space-y-6">
             <div>
               <Label
                 htmlFor="password"
@@ -75,15 +66,16 @@ export const ResetPasswordForm = ({
                 placeholder="Confirm New Password"
               />
             </div>
+            <div className="mt-6">
+              <Button
+                type="submit"
+                className="w-full py-2 px-4 border border-transparent text-sm font-medium rounded-md text-primary-foreground bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+              >
+                Reset Password
+              </Button>
+            </div>
           </div>
-          <Button
-            type="submit"
-            className="w-full py-2 px-4 border border-transparent text-sm font-medium rounded-md text-primary-foreground bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-            disabled={isPending}
-          >
-            {isPending ? "Resetting..." : "Reset Password"}
-          </Button>
-        </form>
+        </AuthFormComponent>
       </div>
     </div>
   );

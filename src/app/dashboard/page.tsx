@@ -1,9 +1,12 @@
-import { getCurrentSession, askEditAccessAction } from "@/actions";
+import { PlusCircle, Users } from "lucide-react";
+import { redirect } from "next/navigation";
+import { type JSX, Suspense } from "react";
+import { askEditAccessAction, getCurrentSession } from "@/actions";
 import {
-  EditableRooms,
-  EditableRoomsSkeleton,
   EditAccessRequests,
   EditAccessRequestsSkeleton,
+  EditableRooms,
+  EditableRoomsSkeleton,
   UserRooms,
   UserRoomsSkeleton,
 } from "@/components/DashComponents";
@@ -19,9 +22,6 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { getMaxRoomId_Raw, insertRoom_Raw } from "@/lib/db/inlinequeries";
-import { Users, PlusCircle } from "lucide-react";
-import { redirect } from "next/navigation";
-import { type JSX, Suspense } from "react";
 
 export default async (): Promise<JSX.Element> => {
   const { user, session } = await getCurrentSession();
@@ -64,7 +64,6 @@ export default async (): Promise<JSX.Element> => {
             >
               Ask Edit Access
             </label>
-            {/* Use the dedicated server action */}
             <FormComponent action={askEditAccessAction}>
               <div className="flex space-x-2">
                 <Input
@@ -103,8 +102,10 @@ export default async (): Promise<JSX.Element> => {
               const { user: currentUser, session: currentSession } =
                 await getCurrentSession();
               if (!currentSession || !currentUser) {
-                console.error("Create room action failed: User not logged in.");
-                return { error: "Authentication required." };
+                return {
+                  success: false,
+                  message: "Authentication required.",
+                };
               }
 
               const newRoomIdString = String(nextRoomId);
@@ -120,7 +121,8 @@ export default async (): Promise<JSX.Element> => {
                   error,
                 );
                 return {
-                  error: `Failed to create room: ${error.message || "Unknown error"}`,
+                  success: false,
+                  message: `Failed to create room: ${error.message || "Unknown error"}`,
                 };
               }
               redirect(`/room/${newRoomIdString}`);

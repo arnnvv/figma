@@ -1,4 +1,4 @@
-import type { JSX } from "react";
+import type { CSSProperties, JSX } from "react";
 
 export const FlyingReaction = ({
   x,
@@ -11,114 +11,27 @@ export const FlyingReaction = ({
   timestamp: number;
   value: string;
 }): JSX.Element => (
-  <>
+  <div
+    style={
+      {
+        "--animation-name": `goUpAnimation${timestamp % 3}, fadeOut`,
+        "--animation-duration": "2s",
+        left: x,
+        top: y,
+      } as CSSProperties
+    }
+    className="pointer-events-none absolute select-none text-2xl md:text-3xl lg:text-4xl flying-reaction"
+  >
     <div
-      className={`
-        pointer-events-none
-        absolute
-        select-none
-        goUp${timestamp % 3}
-        text-${(timestamp % 5) + 2}xl
-      `}
-      style={{ left: x, top: y }}
+      style={
+        {
+          "--sub-animation-name": `leftRightAnimation${timestamp % 3}`,
+          "--sub-animation-duration": "0.3s",
+        } as CSSProperties
+      }
+      className="flying-reaction-child"
     >
-      <div className={`leftRight${timestamp % 3}`}>
-        <div className="-translate-x-1/2 -translate-y-1/2 transform">
-          {value}
-        </div>
-      </div>
+      <div className="-translate-x-1/2 -translate-y-1/2 transform">{value}</div>
     </div>
-
-    <style jsx>{`
-      .goUp0 {
-        opacity: 0;
-        animation:
-          goUpAnimation0 2s,
-          fadeOut 2s;
-      }
-      @keyframes goUpAnimation0 {
-        from {
-          transform: translate(0px, 0px);
-        }
-        to {
-          transform: translate(0px, -400px);
-        }
-      }
-
-      .goUp1 {
-        opacity: 0;
-        animation:
-          goUpAnimation1 2s,
-          fadeOut 2s;
-      }
-      @keyframes goUpAnimation1 {
-        from {
-          transform: translate(0px, 0px);
-        }
-        to {
-          transform: translate(0px, -300px);
-        }
-      }
-
-      .goUp2 {
-        opacity: 0;
-        animation:
-          goUpAnimation2 2s,
-          fadeOut 2s;
-      }
-      @keyframes goUpAnimation2 {
-        from {
-          transform: translate(0px, 0px);
-        }
-        to {
-          transform: translate(0px, -200px);
-        }
-      }
-
-      .leftRight0 {
-        animation: leftRightAnimation0 0.3s alternate infinite ease-in-out;
-      }
-      @keyframes leftRightAnimation0 {
-        from {
-          transform: translate(0px, 0px);
-        }
-        to {
-          transform: translate(50px, 0px);
-        }
-      }
-
-      .leftRight1 {
-        animation: leftRightAnimation1 0.3s alternate infinite ease-in-out;
-      }
-      @keyframes leftRightAnimation1 {
-        from {
-          transform: translate(0px, 0px);
-        }
-        to {
-          transform: translate(100px, 0px);
-        }
-      }
-
-      .leftRight2 {
-        animation: leftRightAnimation2 0.3s alternate infinite ease-in-out;
-      }
-      @keyframes leftRightAnimation2 {
-        from {
-          transform: translate(0px, 0px);
-        }
-        to {
-          transform: translate(-50px, 0px);
-        }
-      }
-
-      @keyframes fadeOut {
-        from {
-          opacity: 1;
-        }
-        to {
-          opacity: 0;
-        }
-      }
-    `}</style>
-  </>
+  </div>
 );

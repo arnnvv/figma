@@ -1,6 +1,6 @@
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { type ClassValue, clsx } from "clsx";
 import jsPDF from "jspdf";
+import { twMerge } from "tailwind-merge";
 
 const adjectives: string[] = [
   "Happy",

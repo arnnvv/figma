@@ -1,5 +1,9 @@
 "use client";
 
+import { useCreateThread } from "@liveblocks/react/suspense";
+import type { ComposerSubmitComment } from "@liveblocks/react-ui";
+import { Root } from "@radix-ui/react-portal";
+import { Slot } from "@radix-ui/react-slot";
 import {
   type FormEvent,
   type JSX,
@@ -9,13 +13,9 @@ import {
   useRef,
   useState,
 } from "react";
-import { Slot } from "@radix-ui/react-slot";
-import { Root } from "@radix-ui/react-portal";
-import { useCreateThread } from "@liveblocks/react/suspense";
-import type { ComposerSubmitComment } from "@liveblocks/react-ui";
 import { useMaxZIndex } from "@/lib/useMaxZIndex";
-import { PinnedComposer } from "./PinnedComposer";
 import { NewThreadCursor } from "./NewThreadCursor";
+import { PinnedComposer } from "./PinnedComposer";
 
 export const NewThread = ({
   children,

@@ -1,7 +1,7 @@
-import { getCurrentSession } from "@/actions";
-import { ForgotOTP } from "@/components/ForgotOTP";
 import { redirect } from "next/navigation";
 import type { JSX } from "react";
+import { getCurrentSession } from "@/actions";
+import { ForgotOTP } from "@/components/ForgotOTP";
 import { globalGETRateLimit } from "@/lib/request";
 
 export default async function Page(props: {

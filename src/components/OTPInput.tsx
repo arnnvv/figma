@@ -1,14 +1,14 @@
 "use client";
-import { verifyOTPAction, resendOTPAction } from "@/actions";
 import { useRouter } from "next/navigation";
 import {
   type FormEvent,
   type JSX,
   type KeyboardEvent,
-  useTransition,
   useState,
+  useTransition,
 } from "react";
 import { toast } from "sonner";
+import { resendOTPAction, verifyOTPAction } from "@/actions";
 
 interface OTPInputProps {
   userEmail: string;

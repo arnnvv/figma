@@ -4,7 +4,9 @@ export interface User {
   id: number;
   username: string;
   email: string;
-  password?: string;
+  password_hash?: string | null;
+  google_id?: string | null;
+  github_id?: string | null;
   verified: boolean;
   picture: string | null;
 }
@@ -12,7 +14,9 @@ export interface User {
 export interface NewUser {
   username: string;
   email: string;
-  password?: string;
+  password_hash?: string | null;
+  google_id?: string | null;
+  github_id?: string | null;
   verified?: boolean;
   picture?: string | null;
 }

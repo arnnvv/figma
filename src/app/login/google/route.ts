@@ -1,9 +1,21 @@
-import { getCurrentSession } from "@/actions";
-import { generateState, google } from "@/lib/oauth";
-import { globalGETRateLimit } from "@/lib/request";
 import { cookies } from "next/headers";
+import { getCurrentSession } from "@/actions";
+import { appConfig } from "@/lib/config";
+import {
+  GOOGLE_OAUTH_CODE_VERIFIER_COOKIE_NAME,
+  GOOGLE_OAUTH_NONCE_COOKIE_NAME,
+  GOOGLE_OAUTH_STATE_COOKIE_NAME,
+  OAUTH_COOKIE_MAX_AGE_SECONDS,
+} from "@/lib/constants";
+import {
+  generateCodeVerifier,
+  generateNonce,
+  generateState,
+  google,
+} from "@/lib/oauth";
+import { globalGETRateLimit } from "@/lib/request";
 
-export async function GET(): Promise<Response> {
+export async function GET(request: Request): Promise<Response> {
   if (!(await globalGETRateLimit())) {
     return new Response("Too many requests", {
       status: 429,
@@ -11,40 +23,29 @@ export async function GET(): Promise<Response> {
   }
 
   const { session } = await getCurrentSession();
-  if (session !== null)
-    return new Response("Logged In", {
-      status: 302,
-      headers: {
-        Location: "/",
-      },
-    });
+  if (session !== null) {
+    return Response.redirect(new URL("/", request.url));
+  }
+
   const state = generateState();
-  const codeVerifier = generateState();
-  const url = await google.createAuthorizationURL(state, codeVerifier, [
+  const codeVerifier = generateCodeVerifier();
+  const nonce = generateNonce();
+
+  const url = await google.createAuthorizationURL(state, codeVerifier, nonce, [
     "openid",
     "profile",
     "email",
   ]);
 
-  (await cookies()).set("google_oauth_state", state, {
-    path: "/",
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    maxAge: 60 * 10,
-    sameSite: "lax",
-  });
-  (await cookies()).set("google_code_verifier", codeVerifier, {
-    path: "/",
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    maxAge: 60 * 10,
-    sameSite: "lax",
-  });
+  const cookieOptions = {
+    ...appConfig.oauthCookieOptions,
+    maxAge: OAUTH_COOKIE_MAX_AGE_SECONDS,
+  };
 
-  return new Response(null, {
-    status: 302,
-    headers: {
-      Location: url.toString(),
-    },
-  });
+  const c = await cookies();
+  c.set(GOOGLE_OAUTH_STATE_COOKIE_NAME, state, cookieOptions);
+  c.set(GOOGLE_OAUTH_CODE_VERIFIER_COOKIE_NAME, codeVerifier, cookieOptions);
+  c.set(GOOGLE_OAUTH_NONCE_COOKIE_NAME, nonce, cookieOptions);
+
+  return Response.redirect(url);
 }

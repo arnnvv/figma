@@ -1,15 +1,15 @@
 "use client";
 
+import type { fabric } from "fabric";
 import { useAtom } from "jotai";
 import { type JSX, type RefObject, useMemo, useRef } from "react";
-import type { fabric } from "fabric";
 import { elementAttributesAtom } from "@/lib/atoms";
-import type { Attributes } from "../../types";
 import { modifyShape } from "@/lib/canvasElements";
-import { Dimentions } from "./Dimentions";
-import { Text } from "./Text";
+import type { Attributes } from "../../types";
 import { Color } from "./Color";
+import { Dimentions } from "./Dimentions";
 import { Export } from "./Export";
+import { Text } from "./Text";
 
 export const EditCanvas = ({
   fabricRef,

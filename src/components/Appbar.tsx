@@ -1,11 +1,11 @@
-import { type JSX, memo } from "react";
-import type { ActiveElement, AppbarProps } from "../../types";
 import Image from "next/image";
+import { type JSX, memo } from "react";
 import { navElements } from "@/lib/constants";
-import { Button } from "./ui/button";
-import { Users } from "./Users";
-import { ShapesMenu } from "./ShapesMenu";
+import type { ActiveElement, AppbarProps } from "../../types";
 import { NewThread } from "./comments/NewThread";
+import { ShapesMenu } from "./ShapesMenu";
+import { Users } from "./Users";
+import { Button } from "./ui/button";
 
 export const Appbar = memo(
   ({

@@ -1,8 +1,8 @@
-import { useOthers, useSelf } from "@liveblocks/react/suspense";
-import { Avatar } from "./Avatar";
 import type { User } from "@liveblocks/client";
-import { generateRandomName } from "@/lib/utils";
+import { useOthers, useSelf } from "@liveblocks/react/suspense";
 import { type JSX, useMemo } from "react";
+import { generateRandomName } from "@/lib/utils";
+import { Avatar } from "./Avatar";
 
 export const Users = (): JSX.Element => {
   const users = useOthers();

@@ -30,7 +30,6 @@ import {
   ChevronRightIcon,
   DotFilledIcon,
 } from "@radix-ui/react-icons";
-import { cn } from "@/lib/utils";
 import {
   type ComponentPropsWithoutRef,
   type ComponentRef,
@@ -40,6 +39,7 @@ import {
   type JSX,
   type RefAttributes,
 } from "react";
+import { cn } from "@/lib/utils";
 
 const DropdownMenu = Root;
 const DropdownMenuTrigger = Trigger;

@@ -1,14 +1,14 @@
 "use client";
 
-import type { JSX, ReactNode } from "react";
+import { LiveMap } from "@liveblocks/client";
 import {
+  ClientSideSuspense,
   LiveblocksProvider,
   RoomProvider,
-  ClientSideSuspense,
 } from "@liveblocks/react/suspense";
+import type { JSX, ReactNode } from "react";
 import { getLiveBlocksSecret } from "@/lib/liveblocks";
 import { ModernLoader } from "./ModernLoader";
-import { LiveMap } from "@liveblocks/client";
 
 export const Room = ({
   children,

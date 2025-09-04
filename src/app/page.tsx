@@ -1,5 +1,5 @@
-import { getCurrentSession } from "@/actions";
 import { redirect } from "next/navigation";
+import { getCurrentSession } from "@/actions";
 
 export default async (): Promise<never> => {
   const { user, session } = await getCurrentSession();

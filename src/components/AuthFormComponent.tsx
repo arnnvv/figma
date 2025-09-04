@@ -1,4 +1,5 @@
 "use client";
+
 import {
   Children,
   cloneElement,
@@ -9,18 +10,18 @@ import {
   useTransition,
 } from "react";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
-import { Loader } from "./ui/loader";
 import { type ActionResult, isFormControl } from "@/lib/form-control";
+import { Loader } from "./ui/loader";
 
 export const AuthFormComponent = ({
   children,
   action,
+  onSuccessAction,
 }: {
   children: ReactNode;
   action: (_: any, formdata: FormData) => Promise<ActionResult>;
+  onSuccessAction?: (formData: FormData) => void;
 }): JSX.Element => {
-  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [, setFormState] = useState<ActionResult>({
     success: false,
@@ -35,7 +36,9 @@ export const AuthFormComponent = ({
 
         if (result.success) {
           toast.success(result.message);
-          router.push("/dashboard");
+          if (onSuccessAction) {
+            onSuccessAction(formData);
+          }
         } else if (result.message) {
           toast.error(result.message);
         }
