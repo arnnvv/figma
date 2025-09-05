@@ -188,8 +188,13 @@ export const deleteRoomAction = async (
   const { user, session } = await getCurrentSession();
   if (!session || !user) return { success: false, message: "Not logged in" };
 
+  const secret = process.env.LIVEBLOCKS_SECRET_KEY;
+  if (!secret) {
+    throw new Error("LIVEBLOCKS_SECRET_KEY is not set in environment");
+  }
+
   const liveblocks = new Liveblocks({
-    secret: process.env.LIVEBLOCKS_SECRET_KEY!,
+    secret,
   });
 
   const room: Room | null = await findRoomById_Raw(roomId);

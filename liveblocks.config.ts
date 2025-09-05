@@ -23,9 +23,11 @@ declare global {
     };
 
     // Custom events, for useBroadcastEvent, useEventListener
-    RoomEvent: {};
-    // | { type: "PLAY" }
-    // | { type: "REACTION"; emoji: "🔥" };
+    RoomEvent: {
+      x: number;
+      y: number;
+      value: string;
+    };
 
     ThreadMetadata: {
       x: number;
@@ -36,10 +38,6 @@ declare global {
     };
 
     // Custom room info set with resolveRoomsInfo, for useRoomInfo
-    RoomInfo: {
-      // Example, rooms with a title and url
-      // title: string;
-      // url: string;
-    };
+    RoomInfo: Record<string, never>;
   }
 }

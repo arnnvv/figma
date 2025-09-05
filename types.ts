@@ -62,7 +62,7 @@ export type ShapesMenuProps = {
   imageInputRef: any;
 };
 
-export interface CustomFabricObject<T extends fabric.Object>
+export interface CustomFabricObject<_T extends fabric.Object>
   extends fabric.Object {
   objectId?: string;
 }

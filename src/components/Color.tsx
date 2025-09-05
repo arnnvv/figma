@@ -1,4 +1,5 @@
 import type { ChangeEvent, JSX } from "react";
+import { Button } from "./ui/button";
 import { Label } from "./ui/label";
 
 export const Color = ({
@@ -16,8 +17,10 @@ export const Color = ({
 }): JSX.Element => (
   <div className="flex flex-col gap-3 border-b border-primary-grey-200 p-5">
     <h3 className="text-[10px] uppercase">{placeholder}</h3>
-    <div
-      className="flex items-center gap-2 border border-primary-grey-200"
+    <Button
+      type="button"
+      variant="outline"
+      className="flex items-center gap-2 border-primary-grey-200 w-full h-auto p-0 justify-start bg-transparent"
       onClick={() => inputRef.current.click()}
     >
       <input
@@ -27,11 +30,12 @@ export const Color = ({
         onChange={(e: ChangeEvent<HTMLInputElement>) =>
           handleInputChange(attributeType, e.target.value)
         }
+        className="cursor-pointer"
       />
-      <Label className="flex-1">{attribute}</Label>
+      <Label className="flex-1 text-left">{attribute}</Label>
       <Label className="flex h-6 w-8 items-center justify-center bg-primary-grey-100 text-[10px] leading-3">
         90%
       </Label>
-    </div>
+    </Button>
   </div>
 );

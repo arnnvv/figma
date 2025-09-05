@@ -67,7 +67,6 @@ export default async (): Promise<JSX.Element> => {
             <FormComponent action={askEditAccessAction}>
               <div className="flex space-x-2">
                 <Input
-                  id="roomId"
                   name="roomId"
                   type="text"
                   placeholder="Enter room ID"

@@ -268,6 +268,7 @@ export const handleCanvasMouseMove = ({
         width: pointer.x - (shapeRef.current?.left || 0),
         height: pointer.y - (shapeRef.current?.top || 0),
       });
+      break;
     default:
       break;
   }
@@ -314,7 +315,7 @@ export const handleCanvasObjectModified = ({
 }) => {
   const target = options.target;
   if (!target) return;
-  if (target?.type == "activeSelection") {
+  if (target?.type === "activeSelection") {
     // fix this
   } else syncShapeInStorage(target);
 };
@@ -342,7 +343,7 @@ export const handleCanvasObjectMoving = ({
   const target = options.target as fabric.Object;
   const canvas = target.canvas as fabric.Canvas;
   target.setCoords();
-  if (target && target.left) {
+  if (target?.left) {
     target.left = Math.max(
       0,
       Math.min(
@@ -352,7 +353,7 @@ export const handleCanvasObjectMoving = ({
     );
   }
 
-  if (target && target.top) {
+  if (target?.top) {
     target.top = Math.max(
       0,
       Math.min(
@@ -377,11 +378,11 @@ export const handleCanvasSelectionCreated = ({
   const selectedElement = options?.selected[0] as fabric.Object;
   if (selectedElement && options.selected.length === 1) {
     const scaledWidth = selectedElement?.scaleX
-      ? selectedElement.width! * selectedElement?.scaleX
+      ? (selectedElement.width || 0) * selectedElement.scaleX
       : selectedElement?.width;
 
     const scaledHeight = selectedElement?.scaleY
-      ? selectedElement.height! * selectedElement?.scaleY
+      ? (selectedElement.height || 0) * selectedElement.scaleY
       : selectedElement?.height;
 
     setElementAttributes({
@@ -408,11 +409,11 @@ export const handleCanvasObjectScaling = ({
 }) => {
   const selectedElement = options.target;
   const scaledWidth = selectedElement?.scaleX
-    ? selectedElement.width! * selectedElement?.scaleX
+    ? (selectedElement.width || 0) * selectedElement.scaleX
     : selectedElement?.width;
 
   const scaledHeight = selectedElement?.scaleY
-    ? selectedElement.height! * selectedElement?.scaleY
+    ? (selectedElement.height || 0) * selectedElement.scaleY
     : selectedElement?.height;
 
   setElementAttributes(
@@ -444,20 +445,22 @@ export const renderCanvas = ({
   activeObjectRef: any;
 }) => {
   fabricRef.current?.clear();
-  Array.from(canvasObjects, ([objectId, objectData]) => {
+
+  for (const [objectId, objectData] of canvasObjects) {
     fabric.util.enlivenObjects(
       [objectData],
       (enlivenedObjects: fabric.Object[]) => {
         enlivenedObjects.forEach((enlivenedObj: fabric.Object) => {
-          if (activeObjectRef.current?.objectId === objectId)
+          if (activeObjectRef.current?.objectId === objectId) {
             fabricRef.current?.setActiveObject(enlivenedObj);
+          }
 
           fabricRef.current?.add(enlivenedObj);
         });
       },
       "fabric",
     );
-  });
+  }
 
   fabricRef.current?.renderAll();
 };

@@ -3,15 +3,16 @@
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import type { JSX } from "react";
-import { forgotPasswordAction } from "@/actions";
-import { FormComponent } from "@/components/FormComponent";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { type JSX, useId } from "react";
+import { forgotPasswordAction } from "../actions";
+import { FormComponent } from "./FormComponent";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
 
 export const ForgotPassword = (): JSX.Element => {
   const router = useRouter();
+  const emailId = useId();
 
   const handleSuccess = (formData: FormData) => {
     const email = formData.get("email") as string;
@@ -36,11 +37,11 @@ export const ForgotPassword = (): JSX.Element => {
         >
           <div className="space-y-4">
             <div>
-              <Label htmlFor="email" className="sr-only">
+              <Label htmlFor={emailId} className="sr-only">
                 Email address
               </Label>
               <Input
-                id="email"
+                id={emailId}
                 name="email"
                 type="email"
                 autoComplete="email"

@@ -1,4 +1,4 @@
-import { createTransport } from "nodemailer";
+import { createTransport, type Transporter } from "nodemailer";
 import { appConfig } from "./config";
 import {
   deleteEmailVerificationByUserId_Raw,
@@ -40,7 +40,7 @@ export const sendVerificationEmail = async (
     throw new Error("Email and code are required to send verification email.");
   }
 
-  let transporter;
+  let transporter: Transporter;
   try {
     transporter = createTransport({
       host: appConfig.email.smtpHost,

@@ -58,6 +58,6 @@ export const Users = (): JSX.Element => {
         </div>
       </div>
     ),
-    [users.length],
+    [users.length, currentUser, hasMoreUsers, users.slice],
   );
 };

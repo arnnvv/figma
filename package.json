@@ -6,8 +6,8 @@
     "d": "next dev --turbopack",
     "b": "next build",
     "p": "next start",
-    "f": "biome format --write",
-    "l": "biome check --write",
+    "f": "biome check --write",
+    "l": "biome check",
     "ua": "pnpm dlx shadcn@latest add",
     "cl": "rm -rf .next"
   },

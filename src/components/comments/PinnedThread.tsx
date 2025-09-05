@@ -2,17 +2,14 @@ import type { ThreadData } from "@liveblocks/client";
 import { Thread } from "@liveblocks/react-ui";
 import Image from "next/image";
 import {
+  type ComponentProps,
   type JSX,
   type KeyboardEvent as ReactKeyboardEvent,
   useMemo,
   useState,
 } from "react";
 
-export const PinnedThread = ({
-  thread,
-  onFocus,
-  ...props
-}: {
+type PinnedThreadProps = {
   thread: ThreadData<{
     x: number;
     y: number;
@@ -21,60 +18,71 @@ export const PinnedThread = ({
     zIndex: number;
   }>;
   onFocus: (threadId: string) => void;
-}): JSX.Element => {
+} & ComponentProps<"button">;
+
+export const PinnedThread = ({
+  thread,
+  onFocus,
+  ...props
+}: PinnedThreadProps): JSX.Element => {
   const startMinimized = useMemo(
-    (): boolean =>
-      Number(new Date()) - Number(new Date(thread.createdAt)) > 100,
-    [thread],
+    (): boolean => Date.now() - Number(new Date(thread.createdAt)) > 100,
+    [thread.createdAt],
   );
 
   const [minimized, setMinimized] = useState(startMinimized);
 
-  return useMemo(
-    (): JSX.Element => (
-      <div
-        className="absolute flex cursor-pointer gap-4"
-        {...props}
-        onClick={(e: any) => {
+  return (
+    <button
+      type="button"
+      className="absolute flex cursor-pointer gap-4"
+      tabIndex={0}
+      onKeyDown={(e: ReactKeyboardEvent) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
           onFocus(thread.id);
-
-          if (
-            e.target &&
-            e.target.classList.contains("lb-icon") &&
-            e.target.classList.contains("lb-button-icon")
-          ) {
-            return;
-          }
-
           setMinimized(!minimized);
-        }}
+        }
+      }}
+      {...props}
+      onClick={(e: any) => {
+        onFocus(thread.id);
+
+        if (
+          e.target instanceof HTMLElement &&
+          e.target.classList.contains("lb-icon") &&
+          e.target.classList.contains("lb-button-icon")
+        ) {
+          return;
+        }
+
+        setMinimized(!minimized);
+      }}
+    >
+      <div
+        className="relative flex h-9 w-9 select-none items-center justify-center rounded-bl-full rounded-br-full rounded-tl-md rounded-tr-full bg-white shadow"
+        data-draggable={true}
       >
-        <div
-          className="relative flex h-9 w-9 select-none items-center justify-center rounded-bl-full rounded-br-full rounded-tl-md rounded-tr-full bg-white shadow"
-          data-draggable={true}
-        >
-          <Image
-            src={`https://liveblocks.io/avatars/avatar-${Math.floor(Math.random() * 30)}.png`}
-            alt="Dummy Name"
-            width={28}
-            height={28}
-            draggable={false}
-            className="rounded-full"
+        <Image
+          src={`https://liveblocks.io/avatars/avatar-${Math.floor(Math.random() * 30)}.png`}
+          alt="Dummy Name"
+          width={28}
+          height={28}
+          draggable={false}
+          className="rounded-full"
+        />
+      </div>
+      {!minimized ? (
+        <div className="flex min-w-60 flex-col overflow-hidden rounded-lg bg-white text-sm shadow">
+          <Thread
+            thread={thread}
+            indentCommentContent={false}
+            onKeyUp={(e: ReactKeyboardEvent<HTMLDivElement>) => {
+              e.stopPropagation();
+            }}
           />
         </div>
-        {!minimized ? (
-          <div className="flex min-w-60 flex-col overflow-hidden rounded-lg bg-white text-sm shadow">
-            <Thread
-              thread={thread}
-              indentCommentContent={false}
-              onKeyUp={(e: ReactKeyboardEvent<HTMLDivElement>) => {
-                e.stopPropagation();
-              }}
-            />
-          </div>
-        ) : null}
-      </div>
-    ),
-    [thread.comments.length, minimized],
+      ) : null}
+    </button>
   );
 };

@@ -14,6 +14,9 @@ interface OTPInputProps {
   userEmail: string;
 }
 
+const OTP_LENGTH = 8;
+const otpFields = Array.from({ length: OTP_LENGTH }, (_, i) => i);
+
 export function OTPInput({ userEmail }: OTPInputProps): JSX.Element {
   const [isPending, startTransition] = useTransition();
   const [isResendPending, startResendTransition] = useTransition();
@@ -24,12 +27,12 @@ export function OTPInput({ userEmail }: OTPInputProps): JSX.Element {
     const input = e.currentTarget;
     input.value = input.value.toUpperCase();
     if (input.value.length >= 1) {
-      if (index < 7) {
+      if (index < OTP_LENGTH - 1) {
         const nextInput = document.querySelector<HTMLInputElement>(
           `input[name='otp[${index + 1}]']`,
         );
         nextInput?.focus();
-      } else if (index === 7) {
+      } else if (index === OTP_LENGTH - 1) {
         input.form?.requestSubmit();
       }
     }
@@ -90,7 +93,7 @@ export function OTPInput({ userEmail }: OTPInputProps): JSX.Element {
     <div>
       <form onSubmit={handleSubmit}>
         <div className="flex justify-center space-x-4">
-          {[...Array(8)].map((_, index) => (
+          {otpFields.map((index) => (
             <input
               key={index}
               type="text"
@@ -99,7 +102,6 @@ export function OTPInput({ userEmail }: OTPInputProps): JSX.Element {
               name={`otp[${index}]`}
               className="w-12 h-16 text-2xl text-center border-b-2 border-gray-300 bg-transparent text-gray-800 uppercase focus:outline-none focus:border-blue-500 transition-colors"
               required
-              autoFocus={index === 0}
               onInput={(e) => handleInput(e, index)}
               onKeyDown={(e) => handleKeyDown(e, index)}
             />

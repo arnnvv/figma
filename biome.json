@@ -21,7 +21,7 @@
         "noExplicitAny": "off"
       },
       "a11y": {
-        "noSvgWithoutTitle": "off"
+        "noAutofocus": "off"
       }
     }
   },

@@ -23,7 +23,14 @@ import {
   useRef,
   useState,
 } from "react";
-import { elementAttributesAtom } from "@/lib/atoms";
+import {
+  type ActiveElement,
+  CursorMode,
+  type CursorState,
+  type Reaction,
+  type ReactionEvent,
+} from "../../types";
+import { elementAttributesAtom } from "../lib/atoms";
 import {
   handleCanvasMouseDown,
   handleCanvasMouseMove,
@@ -38,16 +45,9 @@ import {
   handleResize,
   initializeFabric,
   renderCanvas,
-} from "@/lib/canvasElements";
-import { COLORS, defaultNavElement } from "@/lib/constants";
-import { useInterval } from "@/lib/useInterval";
-import {
-  type ActiveElement,
-  CursorMode,
-  type CursorState,
-  type Reaction,
-  type ReactionEvent,
-} from "../../types";
+} from "../lib/canvasElements";
+import { COLORS, defaultNavElement } from "../lib/constants";
+import { useInterval } from "../lib/useInterval";
 import { Appbar } from "./Appbar";
 import { Cursor } from "./Cursor";
 import { Comments } from "./comments/Comments";
@@ -87,6 +87,8 @@ export const Whiteboard = (): JSX.Element => {
     useRef<fabric.Object | null>(null);
   const activeObjectRef = useRef<fabric.Object | null>(null);
   const isEditingRef = useRef(false);
+
+  const chatInputRef = useRef<HTMLInputElement>(null);
 
   const canvasObjects = useStorage(
     (root: {
@@ -276,6 +278,12 @@ export const Whiteboard = (): JSX.Element => {
     };
   }, [updatePresence]);
 
+  useEffect(() => {
+    if (state.mode === CursorMode.Chat) {
+      chatInputRef.current?.focus();
+    }
+  }, [state.mode]);
+
   useEventListener((eventData) => {
     const event = eventData.event as ReactionEvent;
     setReactions((reactions) =>
@@ -313,6 +321,7 @@ export const Whiteboard = (): JSX.Element => {
       />
       <section className="flex h-full flex-row">
         <ShapeSelect allShapes={Array.from(canvasObjects)} />
+        {/* biome-ignore lint/correctness/useUniqueElementIds: This ID is a stable selector for canvas initialization and event handling across the app. */}
         <div
           id="canvas"
           className="relative flex h-screen w-full touch-none items-center justify-center overflow-hidden"
@@ -376,17 +385,18 @@ export const Whiteboard = (): JSX.Element => {
             }}
           >
             {state.mode === CursorMode.Chat && (
-              <div
-                className="absolute top-5 left-2 bg-blue-500 px-4 py-2 text-sm leading-relaxed text-white"
-                onKeyUp={(e: ReactKeyboardEvent<HTMLDivElement>) =>
+              <fieldset
+                className="absolute top-5 left-2 bg-blue-500 px-4 py-2 text-sm leading-relaxed text-white border-none"
+                onKeyUp={(e: ReactKeyboardEvent<HTMLFieldSetElement>) =>
                   e.stopPropagation()
                 }
                 style={{ borderRadius: 20 }}
               >
                 {state.previousMessage && <div>{state.previousMessage}</div>}
                 <input
-                  className="w-60 border-none bg-transparent text-white placeholder-blue-300 outline-none"
+                  ref={chatInputRef}
                   autoFocus
+                  className="w-60 border-none bg-transparent text-white placeholder-blue-300 outline-none"
                   onChange={(e) => {
                     updatePresence({ message: e.target.value });
                     setState({
@@ -410,7 +420,7 @@ export const Whiteboard = (): JSX.Element => {
                   value={state.message}
                   maxLength={50}
                 />
-              </div>
+              </fieldset>
             )}
             {state.mode === CursorMode.ReactionSelector && (
               <ReactionSelector setReaction={setReaction} />
@@ -443,7 +453,7 @@ export const Whiteboard = (): JSX.Element => {
           fabricRef={fabricRef}
           isEditingRef={isEditingRef}
           activeObjectRef={activeObjectRef}
-          syncShapeInStorage={syncShapeInStorage}
+          syncShapeInStorageAction={syncShapeInStorage}
         />
       </section>
     </main>

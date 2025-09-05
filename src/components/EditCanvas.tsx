@@ -2,7 +2,7 @@
 
 import type { fabric } from "fabric";
 import { useAtom } from "jotai";
-import { type JSX, type RefObject, useMemo, useRef } from "react";
+import { type JSX, type RefObject, useCallback, useMemo, useRef } from "react";
 import { elementAttributesAtom } from "@/lib/atoms";
 import { modifyShape } from "@/lib/canvasElements";
 import type { Attributes } from "../../types";
@@ -15,12 +15,12 @@ export const EditCanvas = ({
   fabricRef,
   activeObjectRef,
   isEditingRef,
-  syncShapeInStorage,
+  syncShapeInStorageAction,
 }: {
   fabricRef: RefObject<fabric.Canvas | null>;
   activeObjectRef: RefObject<fabric.Object | null>;
   isEditingRef: RefObject<boolean>;
-  syncShapeInStorage: (obj: any) => void;
+  syncShapeInStorageAction: (obj: any) => void;
 }): JSX.Element => {
   const [elementAttributes, setElementAttributes] = useAtom(
     elementAttributesAtom,
@@ -28,36 +28,36 @@ export const EditCanvas = ({
   const colorInputRef = useRef(null);
   const strokeInputRef = useRef(null);
 
-  const handleInputChange = (property: string, value: string) => {
-    if (!isEditingRef.current) isEditingRef.current = true;
-    setElementAttributes(
-      (
-        prev: Attributes,
-      ): {
-        width: string;
-        height: string;
-        fontSize: string;
-        fontFamily: string;
-        fontWeight: string;
-        fill: string;
-        stroke: string;
-      } => ({
+  const handleInputChange = useCallback(
+    (property: string, value: string) => {
+      if (!isEditingRef.current) {
+        isEditingRef.current = true;
+      }
+      setElementAttributes((prev: Attributes) => ({
         ...prev,
         [property]: value,
-      }),
-    );
+      }));
 
-    modifyShape({
-      canvas: fabricRef.current as fabric.Canvas,
-      property,
-      value,
+      modifyShape({
+        canvas: fabricRef.current as fabric.Canvas,
+        property,
+        value,
+        activeObjectRef,
+        syncShapeInStorage: syncShapeInStorageAction,
+      });
+    },
+    [
+      isEditingRef,
+      setElementAttributes,
+      fabricRef,
       activeObjectRef,
-      syncShapeInStorage,
-    });
-  };
+      syncShapeInStorageAction,
+    ],
+  );
+
   return useMemo(
     (): JSX.Element => (
-      <section className="flex flex-col border-t border-primary-grey-200 bg-primary-black text-primary-grey-300 min-w-[227px] sticky right-0 h-full max-sm:hidden select-none">
+      <section className="min-w-[227px] sticky right-0 h-full flex select-none flex-col border-t border-primary-grey-200 bg-primary-black text-primary-grey-300 max-sm:hidden">
         <Dimentions
           isEditingRef={isEditingRef}
           width={elementAttributes.width}
@@ -91,6 +91,6 @@ export const EditCanvas = ({
         <Export />
       </section>
     ),
-    [elementAttributes],
+    [elementAttributes, handleInputChange, isEditingRef],
   );
 };

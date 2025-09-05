@@ -1,11 +1,12 @@
 "use client";
+
 import { useRouter } from "next/navigation";
-import type { JSX } from "react";
-import { resetPasswordAction } from "@/actions";
-import { AuthFormComponent } from "@/components/AuthFormComponent";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { type JSX, useId } from "react";
+import { resetPasswordAction } from "../actions";
+import { AuthFormComponent } from "./AuthFormComponent";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
 
 export const ResetPasswordForm = ({
   email,
@@ -13,6 +14,9 @@ export const ResetPasswordForm = ({
   email: string;
 }): JSX.Element => {
   const router = useRouter();
+  const passwordId = useId();
+  const confirmPasswordId = useId();
+
   const handleSuccess = () => {
     router.push("/login");
   };
@@ -36,13 +40,13 @@ export const ResetPasswordForm = ({
           <div className="space-y-6">
             <div>
               <Label
-                htmlFor="password"
+                htmlFor={passwordId}
                 className="block text-sm font-medium text-gray-700"
               >
                 New Password
               </Label>
               <Input
-                id="password"
+                id={passwordId}
                 name="password"
                 type="password"
                 required
@@ -52,13 +56,13 @@ export const ResetPasswordForm = ({
             </div>
             <div>
               <Label
-                htmlFor="confirmPassword"
+                htmlFor={confirmPasswordId}
                 className="block text-sm font-medium text-gray-700"
               >
                 Confirm New Password
               </Label>
               <Input
-                id="confirmPassword"
+                id={confirmPasswordId}
                 name="confirmPassword"
                 type="password"
                 required

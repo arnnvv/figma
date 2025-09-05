@@ -42,11 +42,12 @@ export const NewThread = ({
     const newComment = (e: MouseEvent) => {
       e.preventDefault();
       if (creatingCommentState === "placed") {
-        const isClickOnComposer = ((e as any)._savedComposedPath = e
-          .composedPath()
-          .some((el: any) => {
+        (e as any)._savedComposedPath = e.composedPath();
+        const isClickOnComposer = (e as any)._savedComposedPath.some(
+          (el: any) => {
             return el.classList?.contains("lb-composer-editor-actions");
-          }));
+          },
+        );
         if (isClickOnComposer) return;
         if (!isClickOnComposer) {
           setCreatingCommentState("complete");

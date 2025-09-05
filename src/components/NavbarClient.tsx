@@ -1,7 +1,7 @@
 "use client";
 
 import { Trash2 } from "lucide-react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import type { JSX } from "react";
 import { toast } from "sonner";
 import { deleteRoomAction } from "@/actions";
@@ -11,9 +11,8 @@ export const NavbarClient = ({
   isOwner,
 }: {
   isOwner: boolean;
-}): JSX.Element => {
+}): JSX.Element | null => {
   const params = useParams();
-  const router = useRouter();
   const { roomId } = params;
 
   return roomId && isOwner ? (
@@ -22,16 +21,24 @@ export const NavbarClient = ({
       size="sm"
       className="flex items-center gap-2"
       onClick={async () => {
-        //@ts-expect-error: W T F
-        await deleteRoomAction(roomId);
-        toast.success("Deleting...");
-        router.push("/dashboard");
+        if (typeof roomId !== "string") {
+          toast.error("Invalid Room ID.");
+          return;
+        }
+
+        toast.info("Deleting room...");
+        try {
+          const result = await deleteRoomAction(roomId);
+          if (result && !result.success) {
+            toast.error(result.message);
+          }
+        } catch (_error) {
+          toast.error("An unexpected error occurred while deleting the room.");
+        }
       }}
     >
       <Trash2 size={16} />
       Delete
     </Button>
-  ) : (
-    <></>
-  );
+  ) : null;
 };

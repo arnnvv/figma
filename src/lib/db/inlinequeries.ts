@@ -164,7 +164,7 @@ export async function findSessionWithUserById_Raw(
     };
     const result: QueryResult<JoinResult> = await db.query(sql, [sessionId]);
 
-    if (result.rowCount! === 0) {
+    if (!result.rowCount) {
       return { session: null, user: null };
     }
     const row = result.rows[0];

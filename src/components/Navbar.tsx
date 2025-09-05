@@ -36,7 +36,7 @@ export const Navbar = async (): Promise<JSX.Element> => {
   const checkOwnerSql = "SELECT 1 FROM figma_rooms WHERE owner_id = $1 LIMIT 1";
   try {
     const result: QueryResult = await db.query(checkOwnerSql, [user.id]);
-    if (result.rowCount! > 0) {
+    if (result.rowCount && result.rowCount > 0) {
       isOwner = true;
     }
   } catch (error) {
@@ -82,10 +82,8 @@ export const Navbar = async (): Promise<JSX.Element> => {
             <DropdownMenuItem asChild>
               <SignOutFormComponent action={signOutAction}>
                 <Button variant="ghost" className="w-full justify-start">
-                  <>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
-                  </>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Log out</span>
                 </Button>
               </SignOutFormComponent>
             </DropdownMenuItem>

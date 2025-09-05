@@ -24,19 +24,17 @@ export const Appbar = memo(
       <nav className="flex select-none items-center justify-between gap-4 bg-primary-black px-5 text-white">
         <div className="flex-1" />
         <ul className="flex flex-row justify-center flex-1">
-          {navElements.map(
-            (item: ActiveElement | any): JSX.Element => (
-              <li
-                key={item.name}
-                onClick={() => {
-                  if (Array.isArray(item.value)) return;
-                  handleActiveElement(item);
-                }}
-                className={`group px-2.5 py-5 flex justify-center items-center
-            ${isActive(item.value) ? "bg-primary-green" : "hover:bg-primary-grey-200"}
-            `}
-              >
-                {Array.isArray(item.value) ? (
+          {navElements.map((item: ActiveElement | any): JSX.Element => {
+            const isElementActive = isActive(item.value);
+            const commonClasses =
+              "group px-2.5 py-5 flex justify-center items-center h-full";
+
+            if (Array.isArray(item.value)) {
+              return (
+                <li
+                  key={item.name}
+                  className={`${commonClasses} ${isElementActive ? "bg-primary-green" : "hover:bg-primary-grey-200"}`}
+                >
                   <ShapesMenu
                     item={item}
                     activeElement={activeElement}
@@ -44,30 +42,52 @@ export const Appbar = memo(
                     handleActiveElement={handleActiveElement}
                     handleImageUpload={handleImageUpload}
                   />
-                ) : item?.value === "comments" ? (
+                </li>
+              );
+            }
+
+            if (item.value === "comments") {
+              return (
+                <li
+                  key={item.name}
+                  className={`${commonClasses} ${isElementActive ? "bg-primary-green" : "hover:bg-primary-grey-200"}`}
+                >
                   <NewThread>
-                    <Button className="relative w-5 h-5 object-contain">
+                    <Button
+                      className="relative w-5 h-5 object-contain"
+                      onClick={() => handleActiveElement(item)}
+                    >
                       <Image
                         src={item.icon}
                         alt={item.name}
                         fill
-                        className={isActive(item.value) ? "invert" : ""}
+                        className={isElementActive ? "invert" : ""}
                       />
                     </Button>
                   </NewThread>
-                ) : (
-                  <Button className="relative w-5 h-5 object-contain">
+                </li>
+              );
+            }
+
+            return (
+              <li key={item.name}>
+                <button
+                  type="button"
+                  onClick={() => handleActiveElement(item)}
+                  className={`${commonClasses} w-full ${isElementActive ? "bg-primary-green" : "hover:bg-primary-grey-200"}`}
+                >
+                  <div className="relative w-5 h-5 object-contain">
                     <Image
                       src={item.icon}
                       alt={item.name}
                       fill
-                      className={isActive(item.value) ? "invert" : ""}
+                      className={isElementActive ? "invert" : ""}
                     />
-                  </Button>
-                )}
+                  </div>
+                </button>
               </li>
-            ),
-          )}
+            );
+          })}
         </ul>
         <div className="flex-1 flex justify-end">
           <Users />

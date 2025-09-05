@@ -2,8 +2,8 @@
 
 import { AtSign } from "lucide-react";
 import { useRouter } from "next/navigation";
-import type { JSX } from "react";
-import { changeUsernameAction } from "@/actions";
+import { type JSX, useId } from "react";
+import { changeUsernameAction } from "../actions";
 import { AuthFormComponent } from "./AuthFormComponent";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -11,6 +11,7 @@ import { Label } from "./ui/label";
 
 export const GetUsernameForm = (): JSX.Element => {
   const router = useRouter();
+  const usernameId = useId();
 
   const handleSuccess = () => {
     router.refresh();
@@ -32,13 +33,13 @@ export const GetUsernameForm = (): JSX.Element => {
           </div>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="username" className="text-black">
+              <Label htmlFor={usernameId} className="text-black">
                 Username
               </Label>
               <div className="relative">
                 <AtSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-black" />
                 <Input
-                  id="username"
+                  id={usernameId}
                   name="username"
                   type="text"
                   placeholder="Pick a username"

@@ -43,7 +43,7 @@ export default async (props: {
       roomId,
     ]);
 
-    if (result.rowCount! > 0) {
+    if (result.rowCount && result.rowCount > 0) {
       roomExists = true;
     }
   } catch (error) {
